@@ -1,10 +1,10 @@
-package carleton.sysc3303.client.connection;
+package client.connection;
 
 import java.awt.event.ActionListener;
 import java.util.*;
 
-import carleton.sysc3303.client.GameView;
-import carleton.sysc3303.client.Types;
+import client.GameView;
+import client.Types;
 
 
 /**

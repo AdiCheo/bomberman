@@ -1,7 +1,7 @@
-package carleton.sysc3303.client.connection;
+package client.connection;
 
 import java.util.EventListener;
-import carleton.sysc3303.client.Types;
+import client.Types;
 
 public abstract class ObjectCreatedListener implements EventListener
 {

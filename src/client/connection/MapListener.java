@@ -1,4 +1,4 @@
-package carleton.sysc3303.client.connection;
+package client.connection;
 
 import java.util.EventListener;
 import java.util.List;

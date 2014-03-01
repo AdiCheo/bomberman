@@ -1,11 +1,11 @@
-package carleton.sysc3303.client;
+package client;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import carleton.sysc3303.client.Window.States;
-import carleton.sysc3303.client.connection.*;
+import client.Window.States;
+import client.connection.*;
 
 public class Run
 {

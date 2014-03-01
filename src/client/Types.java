@@ -1,4 +1,4 @@
-package carleton.sysc3303.client;
+package client;
 
 public enum Types
 {

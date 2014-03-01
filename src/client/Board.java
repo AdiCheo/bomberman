@@ -1,4 +1,4 @@
-package carleton.sysc3303.client;
+package client;
 
 import java.awt.*;
 import javax.swing.JPanel;
