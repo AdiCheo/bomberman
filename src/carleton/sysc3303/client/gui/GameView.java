@@ -8,7 +8,6 @@ public class GameView extends JPanel
     private static final long serialVersionUID = -823641346290407577L;
     private Board board;
 
-
     /**
      * Constructor.
      */
