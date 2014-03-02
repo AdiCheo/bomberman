@@ -1,10 +1,13 @@
 package carleton.sysc3303.client.gui;
 
 import javax.swing.*;
+
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.Position;
 import carleton.sysc3303.common.connection.MetaMessage;
+
 import java.awt.*;
+import java.util.Map;
 
 /**
  * The primary display window.
@@ -20,6 +23,7 @@ public class Window extends JFrame
     private CardLayout layout;
     private JPanel loading_panel;
     private IConnection c;
+    private Map<Integer,Position> positions;
 
 
     /**
@@ -82,9 +86,19 @@ public class Window extends JFrame
 
         c.addPositionListener(new PositionListener() {
             @Override
-            public void move(int object, Position pos)
+            public void move(int id, Position pos)
             {
-                // TODO Auto-generated method stub
+            	if(pos.getX() < 0 || pos.getY() < 0)
+            		positions.remove(id);
+            	else {
+	                //if there's a new id, create a new element
+	            	if(!positions.containsKey(id)) {
+	            		
+	            	}
+	            	else { //if the id exists, update the position
+	            		positions.put(id, pos);
+	            	}
+            	}        	
             }
         });
 
