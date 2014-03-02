@@ -4,11 +4,11 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.lang.reflect.Constructor;
 import java.io.*;
 
-import carleton.sysc3303.server.connection.IClient;
-import carleton.sysc3303.server.connection.UDPClient;
-import carleton.sysc3303.common.connection.MoveMessage;
+import carleton.sysc3303.server.connection.*;
+import carleton.sysc3303.common.connection.*;
 
 
 public class BotClient implements Runnable
@@ -77,7 +77,7 @@ public class BotClient implements Runnable
 				m = new MoveMessage(line);//Create new message 
 				b = m.serialize().getBytes();//Convert message into bytes		
 				send = new DatagramPacket(b, b.length, c.getAddress(), c.getPort());
-				receive = new DataGramPacket(buffer,buffer_size);
+				receive =  new DatagramPacket(buffer, buffer_size);
 				
 				//Try sending message to server
 		        try
@@ -88,13 +88,14 @@ public class BotClient implements Runnable
 			        {
 			            e.printStackTrace();
 			        }
+		        
 								
 				/*
-				 * Bot then waits for PosMessage from server
-				 * Updates GUI
+				 * Bot then waits for IMessage from server
 				 */
 		        
-		        socket.receive(receive);
+		        socket.receive(receive);	
+		        parseMessage(buffer);
 				
 				//Wait half a second before processing next input
 				try
@@ -125,5 +126,45 @@ public class BotClient implements Runnable
 		
 		socket.close();
 	}
+	
+	//Parse message from the server
+	protected void parseMessage(byte[] data)
+    {
+        String[] msg = new String(data).split(":");
+        @SuppressWarnings("rawtypes")
+        Constructor c;
+        IMessage m;
+        int pid,x,y;//Used for position message
+
+        try
+        {
+            c = Class.forName(msg[0]).getConstructor(new Class[]{String.class});
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return;
+        }
+
+        try
+        {
+            m = (IMessage)c.newInstance(msg[1]);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return;
+        }
+
+        if(m instanceof PosMessage)
+        {
+        	//Parse message
+        	pid = ((PosMessage) m).getPid();
+        	x = ((PosMessage) m).getX();
+        	y = ((PosMessage) m).getY();
+        	
+        	//change GUI
+        }
+    }
 }
 
