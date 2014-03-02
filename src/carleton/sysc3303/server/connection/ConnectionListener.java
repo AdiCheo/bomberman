@@ -8,6 +8,8 @@ public abstract class ConnectionListener implements EventListener
      * Listens to new connections.
      *
      * @param c
+     * @param connected
+     * @param isSpectator
      */
-    public abstract void newConnection(IClient c, boolean connected);
+    public abstract void connectionChanged(IClient c, boolean connected, boolean isSpectator);
 }

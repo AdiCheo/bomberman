@@ -22,6 +22,7 @@ package carleton.sysc3303.server;
 
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import carleton.sysc3303.common.Position;
 import carleton.sysc3303.common.connection.*;
@@ -40,6 +41,7 @@ public class GameBoard
     private IServer server;
     private Map<Player, Position> players;
     private Queue<Character> letters;
+    private Set<IClient> spectators;
 
 
     /**
@@ -54,6 +56,7 @@ public class GameBoard
         this.server = server;
         this.players = new HashMap<Player, Position>();
         this.letters = new ArrayDeque<Character>();
+        this.spectators = new HashSet<IClient>();
 
         for(char i='a'; i<'z'; i++)
         {
@@ -75,13 +78,22 @@ public class GameBoard
 
         server.addConnectionListener(new ConnectionListener() {
             @Override
-            public void newConnection(IClient c, boolean connected)
+            public void connectionChanged(IClient c, boolean connected, boolean isSpectator)
             {
+                System.out.println(isSpectator);
+
                 synchronized(that)
                 {
                     if(connected)
                     {
-                        addPlayer(c);
+                        if(isSpectator)
+                        {
+                            newSpectator(c);
+                        }
+                        else
+                        {
+                            addPlayer(c);
+                        }
                     }
                     else
                     {
@@ -104,6 +116,18 @@ public class GameBoard
     }
 
 
+
+    /**
+     * What to do with new spectator.
+     *
+     * @param c
+     */
+    private void newSpectator(IClient c)
+    {
+        sendInitialState(c);
+    }
+
+
     /**
      * Adds a player
      *
@@ -121,40 +145,61 @@ public class GameBoard
         Position pos = getNewPosition();
         players.put(p, pos);
 
-        // send player the board
-        server.pushMessage(new MapMessage(getWalls()), c);
+        // send player the initial state
+        sendInitialState(c);
 
         // TODO: add player to board
         // getRandomStartPos();
-
-        // TODO: send player other player's posi
 
         // notify everyone of new player
         server.pushMessageAll(new PosMessage(p.getId(), pos.getX(), pos.getY()));
     }
 
 
-    private boolean[][] getWalls() {
-		// return boolean[][] with walls
-    	boolean[][] walls = new boolean[size][size];
-    	
-    	// get values from map
-    	for(int i = 0 ; i < size ; i++)
+    /**
+     * Sends everything we got to newly connected clients.
+     *
+     * @param c
+     */
+    private void sendInitialState(IClient c)
+    {
+        // send the map
+        server.pushMessage(new MapMessage(getWalls()), c);
+
+        // send everyone's current positions
+        for(Entry<Player, Position> e: players.entrySet())
+        {
+            Player p = e.getKey();
+            Position pos = e.getValue();
+            server.pushMessage(new PosMessage(p.getId(), pos.getX(), pos.getY()), c);
+        }
+    }
+
+
+    /**
+     * Returns boolean[][] with walls.
+     *
+     * @return
+     */
+    private boolean[][] getWalls()
+    {
+        boolean[][] walls = new boolean[size][size];
+
+        // get values from map
+        for(int i = 0 ; i < size ; i++)
         {
             for(int j = 0; j < size; j++)
             {
                 char c = getTile(i, j);
-                if (c == 'W')
-                	walls[i][j] = true;
-                else
-                	walls[i][j] = false;
+                walls[i][j] = c == 'W';
             }
         }
-		return walls;
-	}
+
+        return walls;
+    }
 
 
-	/**
+    /**
      * Removes a player from the game.
      *
      * @param c
