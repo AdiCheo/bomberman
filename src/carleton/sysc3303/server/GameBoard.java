@@ -1,11 +1,12 @@
+package carleton.sysc3303.server;
 /*
  * Game board legend
- * 
+ *
  * B represents a brick wall, W represents a wooden wall(can be blown up by bombs)
  * E represents the tile is empty, X represents the exit
  * O represents a bomb is presents, A represents an AI is present
  * Any lower case letter represents a player
- * 
+ *
  * 	Game board representation(n X n)
  *  0n	1n	2n	3n	4n	5n	6n	7n	...	nn
  *  ...	...	...	...	...	...	...	...	...	...
@@ -19,68 +20,86 @@
  * 	00	10	20	30	40	50	60	70	...	n0
  */
 
+
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Game_Board {
+public class GameBoard {
 
-		private char tiles[][];//n X n array
+		private char tiles[][]; //n X n array
 		private int size;
 		private ArrayList<Player> players;//Contains every player connected
 
 		//Create board random
-		//Called by the server once all players have been created
-		public Game_Board(Player one, Player two, Player three, Player four, int n)
+		public GameBoard(int s)
 		{
 			players = new ArrayList<>();
-			size = n;//n X n array
-			
+			size = s; //s X s array
+
 			//Minimum size for a game board
 			if(size < 7)
 				size = 7;
-			
+
 			//Maximum size for a game board
 			if(size > 9)
 				size = 9;
-			
+
+			randomBoardGenerator(size);
+		}
+
+		//Create board random
+		//Called by the server once all players have been created
+		public GameBoard(Player one, Player two, Player three, Player four, int n)
+		{
+			players = new ArrayList<>();
+			size = n; //n X n array
+
+			//Minimum size for a game board
+			if(size < 7)
+				size = 7;
+
+			//Maximum size for a game board
+			if(size > 9)
+				size = 9;
+
 			addPlayer(one);
 			addPlayer(two);
 			addPlayer(three);
 			addPlayer(four);
-			
+
 			randomBoardGenerator(size);
-			
+
 			//Gives players the board
 			for(int i = 0; i < 4 ; i++)
 			{
 				players.get(i).setBoard(this);
 			}
 		}
-		
+
 		//File with 1 line is read(Represented by the String board, every character represents 1 tile on the game board
 		//Called by the server once all players have been created
-		public Game_Board(String board,Player one, Player two, Player three, Player four, int n)
+		public GameBoard(String board,Player one, Player two, Player three, Player four, int n)
 		{
 			players = new ArrayList<>();
 			int x, y;//Used to add players to the board
 			size = n;
-						
+
 			//If string does no contain an exit return error, or place an exit under a wooden wall or empty none edge position
 			if(!board.contains("X"))
 			{
 				System.out.println("ERROR NO EXIT");
 				//return error
 			}
-			
+
 			//Checks the size of the string is large enough to accomodate the board
 			if(board.length() != (n*n))
 			{
 				System.out.println("Error string is not large enough");
 				//return error
 			}
-			
+
 			int p = 0;//Pivot position in the string
-			
+
 			//Create a predefined board here, where each character of the String board represents 1 tile on the game board
 			for(int i = 0; i < n ;i++)
 			{
@@ -90,34 +109,34 @@ public class Game_Board {
 					p++;
 				}
 			}
-			
+
 			//Add players to the board
 			addPlayer(one);
 			addPlayer(two);
-			
+
 			x = one.getPosition().x;
 			y = one.getPosition().y;
-			
+
 			tiles[x][y] = one.getAvatar();
-			
+
 			x = two.getPosition().x;
 			y = two.getPosition().y;
-			
-			
+
+
 			tiles[x][y] = two.getAvatar();
-						
+
 		}
-		
+
 		public char getTile(int x, int y)
 		{
 			return tiles[x][y];
 		}
-		
+
 		public void setTile(int x, int y, char c)
 		{
 			tiles[x][y] = c;
 		}
-		
+
 		//Add a player to the ArrayList
 		public void addPlayer(Player p)
 		{
@@ -126,17 +145,17 @@ public class Game_Board {
 				players.add(p);
 			}
 		}
-		
+
 		//Randomly generates a new board
 		public void randomBoardGenerator(int n)
 		{
-			//i and j are used to go through the array 
+			//i and j are used to go through the array
 			int i = 0;
 			int j = 0;
 			int counter = 0;//Counter used to count the # of walls being added to the board
 			int randomInt;//Random int to generate the board
 			Random randomGenerator = new Random();//Random generator
-			
+
 			//Initialize every position to be empty
 			for(i = 0 ; i < n ; i++)
 			{
@@ -145,7 +164,7 @@ public class Game_Board {
 					tiles[i][j] = 'E';
 				}
 			}
-			
+
 			//Add an exit
 			while(true)
 			{
@@ -155,9 +174,9 @@ public class Game_Board {
 				randomInt = randomGenerator.nextInt((n - 2) * 11);
 				j = randomInt % 10;
 				i = randomInt % 100;
-				
-				
-				
+
+
+
 				//If the position is not an edge
 				if(isAnEdge(i,j) == 5)
 				{
@@ -168,8 +187,8 @@ public class Game_Board {
 					}
 				}
 			}
-			
-			
+
+
 			//Add 2 * n Brick Walls
 			while(counter < (2 * n))
 			{
@@ -179,7 +198,7 @@ public class Game_Board {
 				randomInt = randomGenerator.nextInt((n - 2) * 11);
 				j = randomInt % 10;
 				i = j % 10;
-				
+
 				//If the position is not an edge
 				if(isAnEdge(i,j) == 5)
 				{
@@ -196,9 +215,9 @@ public class Game_Board {
 					}
 				}
 			}
-			
+
 		}
-		
+
 		//Calculate if position is exist on the game board
 		public boolean isValidPosition(int x, int y)
 		{
@@ -206,10 +225,10 @@ public class Game_Board {
 				return false;
 			if(y >= size)
 				return false;
-						
+
 			return true;
 		}
-		
+
 		//Check to see if a tile is occupied
 		public boolean isOccupied(int x,int y)
 		{
@@ -218,7 +237,7 @@ public class Game_Board {
 			else
 				return true;
 		}
-		
+
 		//Checks if two positions are adjacent to each other
 		public boolean isAdjacent(int x, int y, int x2, int y2)
 		{
@@ -226,10 +245,10 @@ public class Game_Board {
 				return true;
 			if(dif(x,x2) == 0 && dif(y,y2) == 1)
 				return true;
-						
+
 			return false;
 		}
-		
+
 		/*  First checks if player wants to move on the x-axis or the y-axis
 		 * 	Once the direction of movement is determined, check for edges
 		 *  If player is at an edge, he can only move in 1 direction (left or right) or (up or down)
@@ -241,20 +260,20 @@ public class Game_Board {
 		public boolean isMoveValid(int x,int y, int x2, int y2)
 		{
 			int edge = isAnEdge(x,y);
-			
+
 			//Checks if the 2 tiles are adjacent
 			if(!isAdjacent(x,y,x2,y2))
 			{
 				return false;
 			}
-			
+
 			//2 different x coordinate but same y coordinates, player is moving left or right
 			if(dif(x,x2) == 1)
 			{
 				if(dif(y,y2) == 0)
 				{
 					//Checks if current position is an edge
-					
+
 					//Current position is the left edge can only move right
 					if(edge % 3 == 1)
 					{
@@ -264,11 +283,11 @@ public class Game_Board {
 							if(!isOccupied(x2,y2))
 								return true;
 						}
-						
+
 						else
 							return false;
 					}
-					
+
 					//Current position is the right edge can only move left
 					if(edge % 3 == 0)
 					{
@@ -278,11 +297,11 @@ public class Game_Board {
 							if(!isOccupied(x2,y2))
 								return true;
 						}
-							
+
 						else
 							return false;
-					}									
-					
+					}
+
 					//Current position is not an edge can move left or right
 					else
 					{
@@ -292,27 +311,27 @@ public class Game_Board {
 							if(!isOccupied(x2,y2))
 								return true;
 						}
-						
+
 						if(x2 - 1 == x)
 						{
 							//Check if new position is occupied
 							if(!isOccupied(x2,y2))
 								return true;
 						}
-						
+
 						else
 							return false;
 					}
 				}
 			}
-			
+
 			//2 different y coordinates but same x coordinates, player is moving up or down
 			if(dif(y,y2) == 1)
 			{
 				if(dif(x,x2) == 0)
 				{
 					//Check for top and bottom edges
-				
+
 					//Current position is the bottom edge can only move up
 					if(edge <= 3)
 					{
@@ -322,11 +341,11 @@ public class Game_Board {
 							if(!isOccupied(x2,y2))
 								return true;
 						}
-						
+
 						else
 							return false;
 					}
-				
+
 					//Current position is the top edge can only move down
 					if(edge > 6 && edge < 10)
 					{
@@ -336,11 +355,11 @@ public class Game_Board {
 							if(!isOccupied(x2,y2))
 								return true;
 						}
-					
+
 						else
 							return false;
 					}
-				
+
 					//Current position is not an edge can move up or down
 					else
 					{
@@ -350,30 +369,30 @@ public class Game_Board {
 							if(!isOccupied(x2,y2))
 								return true;
 						}
-					
+
 						if(y2 - 1 == y)
 						{
 							//Check if new position is occupied
 							if(!isOccupied(x2,y2))
 								return true;
 						}
-					
+
 						else
-							return false;					
+							return false;
 					}
 				}
 			}
-			
+
 			//Either the difference between the x or y coordinates is bigger then 1, or both x and y coordinates
 			//have different values
 			return false;
 		}
-		
+
 		//Used to find out if a player is on an edge, and if he is what edge he is on
 		/*
 		 * 			Graphic representation of the return value, every value that is not 5 is an edge
 		 * 			1,3,7 and 9 the corners
-		 * 
+		 *
 		 * 			7	-	8	-	9
 		 * 			|				|
 		 * 			4		5		6
@@ -400,10 +419,10 @@ public class Game_Board {
 				return 8;
 			if(x == size && y == size)//Top right corner
 				return 9;
-			
+
 			return 0;//Else error
 		}
-		
+
 		//Used to get the difference between 2 numbers
 		//Used in error checking to make sure moves are only made between adjacent tiles
 		public int dif(int i, int j)
@@ -413,14 +432,14 @@ public class Game_Board {
 			else
 				return j - i;
 		}
-		
+
 		//Checks if a player found the exit
 		public void isExit(Player p)
 		{
 			int x, y;
 			x = p.getPosition().x;
 			y = p.getPosition().y;
-			
+
 			if(tiles[x][y] == 'X')
 			{
 				System.out.println(p.getName() + " has found the exit");
@@ -429,6 +448,6 @@ public class Game_Board {
 				//End the game
 			}
 		}
-		
-		
+
+
 }

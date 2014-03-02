@@ -1,3 +1,4 @@
+package carleton.sysc3303.server;
 
 public class Position 
 {

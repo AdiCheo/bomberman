@@ -1,5 +1,7 @@
+package carleton.sysc3303.server;
 //import java.awt.Color;
 import java.awt.event.*;
+
 
 public class Player implements KeyListener
 {
@@ -7,7 +9,7 @@ public class Player implements KeyListener
 	char avatar;//Players avatar on the board
 	int pNumber;//Players number, order in which he joined the game(used to determine starting position
 	//int lives;//Number of lives a player as
-	Game_Board board;//The board the player is playing on
+	GameBoard board;//The board the player is playing on
 	//Color color;//The players color
 	Position p;//The players position on the board
 	
@@ -57,7 +59,7 @@ public class Player implements KeyListener
 	}
 	
 	//Server will send players(clients) the board onces its been created
-	public void setBoard(Game_Board game)
+	public void setBoard(GameBoard game)
 	{
 		board = game; 
 	}
