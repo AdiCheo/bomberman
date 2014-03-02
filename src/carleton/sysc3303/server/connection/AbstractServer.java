@@ -1,5 +1,6 @@
 package carleton.sysc3303.server.connection;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -88,27 +89,30 @@ public abstract class AbstractServer implements IServer
      *
      * @param data
      */
-    protected DatagramPacket parseMessage(InetAddress a, int port, byte[] data)
+    protected DatagramPacket parseMessage(DatagramPacket receivePacket)
     {
+
+    	InetAddress a = receivePacket.getAddress();
+		int port = receivePacket.getPort();
+		byte[] data = receivePacket.getData();
+
         String[] msg = new String(data).split(":");
         IClient cl = null;
         @SuppressWarnings("rawtypes")
         Constructor c;
         IMessage m;
 
-        
-        if (msg[0].equalsIgnoreCase("addme"))
+        if (msg[0].equalsIgnoreCase("new"))
         {
 	        // Testing stuff
-	        byte[] sendData = new byte[1024];
 	        String response = "Added to game!";
-	        sendData = response.getBytes();
-	        
+	        byte[] sendData = response.getBytes();
+
 	        //create datagram to send to client
         	DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, a, port);
-        	return sendPacket;
+            return sendPacket;
         }
-        
+
         // sample logic for return packet
         if (true)
         {
@@ -116,13 +120,16 @@ public abstract class AbstractServer implements IServer
 	        byte[] sendData = new byte[1024];
 	        String capitalizedSentence = msg[0].toUpperCase();
 	        sendData = capitalizedSentence.getBytes();
-	        
+
 	        //create datagram to send to client
         	DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, a, port);
-        	return sendPacket;
+            return sendPacket;
         }
-        
+
         return null;
+
+
+
 //
 //        try
 //        {

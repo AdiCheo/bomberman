@@ -74,19 +74,16 @@ public class UDPServer extends AbstractServer
                 continue;
             }
 
-            DatagramPacket sendPacket = parseMessage(
-                    receivePacket.getAddress(),
-                    receivePacket.getPort(),
-                    receivePacket.getData());
+            DatagramPacket sendPacket = parseMessage(receivePacket);
             
-
             //send packet
             try {
-				serverSocket.send(sendPacket);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+    			serverSocket.send(sendPacket);
+    		} catch (IOException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+            
         }
 
 
