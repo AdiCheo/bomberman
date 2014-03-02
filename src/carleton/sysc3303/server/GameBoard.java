@@ -86,8 +86,6 @@ public class GameBoard
             @Override
             public void connectionChanged(IClient c, boolean connected, boolean isSpectator)
             {
-                System.out.println(isSpectator);
-
                 synchronized(that)
                 {
                     if(connected)
@@ -241,9 +239,7 @@ public class GameBoard
             randomX = randomGenerator.nextInt(size);
             randomY = randomGenerator.nextInt(size);
 
-        } while (isOccupied(randomX, randomY) || !isValidPosition(randomX, randomY));
-
-        System.out.println("New player pos: " + randomX + ", " + randomY);
+        } while (isOccupied(randomX, randomY));
 
         return new Position(randomX, randomY);
     }
@@ -435,18 +431,19 @@ public class GameBoard
      * @param y
      * @return
      */
-    private boolean checkPlayerPos(int x, int y) {
-    	for(Entry<Player, Position> e: players.entrySet())
+    private boolean checkPlayerPos(int x, int y)
+    {
+        for(Entry<Player, Position> e: players.entrySet())
         {
             Position pos = e.getValue();
             if (pos.getX() == x && pos.getY() == y)
-            	return false;
+                return false;
         }
-		return true;
-	}
+        return true;
+    }
 
 
-	/**
+    /**
      * Checks to see if a tile is occupied.
      *
      * @param x
@@ -455,7 +452,7 @@ public class GameBoard
      */
     public boolean isOccupied(int x, int y)
     {
-        return tiles[x][y] == 'E';
+        return tiles[x][y] != 'E';
     }
 
 
