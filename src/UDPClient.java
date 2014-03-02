@@ -22,7 +22,7 @@ class UDPClient {
 	      sendData = sentence.getBytes();
 	      sentence = ""; // reset sentence variable
 	      
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9875);
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9999);
 	      clientSocket.send(sendPacket);
 	      DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 	      clientSocket.receive(receivePacket);
