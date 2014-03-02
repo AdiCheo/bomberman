@@ -96,6 +96,20 @@ public abstract class AbstractServer implements IServer
         Constructor c;
         IMessage m;
 
+        
+        if (msg[0].equalsIgnoreCase("addme"))
+        {
+	        // Testing stuff
+	        byte[] sendData = new byte[1024];
+	        String response = "Added to game!";
+	        sendData = response.getBytes();
+	        
+	        //create datagram to send to client
+        	DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, a, port);
+        	return sendPacket;
+        }
+        
+        // sample logic for return packet
         if (true)
         {
 	        // Testing stuff
