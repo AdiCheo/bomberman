@@ -76,7 +76,7 @@ public class BotClient
             }
         });
 
-        c.queueMessage(new MetaMessage(Type.CONNECT, ""));
+        c.queueMessage(new MetaMessage(Type.CONNECT, "1"));
     }
 
 
