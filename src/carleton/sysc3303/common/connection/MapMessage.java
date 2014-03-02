@@ -23,11 +23,12 @@ public class MapMessage implements IMessage
      */
     public MapMessage(String data)
     {
-        String[] rows = data.split("|");
+        String[] rows = data.split("\\|");
         walls = new boolean[rows.length][];
 
         for(int i=0; i<rows.length; i++)
         {
+            System.out.println(rows[i]);
             walls[i] = new boolean[rows[i].length()];
 
             for(int j=0; j<rows[i].length(); j++)
