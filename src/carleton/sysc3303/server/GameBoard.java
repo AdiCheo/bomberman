@@ -234,13 +234,16 @@ public class GameBoard
         int randomY;                            //Random int
         Random randomGenerator = new Random();    //Random generator
 
-        // Check whether location is available
-         do
-         {
-	        randomX = randomGenerator.nextInt(size);
-	        randomY = randomGenerator.nextInt(size);
+        System.out.println("Getting new player pos");
+        // Find available start location
+        do
+        {
+            randomX = randomGenerator.nextInt(size);
+            randomY = randomGenerator.nextInt(size);
 
-         } while (isOccupied(randomX, randomY) || !isValidPosition(randomX, randomY))
+        } while (isOccupied(randomX, randomY) || !isValidPosition(randomX, randomY));
+
+        System.out.println("New player pos: " + randomX + ", " + randomY);
 
         return new Position(randomX, randomY);
     }
