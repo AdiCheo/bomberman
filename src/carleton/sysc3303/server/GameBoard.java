@@ -21,6 +21,7 @@ package carleton.sysc3303.server;
  */
 
 
+import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -32,8 +33,6 @@ import carleton.sysc3303.server.connection.*;
 
 public class GameBoard
 {
-    public static final int MIN_SIZE = 7;
-    public static final int MAX_SIZE = 9;
     public static final int MAX_PLAYERS = 4;
 
     private char tiles[][];
@@ -51,36 +50,82 @@ public class GameBoard
      */
     public GameBoard(IServer server, int size)
     {
-        this.size = Math.min(Math.max(size, MIN_SIZE), MAX_SIZE);
-        this.server = server;
-        this.players = new HashMap<Player, Position>();
-        this.letters = new ArrayDeque<Character>();
-
-        for(char i='a'; i<'z'; i++)
+        char[][] tmp = new char[size][size];
+        for(int i=0; i<size; i++)
         {
-            letters.add(i);
+            for(int j=0; j<size; j++)
+            {
+                tmp[i][j] = 'E';
+            }
         }
 
-        init();
+        init(server, tmp);
+    }
+
+
+    /**
+     * Alternative constructor.
+     *
+     * @param server
+     * @param tiles
+     */
+    public GameBoard(IServer server, char[][] tiles)
+    {
+        init(server, tiles);
+    }
+
+
+    /**
+     * File constructor.
+     *
+     * @param server
+     * @param map
+     * @throws IOException
+     */
+    public GameBoard(IServer server, File map) throws IOException
+    {
+        BufferedReader reader = new BufferedReader(new FileReader(map));
+        String line;
+        ArrayList<char[]> tmp = new ArrayList<char[]>();
+
+        while((line = reader.readLine()) != null)
+        {
+            line = line.trim();
+
+            if(line.length() == 0)
+            {
+                continue;
+            }
+
+            tmp.add(line.toCharArray());
+        }
+
+        reader.close();
+        init(server, tmp.toArray(new char[][]{}));
     }
 
 
     /**
      * Initializes the data and hook into the server.
+     *
+     * @param server
+     * @param tiles
      */
-    private void init()
+    private void init(IServer server, char[][] tiles)
     {
-        tiles = new char[size][size];
-        final Object that = this;
-        //randomBoardGenerator(size);
+        this.size = tiles.length;
+        this.server = server;
+        this.players = new HashMap<Player, Position>();
+        this.letters = new ArrayDeque<Character>();
+        this.tiles = tiles;
 
-        for(int i=0; i<size; i++)
-        {
-            for(int j=0; j<size; j++)
-            {
-                tiles[i][j] = 'E';
-            }
-        }
+        hookEvents();
+    }
+
+
+    private void hookEvents()
+    {
+        final Object that = this;
 
         server.addConnectionListener(new ConnectionListener() {
             @Override
@@ -194,7 +239,7 @@ public class GameBoard
             for(int j = 0; j < size; j++)
             {
                 char c = getTile(i, j);
-                walls[i][j] = c == 'W';
+                walls[i][j] = c == 'B';
             }
         }
 
