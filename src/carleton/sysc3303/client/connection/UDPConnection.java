@@ -3,6 +3,7 @@ package carleton.sysc3303.client.connection;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.*;
+import java.util.LinkedList;
 
 import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
 import carleton.sysc3303.common.Position;
@@ -25,8 +26,12 @@ public class UDPConnection extends AbstractConnection
     public UDPConnection(InetAddress address, int ip)
     {
         super();
+
         this.address = address;
         this.ip = ip;
+        this.mapListeners = new LinkedList<MapListener>();
+        this.connectionListeners = new LinkedList<ConnectionStatusListener>();
+        this.positionListeners = new LinkedList<PositionListener>();
     }
 
 
@@ -46,10 +51,10 @@ public class UDPConnection extends AbstractConnection
         run = true;
 
         super.run();
-        byte[] buffer = new byte[1000];
 
         while(run)
         {
+            byte[] buffer = new byte[1000];
             DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
             try
             {

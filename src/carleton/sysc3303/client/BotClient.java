@@ -8,139 +8,103 @@ import java.lang.reflect.Constructor;
 import java.io.*;
 
 import carleton.sysc3303.server.connection.*;
+import carleton.sysc3303.client.connection.*;
+import carleton.sysc3303.common.Position;
 import carleton.sysc3303.common.connection.*;
+import carleton.sysc3303.common.connection.MetaMessage.Type;
+import carleton.sysc3303.common.connection.MoveMessage.Direction;
 
 
-public class BotClient implements Runnable
+public class BotClient
 {
-	private File commandList;
-	private IClient c;
-	private int buffer_size;
-	private byte buffer[];
-		
-	public BotClient(File command, DatagramSocket server, int id, InetAddress address, int port, int buffer_size)
-	{
-		commandList = command;
-		c = new UDPClient(server, id, address, port);
-		this.buffer_size = buffer_size;
-		this.buffer = new byte[buffer_size];
-	}
-	
-	//Get method
-	public IClient getClient()
-	{
-		return c;
-	}
-	
-	public File getCommand()
-	{
-		return commandList;
-	}
-	
-	//Run method
-	public void run()
-	{
-		String line;
-		BufferedReader reader;
-		DatagramPacket send,receive;
-		byte[] b;
-		MoveMessage m;
-		DatagramSocket socket;
-		
-		try
-        {
-            socket = new DatagramSocket();
-        }
-        catch (SocketException e)
-        {
-            e.printStackTrace();
-            return;
-        }
-		
-		//Initialize reader
-		try
-		{
-			reader = new BufferedReader(new FileReader(commandList));
-		}
-			catch(FileNotFoundException e)
-			{
-            	e.printStackTrace();
-            	socket.close();
-            	return;
-			}
-		
-		try
-		{
-			//Read lines
-			while((line = reader.readLine()) != null)
-			{
-				m = new MoveMessage(line);//Create new message 
-				b = m.serialize().getBytes();//Convert message into bytes		
-				send = new DatagramPacket(b, b.length, c.getAddress(), c.getPort());
-				receive =  new DatagramPacket(buffer, buffer_size);
-				
-				//Try sending message to server
-		        try
-		        {
-		            socket.send(send);
-		        }
-		        	catch (IOException e)
-			        {
-			            e.printStackTrace();
-			        }
-		        
-								
-				/*
-				 * Bot then waits for IMessage from server
-				 */
-		        
-		        socket.receive(receive);	
-		        parseMessage(buffer);
-				
-				//Wait half a second before processing next input
-				try
-				{
-					Thread.sleep(500);
-				}
-					catch(InterruptedException e)
-					{
-						Thread.currentThread().interrupt();
-					}							
-			}
-		}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-				return;
-			}
-		
-		//Close reader
-		try
-		{
-			reader.close();
-		}
-			catch(IOException e)
-			{
-				e.printStackTrace();	
-			}
-		
-		socket.close();
-	}
-	
-	//Parse message from the server
-	protected void parseMessage(byte[] data)
+    private File commandList;
+    private IConnection c;
+    private boolean run;
+    private int delay;
+
+
+    /**
+     * Constructor.
+     *
+     * @param c
+     * @param command
+     */
+    public BotClient(IConnection c, File command, int delay)
     {
-        String[] msg = new String(data).split(":");
-        @SuppressWarnings("rawtypes")
-        Constructor c;
-        IMessage m;
-        int pid,x,y;//Used for position message
+        this.commandList = command;
+        this.c = c;
+        this.delay = delay;
+        this.run = false;
+
+        init();
+    }
+
+
+    /**
+     * Initializes the bot and hook into the server.
+     */
+    private void init()
+    {
+        final Object that = this;
+
+        c.addConnectionStatusListener(new ConnectionStatusListener() {
+            @Override
+            public void statusChanged(State s)
+            {
+                synchronized(that)
+                {
+                    run = s == State.CONNECTED;
+                }
+
+                start();
+            }
+        });
+
+        c.addMapListener(new MapListener() {
+            @Override
+            public void newMap(boolean[][] walls)
+            {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        c.addPositionListener(new PositionListener() {
+            @Override
+            public void move(int object, Position pos)
+            {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        c.queueMessage(new MetaMessage(Type.CONNECT, ""));
+    }
+
+
+    /**
+     * Checks if bot is running.
+     *
+     * @return
+     */
+    public synchronized boolean isRunning()
+    {
+        return run;
+    }
+
+
+    /**
+     * Start executing moves.
+     */
+    public void start()
+    {
+        String line;
+        BufferedReader reader;
+        MoveMessage m;
 
         try
         {
-            c = Class.forName(msg[0]).getConstructor(new Class[]{String.class});
+            reader = new BufferedReader(new FileReader(commandList));
         }
-        catch (Exception e)
+        catch(FileNotFoundException e)
         {
             e.printStackTrace();
             return;
@@ -148,22 +112,29 @@ public class BotClient implements Runnable
 
         try
         {
-            m = (IMessage)c.newInstance(msg[1]);
+            //Read lines
+            while(isRunning() && (line = reader.readLine()) != null)
+            {
+                m = new MoveMessage(Direction.valueOf(line.trim()));
+                c.queueMessage(m);
+                Thread.sleep(delay);
+            }
         }
         catch (Exception e)
         {
+            // TODO: don't do a catch-all
             e.printStackTrace();
-            return;
         }
-
-        if(m instanceof PosMessage)
+        finally
         {
-        	//Parse message
-        	pid = ((PosMessage) m).getPid();
-        	x = ((PosMessage) m).getX();
-        	y = ((PosMessage) m).getY();
-        	
-        	//change GUI
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 }

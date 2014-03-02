@@ -15,9 +15,9 @@ import carleton.sysc3303.common.connection.IMessage;
  */
 public abstract class AbstractConnection implements IConnection
 {
-    private List<PositionListener> positionListeners;
-    private List<MapListener> mapListeners;
-    private List<ConnectionStatusListener> connectionListeners;
+    protected List<PositionListener> positionListeners;
+    protected List<MapListener> mapListeners;
+    protected List<ConnectionStatusListener> connectionListeners;
     protected LinkedBlockingQueue<IMessage> messageQueue;
     protected boolean run;
 

@@ -12,7 +12,6 @@ public class UDPServer extends AbstractServer
     private int port;
     private boolean run = false;
     private int buffer_size;
-    private byte[] buffer;
     private int connection_counter;
     private DatagramSocket serverSocket;
 
@@ -42,7 +41,6 @@ public class UDPServer extends AbstractServer
     {
         this.port = port;
         this.buffer_size = buffer_size;
-        this.buffer = new byte[buffer_size];
     }
 
 
@@ -65,6 +63,7 @@ public class UDPServer extends AbstractServer
 
         while(stillRunning())
         {
+            byte[] buffer = new byte[buffer_size];
             receivePacket = new DatagramPacket(buffer, buffer_size);
 
             try
