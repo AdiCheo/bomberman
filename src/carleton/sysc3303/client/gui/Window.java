@@ -3,7 +3,7 @@ package carleton.sysc3303.client.gui;
 import javax.swing.*;
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.Position;
-
+import carleton.sysc3303.common.connection.MetaMessage;
 import java.awt.*;
 
 /**
@@ -16,7 +16,7 @@ public class Window extends JFrame
     public enum States { LOADING, GAME };
 
     private static final long serialVersionUID = 7088369983891361413L;
-    private Component ui;
+    private GameView ui;
     private CardLayout layout;
     private JPanel loading_panel;
     private IConnection c;
@@ -75,7 +75,8 @@ public class Window extends JFrame
             @Override
             public void newMap(boolean[][] walls)
             {
-                // TODO Auto-generated method stub
+                ui.setMap(walls);
+                setDisplay(States.GAME);
             }
         });
 
@@ -86,6 +87,8 @@ public class Window extends JFrame
                 // TODO Auto-generated method stub
             }
         });
+
+        c.queueMessage(new MetaMessage(MetaMessage.Type.CONNECT, "0"));
     }
 
 

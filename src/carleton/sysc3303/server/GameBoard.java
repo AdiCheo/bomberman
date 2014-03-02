@@ -41,7 +41,6 @@ public class GameBoard
     private IServer server;
     private Map<Player, Position> players;
     private Queue<Character> letters;
-    private Set<IClient> spectators;
 
 
     /**
@@ -56,7 +55,6 @@ public class GameBoard
         this.server = server;
         this.players = new HashMap<Player, Position>();
         this.letters = new ArrayDeque<Character>();
-        this.spectators = new HashSet<IClient>();
 
         for(char i='a'; i<'z'; i++)
         {
@@ -75,6 +73,14 @@ public class GameBoard
         tiles = new char[size][size];
         final Object that = this;
         //randomBoardGenerator(size);
+
+        for(int i=0; i<size; i++)
+        {
+            for(int j=0; j<size; j++)
+            {
+                tiles[i][j] = 'E';
+            }
+        }
 
         server.addConnectionListener(new ConnectionListener() {
             @Override
