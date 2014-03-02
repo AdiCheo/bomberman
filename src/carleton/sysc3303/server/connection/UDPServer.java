@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.*;
 import java.util.*;
 
+import carleton.sysc3303.common.connection.MetaMessage;
+import carleton.sysc3303.common.connection.MetaMessage.Type;
+
 public class UDPServer extends AbstractServer
 {
     private int port;
@@ -110,5 +113,7 @@ public class UDPServer extends AbstractServer
         Pair<InetAddress, Integer> key = new Pair<InetAddress, Integer>(ip, port);
         IClient c = new UDPClient(serverSocket, connection_counter++, ip, port);
         clients.put(key, c);
+        pushMessage(new MetaMessage(Type.ACCEPT, ""+c.getId()), c);
+        invokeConnectionListeners(c, true);
     }
 }

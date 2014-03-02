@@ -57,11 +57,11 @@ public abstract class AbstractServer implements IServer
      *
      * @param c
      */
-    protected void invokeConnectionListeners(IClient c)
+    protected void invokeConnectionListeners(IClient c, boolean connected)
     {
         for(ConnectionListener cl: connectionListeners)
         {
-            cl.newConnection(c);
+            cl.newConnection(c, connected);
         }
     }
 
@@ -118,10 +118,11 @@ public abstract class AbstractServer implements IServer
         try
         {
             cl = getClient(a, port);
+            System.out.println("Message from known client");
         }
         catch(Exception e)
         {
-            e.printStackTrace();
+            System.out.println("Message from new client");
         }
 
 
@@ -178,6 +179,8 @@ public abstract class AbstractServer implements IServer
     {
         Pair<InetAddress, Integer> tmp = new Pair<InetAddress, Integer>(cl.getAddress(), cl.getPort());
         clients.remove(tmp);
+        invokeConnectionListeners(cl, false);
+        System.out.println("Client disconnected");
     }
 
 
@@ -225,6 +228,22 @@ public abstract class AbstractServer implements IServer
         public int hashCode()
         {
             return left.hashCode() ^ right.hashCode();
+        }
+
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (!(obj instanceof Pair))
+            {
+                return false;
+            }
+            if (this == obj)
+            {
+                return true;
+            }
+
+            return left.equals(((Pair) obj).left) && right.equals(((Pair) obj).right);
         }
     }
 }

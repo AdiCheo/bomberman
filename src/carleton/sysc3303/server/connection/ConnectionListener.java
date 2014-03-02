@@ -9,5 +9,5 @@ public abstract class ConnectionListener implements EventListener
      *
      * @param c
      */
-    public abstract void newConnection(IClient c);
+    public abstract void newConnection(IClient c, boolean connected);
 }
