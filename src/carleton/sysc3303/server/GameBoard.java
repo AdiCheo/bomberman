@@ -235,14 +235,12 @@ public class GameBoard
         Random randomGenerator = new Random();    //Random generator
 
         // Check whether location is available
-         while(true)
+         do
          {
 	        randomX = randomGenerator.nextInt(size);
 	        randomY = randomGenerator.nextInt(size);
 
-	         if (!isOccupied(randomX, randomY))
-	             break;
-         }
+         } while (isOccupied(randomX, randomY) || !isValidPosition(randomX, randomY))
 
         return new Position(randomX, randomY);
     }
