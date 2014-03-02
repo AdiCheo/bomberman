@@ -1,8 +1,6 @@
 package carleton.sysc3303.server.connection;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.util.*;
 import carleton.sysc3303.common.connection.*;
@@ -89,34 +87,36 @@ public abstract class AbstractServer implements IServer
      *
      * @param data
      */
-    protected DatagramPacket parseMessage(DatagramPacket receivePacket)
+    protected void parseMessage(InetAddress a, int port, byte[] data)
     {
-
-    	InetAddress a = receivePacket.getAddress();
-		int port = receivePacket.getPort();
-		byte[] data = receivePacket.getData();
-
         String[] msg = new String(data).split(":");
         IClient cl = null;
         @SuppressWarnings("rawtypes")
         Constructor c;
         IMessage m;
 
-        if (msg[0].equalsIgnoreCase("new"))
+        try
         {
-	        // Testing stuff
-	        String response = "Added to game!";
-	        byte[] sendData = response.getBytes();
-
-	        //create datagram to send to client
-        	DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, a, port);
-            return sendPacket;
+            c = Class.forName(msg[0]).getConstructor(new Class[]{String.class});
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return;
         }
 
-        // sample logic for return packet
-        if (true)
+        try
         {
+            m = (IMessage)c.newInstance(msg[1]);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return;
+        }
 
+        try
+        {
             cl = getClient(a, port);
             System.out.println("Message from known client");
         }
@@ -125,50 +125,16 @@ public abstract class AbstractServer implements IServer
             System.out.println("Message from new client");
         }
 
-        return null;
 
-
-
-//
-//        try
-//        {
-//            c = Class.forName(msg[0]).getConstructor(new Class[]{String.class});
-//        }
-//        catch (Exception e)
-//        {
-//            e.printStackTrace();
-//            return;
-//        }
-//
-//        try
-//        {
-//            m = (IMessage)c.newInstance(msg[1]);
-//        }
-//        catch (Exception e)
-//        {
-//            e.printStackTrace();
-//            return;
-//        }
-//
-//        try
-//        {
-//            cl = getClient(a, port);
-//        }
-//        catch(Exception e)
-//        {
-//            e.printStackTrace();
-//        }
-//
-//
-//        if(m instanceof MetaMessage)
-//        {
-//            parseMeta(cl, (MetaMessage)m, a, port);
-//            return;
-//        }
-//        else if(cl != null)
-//        {
-//            invokeMessageListener(cl, m);
-//        }
+        if(m instanceof MetaMessage)
+        {
+            parseMeta(cl, (MetaMessage)m, a, port);
+            return;
+        }
+        else if(cl != null)
+        {
+            invokeMessageListener(cl, m);
+        }
     }
 
 

@@ -1,6 +1,5 @@
 package carleton.sysc3303.client;
 
-
 import java.net.*;
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage;
@@ -8,7 +7,6 @@ import carleton.sysc3303.common.connection.MetaMessage.Type;
 
 public class Run
 {
-
     /**
      * Application entry point.
      *
