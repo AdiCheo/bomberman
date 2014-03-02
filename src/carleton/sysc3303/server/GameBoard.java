@@ -28,12 +28,12 @@ public class GameBoard {
 
 		private char tiles[][]; //n X n array
 		private int size;
-		private ArrayList<Player> players;//Contains every player connected
+//		private ArrayList<Player> players;//Contains every player connected
 
 		//Create board random
 		public GameBoard(int s)
 		{
-			players = new ArrayList<>();
+//			players = new ArrayList<>();
 			size = s; //s X s array
 
 			//Minimum size for a game board
@@ -44,14 +44,16 @@ public class GameBoard {
 			if(size > 9)
 				size = 9;
 
-			randomBoardGenerator(size);
+			tiles = new char[size][size];
+			
+//			randomBoardGenerator(size);
 		}
 
 		//Create board random
 		//Called by the server once all players have been created
 		public GameBoard(Player one, Player two, Player three, Player four, int n)
 		{
-			players = new ArrayList<>();
+//			players = new ArrayList<>();
 			size = n; //n X n array
 
 			//Minimum size for a game board
@@ -61,6 +63,8 @@ public class GameBoard {
 			//Maximum size for a game board
 			if(size > 9)
 				size = 9;
+			
+			tiles = new char[size][size];
 
 			addPlayer(one);
 			addPlayer(two);
@@ -69,18 +73,18 @@ public class GameBoard {
 
 			randomBoardGenerator(size);
 
-			//Gives players the board
-			for(int i = 0; i < 4 ; i++)
-			{
-				players.get(i).setBoard(this);
-			}
+//			//Gives players the board
+//			for(int i = 0; i < 4 ; i++)
+//			{
+//				players.get(i).setBoard(this);
+//			}
 		}
 
 		//File with 1 line is read(Represented by the String board, every character represents 1 tile on the game board
 		//Called by the server once all players have been created
 		public GameBoard(String board,Player one, Player two, Player three, Player four, int n)
 		{
-			players = new ArrayList<>();
+//			players = new ArrayList<>();
 			int x, y;//Used to add players to the board
 			size = n;
 
@@ -142,7 +146,7 @@ public class GameBoard {
 		{
 			if(p != null)
 			{
-				players.add(p);
+//				players.add(p);
 			}
 		}
 
@@ -161,7 +165,8 @@ public class GameBoard {
 			{
 				for(j = 0; j < n; j++)
 				{
-					tiles[i][j] = 'E';
+					char e = 'E';
+					setTile(i, j, e);
 				}
 			}
 
