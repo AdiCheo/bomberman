@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.*;
 
-import carleton.sysc3303.common.connection.IMessage;
-import carleton.sysc3303.common.connection.MetaMessage;
+import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
+import carleton.sysc3303.common.Position;
+import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
 
-public class TestUDPConnection extends AbstractConnection
+public class UDPConnection extends AbstractConnection
 {
     private InetAddress address;
     private int ip;
@@ -21,7 +22,7 @@ public class TestUDPConnection extends AbstractConnection
      * @param address
      * @param ip
      */
-    public TestUDPConnection(InetAddress address, int ip)
+    public UDPConnection(InetAddress address, int ip)
     {
         super();
         this.address = address;
@@ -55,7 +56,8 @@ public class TestUDPConnection extends AbstractConnection
                 socket.receive(receivePacket);
                 System.out.println(new String(receivePacket.getData()));
                 parseMessage(receivePacket.getData());
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 e.printStackTrace();
             }
@@ -63,6 +65,11 @@ public class TestUDPConnection extends AbstractConnection
     }
 
 
+    /**
+     * Parse a message from the server.
+     *
+     * @param data
+     */
     protected void parseMessage(byte[] data)
     {
         String[] msg = new String(data).split(":");
@@ -90,21 +97,47 @@ public class TestUDPConnection extends AbstractConnection
             return;
         }
 
-        if(m instanceof MetaMessage)
+        processMessage(m);
+    }
+
+
+    /**
+     * Process message and invoke the relevant events.
+     *
+     * @param m
+     */
+    private void processMessage(IMessage m)
+    {
+        if(m instanceof MapMessage)
+        {
+            MapMessage mm = (MapMessage)m;
+            invokeMapListeners(mm.getWalls());
+        }
+        else if(m instanceof PosMessage)
+        {
+            PosMessage pm = (PosMessage)m;
+            invokePositionListeners(pm.getPid(), new Position(pm.getX(), pm.getY()));
+        }
+        else if(m instanceof MetaMessage)
         {
             MetaMessage mm = (MetaMessage)m;
 
-            if(mm.getStatus() == Type.ACCEPT)
+            switch(mm.getStatus())
             {
-                System.out.println("Successfully connected");
-                System.out.println("Disconnecting...");
-                queueMessage(new MetaMessage(Type.DISCONNECT, "bye"));
-                run = false;
-                return;
+            case ACCEPT:
+                this.invokeConnectionStatusListeners(State.CONNECTED);
+                break;
+            case DISCONNECT:
+            case REJECT:
+                this.invokeConnectionStatusListeners(State.DISCONNECTED);
+                break;
+            case PING:
+                this.queueMessage(new MetaMessage(Type.PONG, ""));
+                break;
+            default:
+                // TODO: add more
             }
         }
-
-        System.out.println("Received garbage.");
     }
 
 

@@ -1,6 +1,5 @@
 package carleton.sysc3303.client.connection;
 
-import java.awt.event.ActionListener;
 import carleton.sysc3303.common.connection.IMessage;
 
 /**
