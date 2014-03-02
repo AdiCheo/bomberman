@@ -118,26 +118,26 @@ public class GameBoard
         }
 
         Player p = new Player(c.getId(), letters.remove());
+
+        // new player position
         Position pos = getNewPosition();
         players.put(p, pos);
 
         // send player the board
         server.pushMessage(new MapMessage(getWalls()), c);
 
-        // TODO: add player to board
-        // getRandomStartPos();
-
-        // TODO: send player other player's posi
-
         // notify everyone of new player
         server.pushMessageAll(new PosMessage(p.getId(), pos.getX(), pos.getY()));
+
+        // TODO: send player other player's positions
+
     }
 
 
     private boolean[][] getWalls() {
 		// return boolean[][] with walls
     	boolean[][] walls = new boolean[size][size];
-    	
+
     	// get values from map
     	for(int i = 0 ; i < size ; i++)
         {
