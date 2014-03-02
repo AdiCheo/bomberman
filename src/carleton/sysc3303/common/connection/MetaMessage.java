@@ -46,7 +46,7 @@ public class MetaMessage implements IMessage
     {
         String[] args = data.split(",");
         this.type = Type.valueOf(args[0]);
-        this.message = args[1];
+        this.message = args.length == 1 ? "" : args[1];
     }
 
 

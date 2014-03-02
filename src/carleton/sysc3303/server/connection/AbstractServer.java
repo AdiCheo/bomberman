@@ -89,8 +89,7 @@ public abstract class AbstractServer implements IServer
      */
     protected void parseMessage(InetAddress a, int port, byte[] data)
     {
-        String[] msg = new String(data).split(":");
-        msg[1] = msg[1].trim();
+        String[] msg = new String(data).trim().split(":");
         IClient cl = null;
         @SuppressWarnings("rawtypes")
         Constructor c;

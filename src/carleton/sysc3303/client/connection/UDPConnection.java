@@ -77,7 +77,8 @@ public class UDPConnection extends AbstractConnection
      */
     protected void parseMessage(byte[] data)
     {
-        String[] msg = new String(data).split(":");
+        String[] msg = new String(data).trim().split(":");
+
         @SuppressWarnings("rawtypes")
         Constructor c;
         IMessage m;
