@@ -238,6 +238,7 @@ public class GameBoard
         {
             randomX = randomGenerator.nextInt(size);
             randomY = randomGenerator.nextInt(size);
+            System.out.println("Try: " + randomX + ", " + randomY);
 
         } while (isOccupied(randomX, randomY));
 
