@@ -2,21 +2,19 @@ package carleton.sysc3303.common.connection;
 
 public class MoveMessage implements IMessage
 {
-    private int pid, x, y;
+    public enum Direction { UP, RIGHT, DOWN, LEFT };
+
+    private Direction dir;
 
 
     /**
      * Constructor.
      *
-     * @param pid	The player's id.
-     * @param x		X-coordinate
-     * @param y		Y-coordinate
+     * @param dir
      */
-    public MoveMessage(int pid, int x, int y)
+    public MoveMessage(Direction dir)
     {
-        this.pid = pid;
-        this.x = x;
-        this.y = y;
+        this.dir = dir;
     }
 
 
@@ -27,50 +25,13 @@ public class MoveMessage implements IMessage
      */
     public MoveMessage(String data)
     {
-        String[] args = data.split(",");
-
-        this.pid = Integer.parseInt(args[0]);
-        this.x = Integer.parseInt(args[1]);
-        this.y = Integer.parseInt(args[2]);
-    }
-
-
-    /**
-     * Gets the player's id.
-     *
-     * @return
-     */
-    public int getPid()
-    {
-        return pid;
-    }
-
-
-    /**
-     * Gets the player's X-coordinate.
-     *
-     * @return
-     */
-    public int getX()
-    {
-        return x;
-    }
-
-
-    /**
-     * Gets the player's Y-coordinate.
-     *
-     * @return
-     */
-    public int getY()
-    {
-        return y;
+        this.dir = Direction.valueOf(data);
     }
 
 
     @Override
     public String serialize()
     {
-        return pid + "," + x + "," + y;
+        return dir.toString();
     }
 }
