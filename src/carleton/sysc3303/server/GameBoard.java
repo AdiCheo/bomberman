@@ -161,9 +161,6 @@ public class GameBoard
 
         // notify everyone of new player
         server.pushMessageAll(new PosMessage(p.getId(), pos.getX(), pos.getY()));
-
-        // TODO: send player other player's positions
-
     }
 
 
