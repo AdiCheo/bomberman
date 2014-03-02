@@ -1,27 +1,21 @@
 package carleton.sysc3303.client.connection;
 
 import java.awt.event.ActionListener;
+import carleton.sysc3303.common.connection.IMessage;
 
 /**
  * Interface that represents a connection to the server.
  *
  * @author Kirill Stepanov.
  */
-public interface IConnection
+public interface IConnection extends Runnable
 {
     /**
-     * Adds a listener for character/enemy movements.
+     * Adds a listener for character/enemy positions.
      *
      * @param e
      */
-    public void addMoveListener(MoveListener e);
-
-    /**
-     * Adds a listener that listens for newly created characters/enemies.
-     *
-     * @param e
-     */
-    public void addObjectCreatedListener(ObjectCreatedListener e);
+    public void addPositionListener(PositionListener e);
 
 
     /**
@@ -34,18 +28,16 @@ public interface IConnection
 
     /**
      * Adds a listener that listens for connectivity.
-     * This and the following method should be changed
-     * to a single one that emits an ENUM, probably.
      *
      * @param e
      */
-    public void addConnectedListener(ActionListener e);
+    public void addConnectionStatusListener(ConnectionStatusListener e);
 
 
     /**
-     * Adds a listener that listens for lack of connectivity.
+     * Sends a message to the server.
      *
-     * @param e
+     * @param m
      */
-    public void addDisconnectedListener(ActionListener e);
+    public void queueMessage(IMessage m);
 }

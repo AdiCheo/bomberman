@@ -59,11 +59,11 @@ public abstract class AbstractServer implements IServer
      *
      * @param c
      */
-    protected void invokeConnectionListeners(IClient c)
+    protected void invokeConnectionListeners(IClient c, boolean connected)
     {
         for(ConnectionListener cl: connectionListeners)
         {
-            cl.newConnection(c);
+            cl.newConnection(c, connected);
         }
     }
 
@@ -116,14 +116,13 @@ public abstract class AbstractServer implements IServer
         // sample logic for return packet
         if (true)
         {
-	        // Testing stuff
-	        byte[] sendData = new byte[1024];
-	        String capitalizedSentence = msg[0].toUpperCase();
-	        sendData = capitalizedSentence.getBytes();
 
-	        //create datagram to send to client
-        	DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, a, port);
-            return sendPacket;
+            cl = getClient(a, port);
+            System.out.println("Message from known client");
+        }
+        catch(Exception e)
+        {
+            System.out.println("Message from new client");
         }
 
         return null;
@@ -214,6 +213,8 @@ public abstract class AbstractServer implements IServer
     {
         Pair<InetAddress, Integer> tmp = new Pair<InetAddress, Integer>(cl.getAddress(), cl.getPort());
         clients.remove(tmp);
+        invokeConnectionListeners(cl, false);
+        System.out.println("Client disconnected");
     }
 
 
@@ -261,6 +262,22 @@ public abstract class AbstractServer implements IServer
         public int hashCode()
         {
             return left.hashCode() ^ right.hashCode();
+        }
+
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (!(obj instanceof Pair))
+            {
+                return false;
+            }
+            if (this == obj)
+            {
+                return true;
+            }
+
+            return left.equals(((Pair) obj).left) && right.equals(((Pair) obj).right);
         }
     }
 }
