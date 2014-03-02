@@ -96,46 +96,53 @@ public class BotClient
      */
     public void start()
     {
-        String line;
-        BufferedReader reader;
-        MoveMessage m;
+        new Thread(new Runnable() {
+            @Override
+            public void run()
+            {
+                String line;
+                BufferedReader reader;
+                MoveMessage m;
 
-        try
-        {
-            reader = new BufferedReader(new FileReader(commandList));
-        }
-        catch(FileNotFoundException e)
-        {
-            e.printStackTrace();
-            return;
-        }
+                try
+                {
+                    reader = new BufferedReader(new FileReader(commandList));
+                }
+                catch(FileNotFoundException e)
+                {
+                    e.printStackTrace();
+                    return;
+                }
 
-        try
-        {
-            //Read lines
-            while(isRunning() && (line = reader.readLine()) != null)
-            {
-                m = new MoveMessage(Direction.valueOf(line.trim()));
-                c.queueMessage(m);
-                Thread.sleep(delay);
+                try
+                {
+                    //Read lines
+                    while(isRunning() && (line = reader.readLine()) != null)
+                    {
+                        m = new MoveMessage(Direction.valueOf(line.trim()));
+                        c.queueMessage(m);
+                        Thread.sleep(delay);
+                    }
+                }
+                catch (Exception e)
+                {
+                    // TODO: don't do a catch-all
+                    e.printStackTrace();
+                }
+                finally
+                {
+                    try
+                    {
+                        reader.close();
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
             }
-        }
-        catch (Exception e)
-        {
-            // TODO: don't do a catch-all
-            e.printStackTrace();
-        }
-        finally
-        {
-            try
-            {
-                reader.close();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
+        }).start();
+
     }
 }
 
