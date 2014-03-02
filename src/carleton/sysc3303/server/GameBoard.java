@@ -234,12 +234,15 @@ public class GameBoard
         int randomY;                            //Random int
         Random randomGenerator = new Random();    //Random generator
 
-        // TODO: Check whether location is available
-        // while(true)
-        randomX = randomGenerator.nextInt(size);
-        randomY = randomGenerator.nextInt(size);
-        // if (acceptablePos(randomX, randomY))
-        //     break;
+        // Check whether location is available
+         while(true)
+         {
+	        randomX = randomGenerator.nextInt(size);
+	        randomY = randomGenerator.nextInt(size);
+	        
+	         if (isValidPosition(randomX, randomY))
+	             break;
+         }
 
         return new Position(randomX, randomY);
     }
@@ -421,11 +424,28 @@ public class GameBoard
      */
     public boolean isValidPosition(int x, int y)
     {
-        return x >= 0 && x <= size && y >= 0 && y <= size;
+        return x >= 0 && x <= size && y >= 0 && y <= size && checkPlayerPos(x, y);
     }
 
-
     /**
+     * Checks if any player is on tile[x][y].
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    private boolean checkPlayerPos(int x, int y) {
+    	for(Entry<Player, Position> e: players.entrySet())
+        {
+            Position pos = e.getValue();
+            if (pos.getX() == x && pos.getY() == y)
+            	return false;
+        }
+		return true;
+	}
+
+
+	/**
      * Checks to see if a tile is occupied.
      *
      * @param x
