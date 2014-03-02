@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
+import carleton.sysc3303.common.Position;
 import carleton.sysc3303.common.connection.IMessage;
 
 

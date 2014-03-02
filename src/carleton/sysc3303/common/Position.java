@@ -1,4 +1,4 @@
-package carleton.sysc3303.client.connection;
+package carleton.sysc3303.common;
 
 
 /**
