@@ -240,7 +240,7 @@ public class GameBoard
         {
             randomX = randomGenerator.nextInt(size);
             randomY = randomGenerator.nextInt(size);
-            System.out.println("Try: " + randomX + ", " + randomY);
+            System.out.println("Trying position at: " + randomX + ", " + randomY);
 
         } while (isOccupied(randomX, randomY) || !isValidPosition(randomX, randomY));
 
@@ -456,7 +456,7 @@ public class GameBoard
      */
     public boolean isOccupied(int x, int y)
     {
-        return tiles[x][y] == 'E';
+        return tiles[x][y] != 'E';
     }
 
 
