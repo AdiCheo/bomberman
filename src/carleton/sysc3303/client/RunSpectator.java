@@ -1,10 +1,10 @@
 package carleton.sysc3303.client;
 
-import java.io.File;
 import java.net.*;
 import carleton.sysc3303.client.connection.*;
+import carleton.sysc3303.client.gui.Window;
 
-public class Run
+public class RunSpectator
 {
     /**
      * Application entry point.
@@ -15,8 +15,10 @@ public class Run
     public static void main(String[] args) throws UnknownHostException
     {
         IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
-        BotClient b = new BotClient(c, new File(args[0]), 1000);
+        Window w = new Window(c);
 
         new Thread(c).start();
+
+        w.setVisible(true);
     }
 }

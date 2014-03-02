@@ -1,4 +1,4 @@
-package carleton.sysc3303.client;
+package carleton.sysc3303.client.gui;
 
 import java.awt.*;
 import javax.swing.JPanel;
@@ -11,19 +11,8 @@ import javax.swing.JPanel;
  */
 public class Board extends JPanel
 {
-    private int size;
+    private static final long serialVersionUID = 8372907299046333935L;
     private boolean[][] walls;
-
-
-    /**
-     * Constructor.
-     *
-     * @param size
-     */
-    public Board(int size)
-    {
-        this.size = size;
-    }
 
 
     /**
@@ -45,6 +34,7 @@ public class Board extends JPanel
     public void paint(Graphics _g)
     {
         super.paint(_g);
+        int size = walls.length;
 
         Graphics2D g = (Graphics2D)_g;
         int draw_size = size * (int)(0.9 * Math.min(getWidth(), getHeight() / size));

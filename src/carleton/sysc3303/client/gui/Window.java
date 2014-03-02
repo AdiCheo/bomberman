@@ -1,6 +1,9 @@
-package carleton.sysc3303.client;
+package carleton.sysc3303.client.gui;
 
 import javax.swing.*;
+import carleton.sysc3303.client.connection.*;
+import carleton.sysc3303.common.Position;
+
 import java.awt.*;
 
 /**
@@ -16,6 +19,7 @@ public class Window extends JFrame
     private Component ui;
     private CardLayout layout;
     private JPanel loading_panel;
+    private IConnection c;
 
 
     /**
@@ -23,10 +27,12 @@ public class Window extends JFrame
      *
      * @param ui
      */
-    public Window(Component ui)
+    public Window(IConnection c)
     {
-        this.ui = ui;
+        this.c = c;
+        this.ui = new GameView();
         init();
+        hookEvents();
     }
 
 
@@ -49,6 +55,37 @@ public class Window extends JFrame
         add(loading_panel, States.LOADING.toString());
         add(ui, States.GAME.toString());
         setDisplay(States.LOADING);
+    }
+
+
+    /**
+     * Hook into the connection events.
+     */
+    private void hookEvents()
+    {
+        c.addConnectionStatusListener(new ConnectionStatusListener() {
+            @Override
+            public void statusChanged(State s)
+            {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        c.addMapListener(new MapListener() {
+            @Override
+            public void newMap(boolean[][] walls)
+            {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        c.addPositionListener(new PositionListener() {
+            @Override
+            public void move(int object, Position pos)
+            {
+                // TODO Auto-generated method stub
+            }
+        });
     }
 
 
