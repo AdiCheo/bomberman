@@ -1,7 +1,12 @@
 package carleton.sysc3303.client.gui;
 
 import java.awt.*;
+
 import javax.swing.JPanel;
+
+import carleton.sysc3303.common.Position;
+
+import java.util.*;
 
 
 /**
@@ -13,7 +18,7 @@ public class Board extends JPanel
 {
     private static final long serialVersionUID = 8372907299046333935L;
     private boolean[][] walls;
-
+    Map<Integer,Position> players;
 
     /**
      * Set the walls using a boolean matrix.
@@ -25,6 +30,15 @@ public class Board extends JPanel
         this.walls = walls;
     }
 
+    /**
+     * Update the player's positions
+     * 
+     * @param m
+     */
+    public void setPositions(int id, Map<Integer,Position> m) 
+    {
+    	players = m;
+    }
 
     /**
      * Repaint the board.
