@@ -10,7 +10,7 @@ public class Run
     public static void main(String[] args)
     {
         IServer s = new UDPServer(9999);
-        GameBoard gb = new GameBoard(9);
+        //GameBoard gb = new GameBoard(9);
 
         new Thread(s).start(); // background the server
 
