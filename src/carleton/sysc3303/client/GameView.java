@@ -1,7 +1,7 @@
 package carleton.sysc3303.client;
 
-import carleton.sysc3303.client.connection.Position;
 import javax.swing.*;
+import carleton.sysc3303.common.Position;
 import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
