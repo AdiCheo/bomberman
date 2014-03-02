@@ -239,8 +239,8 @@ public class GameBoard
          {
 	        randomX = randomGenerator.nextInt(size);
 	        randomY = randomGenerator.nextInt(size);
-	        
-	         if (isValidPosition(randomX, randomY))
+
+	         if (!isOccupied(randomX, randomY))
 	             break;
          }
 
@@ -424,7 +424,7 @@ public class GameBoard
      */
     public boolean isValidPosition(int x, int y)
     {
-        return x >= 0 && x <= size && y >= 0 && y <= size && checkPlayerPos(x, y);
+        return x >= 0 && x <= size && y >= 0 && y <= size;
     }
 
     /**
