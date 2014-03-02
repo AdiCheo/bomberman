@@ -42,9 +42,9 @@ public class MetaMessage implements IMessage
      *
      * @param data
      */
-    public MetaMessage(byte[] data)
+    public MetaMessage(String data)
     {
-        String[] args = new String(data).split(",");
+        String[] args = data.split(",");
         this.type = Type.valueOf(args[0]);
         this.message = args[1];
     }

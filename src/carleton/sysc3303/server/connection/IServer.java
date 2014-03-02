@@ -2,18 +2,12 @@ package carleton.sysc3303.server.connection;
 
 import carleton.sysc3303.common.connection.IMessage;
 
-public interface IServer
+public interface IServer extends Runnable
 {
-    /**
-     * Starts listening to connections.
-     */
-    public void start();
-
-
     /**
      * Stops the server and drops all connected clients.
      */
-    public void stop();
+    public void exit();
 
 
     /**

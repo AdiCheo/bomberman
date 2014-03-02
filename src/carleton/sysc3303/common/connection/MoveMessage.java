@@ -25,9 +25,9 @@ public class MoveMessage implements IMessage
      *
      * @param data
      */
-    public MoveMessage(byte[] data)
+    public MoveMessage(String data)
     {
-        String[] args = new String(data).split(",");
+        String[] args = data.split(",");
 
         this.pid = Integer.parseInt(args[0]);
         this.x = Integer.parseInt(args[1]);

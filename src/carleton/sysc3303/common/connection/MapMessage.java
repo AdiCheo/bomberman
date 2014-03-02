@@ -21,9 +21,9 @@ public class MapMessage implements IMessage
      *
      * @param data
      */
-    public MapMessage(byte[] data)
+    public MapMessage(String data)
     {
-        String[] rows = new String(data).split("|");
+        String[] rows = data.split("|");
         walls = new boolean[rows.length][];
 
         for(int i=0; i<rows.length; i++)
