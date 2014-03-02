@@ -156,9 +156,6 @@ public class GameBoard
         // send player the initial state
         sendInitialState(c);
 
-        // TODO: add player to board
-        // getRandomStartPos();
-
         // notify everyone of new player
         server.pushMessageAll(new PosMessage(p.getId(), pos.getX(), pos.getY()));
     }
@@ -233,7 +230,18 @@ public class GameBoard
      */
     private Position getNewPosition()
     {
-        return new Position(0, 0);
+        int randomX;                            //Random int
+        int randomY;                            //Random int
+        Random randomGenerator = new Random();    //Random generator
+
+        // TODO: Check whether location is available
+        // while(true)
+        randomX = randomGenerator.nextInt(size);
+        randomY = randomGenerator.nextInt(size);
+        // if (acceptablePos(randomX, randomY))
+        //     break;
+
+        return new Position(randomX, randomY);
     }
 
 
