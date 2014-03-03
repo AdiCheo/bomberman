@@ -60,13 +60,27 @@ public class Board extends JPanel
         g.fillRect(offset_x, offset_y, draw_size, draw_size);
 
         // draw the blocks
-        g.setColor(Color.BLACK);
         for(int i=0; i<size; i++)
         {
             for(int j=0; j<size; j++)
             {
-                if(walls[i][j] == Tile.WALL)
+                if(walls[i][j] != Tile.EMPTY)
                 {
+                    Color c;
+
+                    switch(walls[i][j])
+                    {
+                    case DESTRUCTABLE:
+                        c = Color.PINK;
+                        break;
+                    case EXIT:
+                        c = Color.BLUE;
+                        break;
+                    default:
+                        c = Color.BLACK;
+                    }
+
+                    g.setColor(c);
                     g.fillRect(
                         offset_x + i * block_size,
                         offset_y + draw_size - ((j+1) * block_size),

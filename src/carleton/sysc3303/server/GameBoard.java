@@ -107,6 +107,9 @@ public class GameBoard
                 case 'B':
                     tmp2[i] = Tile.WALL;
                     break;
+                case 'X':
+                    tmp2[i] = Tile.EXIT;
+                    break;
                 default:
                     tmp2[i] = Tile.EMPTY;
                 }
@@ -133,7 +136,7 @@ public class GameBoard
         this.players = new HashMap<Player, Position>();
         this.letters = new ArrayDeque<Character>();
         this.tiles = tiles;
-        this.exit_found = false;
+        this.exit_found = true; // FIXME temporary
 
         for(char i='a'; i<'z'; i++)
         {
@@ -259,7 +262,7 @@ public class GameBoard
 
 
     /**
-     * Returns boolean[][] with walls.
+     * Returns Tile[][] with walls.
      *
      * @return
      */
@@ -272,13 +275,15 @@ public class GameBoard
         {
             for(int j = 0; j < size; j++)
             {
-                if(getTile(i, j) == Tile.EXIT && !exit_found)
+                Tile current = getTile(i, j);
+
+                if(current == Tile.PLAYER || (current == Tile.EXIT && !exit_found))
                 {
                     walls[i][j] = Tile.EMPTY;
                 }
                 else
                 {
-                    walls[i][j] = getTile(i, j);
+                    walls[i][j] = current;
                 }
             }
         }
@@ -367,10 +372,10 @@ public class GameBoard
             y--;
             break;
         case LEFT:
-            x++;
+            x--;
             break;
         case RIGHT:
-            x--;
+            x++;
         }
 
         if(isValidPosition(x, y) && !isOccupied(x, y))
