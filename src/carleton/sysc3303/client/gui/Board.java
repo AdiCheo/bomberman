@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 import carleton.sysc3303.common.Position;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 
 /**
@@ -88,6 +89,19 @@ public class Board extends JPanel
             g.drawLine(
                 offset_x, offset_y + i * block_size,
                 offset_x + draw_size, offset_y + i * block_size);
+        }
+        
+        //draw players
+        for(Entry<Integer, Position> e: players.entrySet())
+        {
+            //e.getValue().getX() and e.getValue().getX()
+        	g.setColor(Color.BLACK);
+            
+            g.fillRect(
+            offset_x + e.getValue().getX() * block_size,
+            offset_y + e.getValue().getY() * block_size,
+            block_size,
+            block_size);
         }
     }
 }
