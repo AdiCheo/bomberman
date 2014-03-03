@@ -136,7 +136,7 @@ public class GameBoard
         this.players = new HashMap<Player, Position>();
         this.letters = new ArrayDeque<Character>();
         this.tiles = tiles;
-        this.exit_found = true; // FIXME temporary
+        this.exit_found = false; // FIXME temporary
 
         for(char i='a'; i<'z'; i++)
         {
@@ -277,7 +277,7 @@ public class GameBoard
             {
                 Tile current = getTile(i, j);
 
-                if(current == Tile.PLAYER || (current == Tile.EXIT && !exit_found))
+                if(current == Tile.EXIT && !exit_found)
                 {
                     walls[i][j] = Tile.EMPTY;
                 }
@@ -383,8 +383,17 @@ public class GameBoard
             setPlayerPosition(p, new Position(x, y));
             server.pushMessageAll(new PosMessage(p.getId(), x, y));
             System.out.printf(
-                    "Player %d moved from (%d,%d) to (%d,%d)\n",
+                    "Player %d moved from (%d,%d) to (%d,%d)",
                     p.getId(), pos.getX(), pos.getY(), x, y);
+
+            System.out.println(tiles[x][y]);
+
+            if(!exit_found && isExit(x, y))
+            {
+                System.out.println("Found exit");
+                exit_found = true;
+                server.pushMessageAll(new MapMessage(getWalls()));
+            }
         }
         else
         {
@@ -411,7 +420,6 @@ public class GameBoard
         }
 
         players.put(p, pos);
-        setTile(pos.getX(), pos.getY(), Tile.PLAYER);
     }
 
 
@@ -572,6 +580,7 @@ public class GameBoard
 
     /**
      * Checks to see if a tile is occupied.
+     * TODO: make this a constant time complexity function.
      *
      * @param x
      * @param y
@@ -579,20 +588,35 @@ public class GameBoard
      */
     public boolean isOccupied(int x, int y)
     {
-        //If tile is an empty tile or the exit return false
-        if(tiles[x][y] == Tile.EMPTY || tiles[x][y] == Tile.EXIT)
+        if(isExit(x, y))
+        {
             return false;
-        else//Else return true
-            return true;
-        //return tiles[x][y] != 'E';
+        }
+
+        Position tmp = new Position(x, y);
+
+        for(Position p: players.values())
+        {
+            if(p.equals(tmp))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    public boolean isExit(int x,int y)
+
+    /**
+     * Checks if the tile is an exit.
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    public boolean isExit(int x, int y)
     {
-        if(tiles[x][y] == Tile.EXIT)
-            return true;
-        else
-            return false;
+        return tiles[x][y] == Tile.EXIT;
     }
 
 

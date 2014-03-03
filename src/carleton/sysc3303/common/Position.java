@@ -30,6 +30,19 @@ public class Position
     }
 
 
+    public boolean equals(Object o)
+    {
+        if(o == null || !(o instanceof Position))
+        {
+            return false;
+        }
+
+        Position p = (Position)o;
+
+        return p.x == x && p.y == y;
+    }
+
+
     public String toString()
     {
         return String.format("(%d, %d)", x, y);
