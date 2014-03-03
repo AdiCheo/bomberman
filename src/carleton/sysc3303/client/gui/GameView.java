@@ -33,15 +33,15 @@ public class GameView extends JPanel
 
         setMap(new boolean[][] {{false}});
     }
-    
+
     /**
      * Lets the board know when changes are made
-     * @param id
+     *
      * @param m
      */
-    public void setPositions(int id, Map<Integer,Position> m)
+    public void setPositions(Map<Integer,Position> m)
     {
-    	board.setPositions(id, m);
+        board.setPositions(m);
     }
 
 

@@ -33,12 +33,12 @@ public class Board extends JPanel
 
     /**
      * Update the player's positions
-     * 
+     *
      * @param m
      */
-    public void setPositions(int id, Map<Integer,Position> m) 
+    public void setPositions(Map<Integer,Position> m)
     {
-    	players = m;
+        players = m;
     }
 
     /**
@@ -90,18 +90,21 @@ public class Board extends JPanel
                 offset_x, offset_y + i * block_size,
                 offset_x + draw_size, offset_y + i * block_size);
         }
-        
+
         //draw players
-        for(Entry<Integer, Position> e: players.entrySet())
+        if(players != null)
         {
-            //e.getValue().getX() and e.getValue().getX()
-        	g.setColor(Color.BLACK);
-            
-            g.fillRect(
-            offset_x + e.getValue().getX() * block_size,
-            offset_y + e.getValue().getY() * block_size,
-            block_size,
-            block_size);
+            for(Entry<Integer, Position> e: players.entrySet())
+            {
+                //e.getValue().getX() and e.getValue().getX()
+                g.setColor(Color.RED);
+
+                g.fillRect(
+                offset_x + e.getValue().getX() * block_size,
+                offset_y + e.getValue().getY() * block_size,
+                block_size,
+                block_size);
+            }
         }
     }
 }

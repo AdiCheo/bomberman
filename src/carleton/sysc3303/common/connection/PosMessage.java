@@ -1,5 +1,7 @@
 package carleton.sysc3303.common.connection;
 
+import carleton.sysc3303.common.Position;
+
 public class PosMessage implements IMessage
 {
     private int pid, x, y;
@@ -17,6 +19,18 @@ public class PosMessage implements IMessage
         this.pid = pid;
         this.x = x;
         this.y = y;
+    }
+
+
+    /**
+     * Alternative constructor.
+     *
+     * @param pid
+     * @param pos
+     */
+    public PosMessage(int pid, Position pos)
+    {
+        this(pid, pos.getX(), pos.getY());
     }
 
 

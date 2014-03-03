@@ -345,6 +345,7 @@ public class GameBoard
         if(isValidPosition(x, y) && isOccupied(x, y))
         {
             setPlayerPosition(p, new Position(x, y));
+            server.pushMessageAll(new PosMessage(p.getId(), x, y));
             System.out.printf(
                     "Player %d moved from (%d,%d) to (%d,%d)\n",
                     p.getId(), pos.getX(), pos.getY(), x, y);
@@ -511,7 +512,7 @@ public class GameBoard
      */
     public boolean isValidPosition(int x, int y)
     {
-        return x >= 0 && x <= size && y >= 0 && y <= size;
+        return x >= 0 && x < size && y >= 0 && y < size;
     }
 
     /**

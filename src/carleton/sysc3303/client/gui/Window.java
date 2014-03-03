@@ -23,7 +23,7 @@ public class Window extends JFrame
     private CardLayout layout;
     private JPanel loading_panel;
     private IConnection c;
-    private Map<Integer,Position> positions;
+    private Map<Integer, Position> positions;
 
 
     /**
@@ -35,6 +35,8 @@ public class Window extends JFrame
     {
         this.c = c;
         this.ui = new GameView();
+        positions = new HashMap<Integer, Position>();
+        ui.setPositions(positions);
         init();
         hookEvents();
     }
@@ -81,6 +83,7 @@ public class Window extends JFrame
             {
                 ui.setMap(walls);
                 setDisplay(States.GAME);
+                ui.repaint();
             }
         });
 
@@ -88,13 +91,19 @@ public class Window extends JFrame
             @Override
             public void move(int id, Position pos)
             {
-            	if(pos.getX() < 0 || pos.getY() < 0)
-            		positions.remove(id);
-            	else 
-	                positions.put(id, pos);
-            	
-            	//set players positions
-            	ui.setPositions(id, positions);
+                System.out.println(pos);
+
+                if(pos.getX() < 0 || pos.getY() < 0)
+                {
+                    positions.remove(id);
+                }
+                else
+                {
+                    positions.put(id, pos);
+                }
+
+                // force ui update
+                ui.repaint();
             }
         });
 
