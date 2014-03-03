@@ -25,7 +25,7 @@ import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 
-import carleton.sysc3303.common.Position;
+import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
 import carleton.sysc3303.server.connection.*;
@@ -35,7 +35,7 @@ public class GameBoard
 {
     public static final int MAX_PLAYERS = 4;
 
-    private char tiles[][];
+    private Tile tiles[][];
     private int size;
     private IServer server;
     private Map<Player, Position> players;
@@ -50,12 +50,12 @@ public class GameBoard
      */
     public GameBoard(IServer server, int size)
     {
-        char[][] tmp = new char[size][size];
+        Tile[][] tmp = new Tile[size][size];
         for(int i=0; i<size; i++)
         {
             for(int j=0; j<size; j++)
             {
-                tmp[i][j] = 'E';
+                tmp[i][j] = Tile.EMPTY;
             }
         }
 
@@ -69,7 +69,7 @@ public class GameBoard
      * @param server
      * @param tiles
      */
-    public GameBoard(IServer server, char[][] tiles)
+    public GameBoard(IServer server, Tile[][] tiles)
     {
         init(server, tiles);
     }
@@ -86,7 +86,7 @@ public class GameBoard
     {
         BufferedReader reader = new BufferedReader(new FileReader(map));
         String line;
-        ArrayList<char[]> tmp = new ArrayList<char[]>();
+        ArrayList<Tile[]> tmp = new ArrayList<Tile[]>();
 
         while((line = reader.readLine()) != null)
         {
@@ -97,11 +97,24 @@ public class GameBoard
                 continue;
             }
 
-            tmp.add(line.toCharArray());
+            Tile[] tmp2 = new Tile[line.length()];
+
+            for(int i=0;i < line.length(); i++)
+            {
+                switch(line.charAt(i))
+                {
+                case 'B':
+                    tmp2[i] = Tile.WALL;
+                default:
+                    tmp2[i] = Tile.EMPTY;
+                }
+            }
+
+            tmp.add(tmp2);
         }
 
         reader.close();
-        init(server, tmp.toArray(new char[][]{}));
+        init(server, tmp.toArray(new Tile[][]{}));
     }
 
 
@@ -111,7 +124,7 @@ public class GameBoard
      * @param server
      * @param tiles
      */
-    private void init(IServer server, char[][] tiles)
+    private void init(IServer server, Tile[][] tiles)
     {
         this.size = tiles.length;
         this.server = server;
@@ -204,13 +217,13 @@ public class GameBoard
         Position pos;// = getNewPosition();
         if(isOccupied(0,0))
         {
-        	pos = new Position((size-1),(size-1));
+            pos = new Position((size-1),(size-1));
         }
-        	else
-        	{
-        		pos = new Position(0,0);
-        	}
-        
+            else
+            {
+                pos = new Position(0,0);
+            }
+
         System.out.printf("Player %d starts at (%d,%d)\n", p.getId(), pos.getX(), pos.getY());
         setPlayerPosition(p, pos);
 
@@ -256,8 +269,7 @@ public class GameBoard
         {
             for(int j = 0; j < size; j++)
             {
-                char c = getTile(i, j);
-                walls[i][j] = c == 'B';
+                walls[i][j] = getTile(i, j) == Tile.WALL;
             }
         }
 
@@ -277,7 +289,7 @@ public class GameBoard
         if(p != null)
         {
             Position pos = players.remove(p);
-            setTile(pos.getX(), pos.getY(), 'E');
+            setTile(pos.getX(), pos.getY(), Tile.EMPTY);
             server.pushMessageAll(new PosMessage(c.getId(), -1, -1));
         }
     }
@@ -380,11 +392,11 @@ public class GameBoard
         if(players.containsKey(p))
         {
             Position oldPos = players.get(p);
-            setTile(oldPos.getX(), oldPos.getY(), 'E');
+            setTile(oldPos.getX(), oldPos.getY(), Tile.EMPTY);
         }
 
         players.put(p, pos);
-        setTile(pos.getX(), pos.getY(), 'p');
+        setTile(pos.getX(), pos.getY(), Tile.PLAYER);
     }
 
 
@@ -416,7 +428,7 @@ public class GameBoard
      * @param y
      * @return
      */
-    private char getTile(int x, int y)
+    private Tile getTile(int x, int y)
     {
         return tiles[x][y];
     }
@@ -429,7 +441,7 @@ public class GameBoard
      * @param y
      * @param c
      */
-    private void setTile(int x, int y, char c)
+    private void setTile(int x, int y, Tile c)
     {
         tiles[x][y] = c;
     }
@@ -454,8 +466,7 @@ public class GameBoard
         {
             for(j = 0; j < size; j++)
             {
-                char e = 'E';
-                setTile(i, j, e);
+                setTile(i, j, Tile.EMPTY);
             }
         }
 
@@ -476,7 +487,7 @@ public class GameBoard
             {
                 if(isValidPosition(i,j))
                 {
-                    tiles[i][j] = 'X';
+                    tiles[i][j] = Tile.EXIT;
                     break;
                 }
             }
@@ -500,10 +511,10 @@ public class GameBoard
                 if(isValidPosition(i,j))
                 {
                     //Checks if the current position is empty
-                    if(tiles[i][j] == 'E')
+                    if(tiles[i][j] == Tile.EMPTY)
                     {
                         //Places a wall
-                        tiles[i][j] = 'B';
+                        tiles[i][j] = Tile.WALL;
                         counter++;
                     }
                 }
@@ -553,20 +564,20 @@ public class GameBoard
      */
     public boolean isOccupied(int x, int y)
     {
-    	//If tile is an empty tile or the exit return false
-    	if(tiles[x][y] == 'E' || tiles[x][y] == 'X')
-    		return false;
-    	else//Else return true
-    		return true;
+        //If tile is an empty tile or the exit return false
+        if(tiles[x][y] == Tile.EMPTY || tiles[x][y] == Tile.EXIT)
+            return false;
+        else//Else return true
+            return true;
         //return tiles[x][y] != 'E';
     }
-    
+
     public boolean isExit(int x,int y)
     {
-    	if(tiles[x][y] == 'X')
-    		return true;
-    	else
-    		return false;
+        if(tiles[x][y] == Tile.EXIT)
+            return true;
+        else
+            return false;
     }
 
 

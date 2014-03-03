@@ -20,10 +20,10 @@ public class UDPClient extends AbstractClient
     public void sendMessage(byte[] data)
     {
         DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
-        
+
         //TODO: remove log (testing)
-        System.out.println(new String(data));
-        
+        //System.out.println(new String(data));
+
         try
         {
             server.send(packet);
