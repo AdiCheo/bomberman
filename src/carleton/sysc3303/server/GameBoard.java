@@ -370,7 +370,8 @@ public class GameBoard
         // clear previous position, if any
         if(players.containsKey(p))
         {
-            setTile(pos.getX(), pos.getY(), 'E');
+            Position oldPos = players.get(p);
+            setTile(oldPos.getX(), oldPos.getY(), 'E');
         }
 
         players.put(p, pos);
