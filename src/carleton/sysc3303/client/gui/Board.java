@@ -71,12 +71,27 @@ public class Board extends JPanel
                 {
                     g.fillRect(
                         offset_x + i * block_size,
-                        offset_y + j * block_size,
+                        offset_y + draw_size - ((j+1) * block_size),
                         block_size,
                         block_size);
                 }
             }
         }
+
+        //draw players
+        g.setColor(Color.RED);
+        if(players != null)
+        {
+            for(Entry<Integer, Position> e: players.entrySet())
+            {
+                g.fillRect(
+                offset_x + e.getValue().getX() * block_size,
+                offset_y + draw_size - ((e.getValue().getY()+1) * block_size),
+                block_size,
+                block_size);
+            }
+        }
+
 
         // draw the lines
         g.setColor(Color.GRAY);
@@ -89,22 +104,6 @@ public class Board extends JPanel
             g.drawLine(
                 offset_x, offset_y + i * block_size,
                 offset_x + draw_size, offset_y + i * block_size);
-        }
-
-        //draw players
-        if(players != null)
-        {
-            for(Entry<Integer, Position> e: players.entrySet())
-            {
-                //e.getValue().getX() and e.getValue().getX()
-                g.setColor(Color.RED);
-
-                g.fillRect(
-                offset_x + e.getValue().getX() * block_size,
-                offset_y + e.getValue().getY() * block_size,
-                block_size,
-                block_size);
-            }
         }
     }
 }

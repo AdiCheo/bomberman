@@ -342,7 +342,7 @@ public class GameBoard
             x--;
         }
 
-        if(isValidPosition(x, y) && isOccupied(x, y))
+        if(isValidPosition(x, y) && !isOccupied(x, y))
         {
             setPlayerPosition(p, new Position(x, y));
             server.pushMessageAll(new PosMessage(p.getId(), x, y));
