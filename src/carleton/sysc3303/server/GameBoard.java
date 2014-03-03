@@ -204,7 +204,7 @@ public class GameBoard
         Position pos;// = getNewPosition();
         if(isOccupied(0,0))
         {
-        	pos = new Position(7,7);
+        	pos = new Position((size-1),(size-1));
         }
         	else
         	{
