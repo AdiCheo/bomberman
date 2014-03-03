@@ -119,10 +119,18 @@ public class GameBoard
         this.letters = new ArrayDeque<Character>();
         this.tiles = tiles;
 
+        for(char i='a'; i<'z'; i++)
+        {
+            letters.add(i);
+        }
+
         hookEvents();
     }
 
 
+    /**
+     * Hook into the connection.
+     */
     private void hookEvents()
     {
         final Object that = this;
@@ -194,7 +202,8 @@ public class GameBoard
 
         // new player position
         Position pos = getNewPosition();
-        players.put(p, pos);
+        System.out.printf("Player %d starts at (%d,%d)\n", p.getId(), pos.getX(), pos.getY());
+        setPlayerPosition(p, pos);
 
         // send player the initial state
         sendInitialState(c);
@@ -254,12 +263,12 @@ public class GameBoard
      */
     private void removePlayer(IClient c)
     {
-        Player tmp = new Player(c.getId(), 'x');
+        Player p = playerFromId(c.getId());
 
-        if(players.containsKey(tmp))
+        if(p != null)
         {
-            Position p = players.remove(tmp);
-            // TODO: remove player from board
+            Position pos = players.remove(p);
+            setTile(pos.getX(), pos.getY(), 'E');
             server.pushMessageAll(new PosMessage(c.getId(), -1, -1));
         }
     }
@@ -299,59 +308,94 @@ public class GameBoard
      */
     private void handleMessage(IClient c, IMessage m)
     {
-        // TODO: code
+        if(m instanceof MoveMessage)
+        {
+            handleMove(c, (MoveMessage)m);
+        }
     }
 
 
-    //File with 1 line is read(Represented by the String board, every character represents 1 tile on the game board
-    //Called by the server once all players have been created
-    /*public GameBoard(String board,Player one, Player two, Player three, Player four, int n)
+    /**
+     * Handle movement from a client.
+     *
+     * @param c
+     * @param m
+     */
+    private void handleMove(IClient c, MoveMessage m)
+    {
+        Player p = playerFromId(c.getId());
+        Position pos = players.get(p);
+        int x = pos.getX(), y = pos.getY();
+
+        switch(m.getDirection())
         {
-//			players = new ArrayList<>();
-            int x, y;//Used to add players to the board
-            size = n;
+        case UP:
+            y++;
+            break;
+        case DOWN:
+            y--;
+            break;
+        case LEFT:
+            x++;
+            break;
+        case RIGHT:
+            x--;
+        }
 
-            //If string does no contain an exit return error, or place an exit under a wooden wall or empty none edge position
-            if(!board.contains("X"))
+        if(isValidPosition(x, y) && isOccupied(x, y))
+        {
+            setPlayerPosition(p, new Position(x, y));
+            System.out.printf(
+                    "Player %d moved from (%d,%d) to (%d,%d)\n",
+                    p.getId(), pos.getX(), pos.getY(), x, y);
+        }
+        else
+        {
+            System.out.printf(
+                    "Player %d tried to move from (%d,%d) to (%d,%d), but failed\n",
+                    p.getId(), pos.getX(), pos.getY(), x, y);
+        }
+    }
+
+
+    /**
+     * Set a player's position.
+     *
+     * @param p
+     * @param pos
+     */
+    private void setPlayerPosition(Player p, Position pos)
+    {
+        // clear previous position, if any
+        if(players.containsKey(p))
+        {
+            setTile(pos.getX(), pos.getY(), 'E');
+        }
+
+        players.put(p, pos);
+        setTile(pos.getX(), pos.getY(), 'p');
+    }
+
+
+    /**
+     * Gets a player from their unique id.
+     * TODO: make this a constant time method
+     *
+     * @param i
+     * @return
+     */
+    private Player playerFromId(int i)
+    {
+        for(Player p: players.keySet())
+        {
+            if(p.getId() == i)
             {
-                System.out.println("ERROR NO EXIT");
-                //return error
+                return p;
             }
+        }
 
-            //Checks the size of the string is large enough to accomodate the board
-            if(board.length() != (n*n))
-            {
-                System.out.println("Error string is not large enough");
-                //return error
-            }
-
-            int p = 0;//Pivot position in the string
-
-            //Create a predefined board here, where each character of the String board represents 1 tile on the game board
-            for(int i = 0; i < n ;i++)
-            {
-                for(int j = 0; j < n; j++)
-                {
-                    tiles[i][j] = board.charAt(p);
-                    p++;
-                }
-            }
-
-            //Add players to the board
-            addPlayer(one);
-            addPlayer(two);
-
-            x = one.getPosition().x;
-            y = one.getPosition().y;
-
-            tiles[x][y] = one.getAvatar();
-
-            x = two.getPosition().x;
-            y = two.getPosition().y;
-
-
-            tiles[x][y] = two.getAvatar();
-        }*/
+        return null;
+    }
 
 
     /**

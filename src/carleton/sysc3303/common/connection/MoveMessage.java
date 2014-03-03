@@ -29,6 +29,17 @@ public class MoveMessage implements IMessage
     }
 
 
+    /**
+     * Gets the direction.
+     *
+     * @return
+     */
+    public Direction getDirection()
+    {
+        return dir;
+    }
+
+
     @Override
     public String serialize()
     {
