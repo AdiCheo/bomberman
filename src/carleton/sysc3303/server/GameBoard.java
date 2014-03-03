@@ -201,7 +201,16 @@ public class GameBoard
         Player p = new Player(c.getId(), letters.remove());
 
         // new player position
-        Position pos = getNewPosition();
+        Position pos;// = getNewPosition();
+        if(isOccupied(0,0))
+        {
+        	pos = new Position(7,7);
+        }
+        	else
+        	{
+        		pos = new Position(0,0);
+        	}
+        
         System.out.printf("Player %d starts at (%d,%d)\n", p.getId(), pos.getX(), pos.getY());
         setPlayerPosition(p, pos);
 
