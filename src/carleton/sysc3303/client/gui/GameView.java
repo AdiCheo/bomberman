@@ -1,7 +1,11 @@
 package carleton.sysc3303.client.gui;
 
 import javax.swing.*;
+
+import carleton.sysc3303.common.Position;
+
 import java.awt.*;
+import java.util.*;
 
 public class GameView extends JPanel
 {
@@ -28,6 +32,16 @@ public class GameView extends JPanel
         add(board, BorderLayout.CENTER);
 
         setMap(new boolean[][] {{false}});
+    }
+    
+    /**
+     * Lets the board know when changes are made
+     * @param id
+     * @param m
+     */
+    public void setPositions(int id, Map<Integer,Position> m)
+    {
+    	board.setPositions(id, m);
     }
 
 

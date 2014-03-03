@@ -1,7 +1,13 @@
 package carleton.sysc3303.client.gui;
 
 import java.awt.*;
+
 import javax.swing.JPanel;
+
+import carleton.sysc3303.common.Position;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 
 /**
@@ -13,7 +19,7 @@ public class Board extends JPanel
 {
     private static final long serialVersionUID = 8372907299046333935L;
     private boolean[][] walls;
-
+    Map<Integer,Position> players;
 
     /**
      * Set the walls using a boolean matrix.
@@ -25,6 +31,15 @@ public class Board extends JPanel
         this.walls = walls;
     }
 
+    /**
+     * Update the player's positions
+     * 
+     * @param m
+     */
+    public void setPositions(int id, Map<Integer,Position> m) 
+    {
+    	players = m;
+    }
 
     /**
      * Repaint the board.
@@ -74,6 +89,19 @@ public class Board extends JPanel
             g.drawLine(
                 offset_x, offset_y + i * block_size,
                 offset_x + draw_size, offset_y + i * block_size);
+        }
+        
+        //draw players
+        for(Entry<Integer, Position> e: players.entrySet())
+        {
+            //e.getValue().getX() and e.getValue().getX()
+        	g.setColor(Color.BLACK);
+            
+            g.fillRect(
+            offset_x + e.getValue().getX() * block_size,
+            offset_y + e.getValue().getY() * block_size,
+            block_size,
+            block_size);
         }
     }
 }

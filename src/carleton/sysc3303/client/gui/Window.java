@@ -7,7 +7,7 @@ import carleton.sysc3303.common.Position;
 import carleton.sysc3303.common.connection.MetaMessage;
 
 import java.awt.*;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The primary display window.
@@ -90,15 +90,11 @@ public class Window extends JFrame
             {
             	if(pos.getX() < 0 || pos.getY() < 0)
             		positions.remove(id);
-            	else {
-	                //if there's a new id, create a new element
-	            	if(!positions.containsKey(id)) {
-	            		
-	            	}
-	            	else { //if the id exists, update the position
-	            		positions.put(id, pos);
-	            	}
-            	}        	
+            	else 
+	                positions.put(id, pos);
+            	
+            	//set players positions
+            	ui.setPositions(id, positions);
             }
         });
 
