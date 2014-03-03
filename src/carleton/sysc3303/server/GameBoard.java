@@ -37,6 +37,7 @@ public class GameBoard
 
     private Tile tiles[][];
     private int size;
+    private boolean exit_found;
     private IServer server;
     private Map<Player, Position> players;
     private Queue<Character> letters;
@@ -105,6 +106,7 @@ public class GameBoard
                 {
                 case 'B':
                     tmp2[i] = Tile.WALL;
+                    break;
                 default:
                     tmp2[i] = Tile.EMPTY;
                 }
@@ -131,6 +133,7 @@ public class GameBoard
         this.players = new HashMap<Player, Position>();
         this.letters = new ArrayDeque<Character>();
         this.tiles = tiles;
+        this.exit_found = false;
 
         for(char i='a'; i<'z'; i++)
         {
@@ -260,16 +263,23 @@ public class GameBoard
      *
      * @return
      */
-    private boolean[][] getWalls()
+    private Tile[][] getWalls()
     {
-        boolean[][] walls = new boolean[size][size];
+        Tile[][] walls = new Tile[size][size];
 
         // get values from map
         for(int i = 0 ; i < size ; i++)
         {
             for(int j = 0; j < size; j++)
             {
-                walls[i][j] = getTile(i, j) == Tile.WALL;
+                if(getTile(i, j) == Tile.EXIT && !exit_found)
+                {
+                    walls[i][j] = Tile.EMPTY;
+                }
+                else
+                {
+                    walls[i][j] = getTile(i, j);
+                }
             }
         }
 

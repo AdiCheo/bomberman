@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
-import carleton.sysc3303.common.Position;
+import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.IMessage;
 
 
@@ -121,7 +121,7 @@ public abstract class AbstractConnection implements IConnection
      *
      * @param blocks
      */
-    protected void invokeMapListeners(boolean[][] walls)
+    protected void invokeMapListeners(Tile[][] walls)
     {
         for(MapListener e: mapListeners)
         {

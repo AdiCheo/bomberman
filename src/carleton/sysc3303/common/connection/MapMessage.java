@@ -1,8 +1,10 @@
 package carleton.sysc3303.common.connection;
 
+import carleton.sysc3303.common.Tile;
+
 public class MapMessage implements IMessage
 {
-    private boolean[][] walls;
+    private Tile[][] tiles;
 
 
     /**
@@ -10,9 +12,9 @@ public class MapMessage implements IMessage
      *
      * @param walls
      */
-    public MapMessage(boolean[][] walls)
+    public MapMessage(Tile[][] tiles)
     {
-        this.walls = walls;
+        this.tiles = tiles;
     }
 
 
@@ -24,16 +26,17 @@ public class MapMessage implements IMessage
     public MapMessage(String data)
     {
         String[] rows = data.split("\\|");
-        walls = new boolean[rows.length][];
+        tiles = new Tile[rows.length][];
+        Tile[] tmp = Tile.values();
 
         for(int i=0; i<rows.length; i++)
         {
             System.out.println(rows[i]);
-            walls[i] = new boolean[rows[i].length()];
+            tiles[i] = new Tile[rows[i].length()];
 
             for(int j=0; j<rows[i].length(); j++)
             {
-                walls[i][j] = rows[i].charAt(j) == '1' ? true : false;
+                tiles[i][j] = tmp[Integer.parseInt(""+rows[i].charAt(j))];
             }
         }
     }
@@ -44,9 +47,9 @@ public class MapMessage implements IMessage
      *
      * @return
      */
-    public boolean[][] getWalls()
+    public Tile[][] getWalls()
     {
-        return walls;
+        return tiles;
     }
 
 
@@ -55,11 +58,11 @@ public class MapMessage implements IMessage
     {
         StringBuilder out = new StringBuilder();
 
-        for(int i=0; i<walls.length; i++)
+        for(int i=0; i<tiles.length; i++)
         {
-            for(int j=0; j<walls[i].length; j++)
+            for(int j=0; j<tiles[i].length; j++)
             {
-                out.append(walls[i][j] ? "1" : "0");
+                out.append(tiles[i][j].ordinal());
             }
 
             out.append("|"); // separates rows

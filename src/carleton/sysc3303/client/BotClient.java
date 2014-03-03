@@ -1,15 +1,9 @@
 package carleton.sysc3303.client;
 
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.DatagramSocket;
-import java.net.SocketException;
-import java.lang.reflect.Constructor;
 import java.io.*;
 
-import carleton.sysc3303.server.connection.*;
 import carleton.sysc3303.client.connection.*;
-import carleton.sysc3303.common.Position;
+import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
 import carleton.sysc3303.common.connection.MoveMessage.Direction;
@@ -62,7 +56,7 @@ public class BotClient
 
         c.addMapListener(new MapListener() {
             @Override
-            public void newMap(boolean[][] walls)
+            public void newMap(Tile[][] walls)
             {
                 // TODO Auto-generated method stub
             }

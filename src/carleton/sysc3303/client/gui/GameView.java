@@ -1,11 +1,10 @@
 package carleton.sysc3303.client.gui;
 
 import javax.swing.*;
-
-import carleton.sysc3303.common.Position;
-
 import java.awt.*;
 import java.util.*;
+
+import carleton.sysc3303.common.*;
 
 public class GameView extends JPanel
 {
@@ -31,7 +30,7 @@ public class GameView extends JPanel
         board = new Board();
         add(board, BorderLayout.CENTER);
 
-        setMap(new boolean[][] {{false}});
+        setMap(new Tile[][] {{Tile.EMPTY}});
     }
 
     /**
@@ -52,7 +51,7 @@ public class GameView extends JPanel
      *
      * @param walls
      */
-    public void setMap(boolean[][] walls)
+    public void setMap(Tile[][] walls)
     {
         board.setWalls(walls);
         board.repaint();

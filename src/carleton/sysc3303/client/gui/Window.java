@@ -3,7 +3,7 @@ package carleton.sysc3303.client.gui;
 import javax.swing.*;
 
 import carleton.sysc3303.client.connection.*;
-import carleton.sysc3303.common.Position;
+import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.MetaMessage;
 
 import java.awt.*;
@@ -79,7 +79,7 @@ public class Window extends JFrame
 
         c.addMapListener(new MapListener() {
             @Override
-            public void newMap(boolean[][] walls)
+            public void newMap(Tile[][] walls)
             {
                 ui.setMap(walls);
                 setDisplay(States.GAME);
