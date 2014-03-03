@@ -4,7 +4,7 @@ import javax.swing.*;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
-import carleton.sysc3303.common.connection.MetaMessage;
+import carleton.sysc3303.common.connection.*;
 
 import java.awt.*;
 import java.util.*;
@@ -16,7 +16,7 @@ import java.util.*;
  */
 public class Window extends JFrame
 {
-    public enum States { LOADING, GAME };
+    public enum States { LOADING, GAME, DONE };
 
     private static final long serialVersionUID = 7088369983891361413L;
     private GameView ui;
@@ -58,8 +58,12 @@ public class Window extends JFrame
         loading_panel = new JPanel();
         loading_panel.add(new JLabel("Loading"));
 
+        JPanel done_panel = new JPanel();
+        done_panel.add(new JLabel("Game over"));
+
         add(loading_panel, States.LOADING.toString());
         add(ui, States.GAME.toString());
+        add(done_panel, States.DONE.toString());
         setDisplay(States.LOADING);
     }
 
@@ -91,8 +95,6 @@ public class Window extends JFrame
             @Override
             public void move(int id, Position pos)
             {
-                System.out.println(pos);
-
                 if(pos.getX() < 0 || pos.getY() < 0)
                 {
                     positions.remove(id);
@@ -104,6 +106,17 @@ public class Window extends JFrame
 
                 // force ui update
                 ui.repaint();
+            }
+        });
+
+        c.addGameStateListener(new GameStateListener() {
+            @Override
+            public void stateChanged(StateMessage.State state)
+            {
+                if(state == StateMessage.State.END)
+                {
+                    setDisplay(States.DONE);
+                }
             }
         });
 

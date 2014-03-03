@@ -41,6 +41,7 @@ public class GameBoard
     private IServer server;
     private Map<Player, Position> players;
     private Queue<Character> letters;
+    private StateMessage.State current_state;
 
 
     /**
@@ -136,7 +137,8 @@ public class GameBoard
         this.players = new HashMap<Player, Position>();
         this.letters = new ArrayDeque<Character>();
         this.tiles = tiles;
-        this.exit_found = false; // FIXME temporary
+        this.exit_found = false;
+        this.current_state = StateMessage.State.NOTSTARTED;
 
         for(char i='a'; i<'z'; i++)
         {
@@ -158,6 +160,11 @@ public class GameBoard
             @Override
             public void connectionChanged(IClient c, boolean connected, boolean isSpectator)
             {
+                if(current_state == StateMessage.State.END)
+                {
+                    return;
+                }
+
                 synchronized(that)
                 {
                     if(connected)
@@ -183,6 +190,11 @@ public class GameBoard
             @Override
             public void newMessage(IClient c, IMessage m)
             {
+                if(current_state == StateMessage.State.END)
+                {
+                    return;
+                }
+
                 synchronized(that)
                 {
                     handleMessage(c, m);
@@ -392,6 +404,14 @@ public class GameBoard
                 exit_found = true;
                 server.pushMessageAll(new MapMessage(getWalls()));
             }
+            else if(exit_found && isExit(x, y))
+            {
+                System.out.println("Game over");
+                current_state = StateMessage.State.END;
+                server.pushMessageAll(new StateMessage(current_state));
+            }
+
+            System.out.println(isExit(x, y));
         }
         else
         {
@@ -410,13 +430,6 @@ public class GameBoard
      */
     private void setPlayerPosition(Player p, Position pos)
     {
-        // clear previous position, if any
-        if(players.containsKey(p))
-        {
-            Position oldPos = players.get(p);
-            setTile(oldPos.getX(), oldPos.getY(), Tile.EMPTY);
-        }
-
         players.put(p, pos);
     }
 

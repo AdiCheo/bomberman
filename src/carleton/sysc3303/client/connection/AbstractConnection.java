@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.IMessage;
+import carleton.sysc3303.common.connection.StateMessage;
 
 
 /**
@@ -18,6 +19,7 @@ public abstract class AbstractConnection implements IConnection
     protected List<PositionListener> positionListeners;
     protected List<MapListener> mapListeners;
     protected List<ConnectionStatusListener> connectionListeners;
+    protected List<GameStateListener> stateListeners;
     protected LinkedBlockingQueue<IMessage> messageQueue;
     protected boolean run;
 
@@ -47,6 +49,13 @@ public abstract class AbstractConnection implements IConnection
     public void addConnectionStatusListener(ConnectionStatusListener e)
     {
         connectionListeners.add(e);
+    }
+
+
+    @Override
+    public void addGameStateListener(GameStateListener e)
+    {
+        stateListeners.add(e);
     }
 
 
@@ -140,6 +149,20 @@ public abstract class AbstractConnection implements IConnection
         for(ConnectionStatusListener e: connectionListeners)
         {
             e.statusChanged(s);
+        }
+    }
+
+
+    /**
+     * Invoke all listeners bound to this event.
+     *
+     * @param s
+     */
+    protected void invokeGameStateListeners(StateMessage.State s)
+    {
+        for(GameStateListener e: stateListeners)
+        {
+            e.stateChanged(s);
         }
     }
 }

@@ -34,6 +34,14 @@ public interface IConnection extends Runnable
 
 
     /**
+     * Adds a listener that listens for changes in the game state.
+     *
+     * @param e
+     */
+    public void addGameStateListener(GameStateListener e);
+
+
+    /**
      * Sends a message to the server.
      *
      * @param m

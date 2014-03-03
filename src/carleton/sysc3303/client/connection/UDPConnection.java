@@ -32,6 +32,7 @@ public class UDPConnection extends AbstractConnection
         this.mapListeners = new LinkedList<MapListener>();
         this.connectionListeners = new LinkedList<ConnectionStatusListener>();
         this.positionListeners = new LinkedList<PositionListener>();
+        this.stateListeners = new LinkedList<GameStateListener>();
     }
 
 
@@ -143,6 +144,11 @@ public class UDPConnection extends AbstractConnection
             default:
                 // TODO: add more
             }
+        }
+        else if(m instanceof StateMessage)
+        {
+            StateMessage sm = (StateMessage)m;
+            this.invokeGameStateListeners(sm.getState());
         }
     }
 
