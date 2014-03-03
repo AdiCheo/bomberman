@@ -1,0 +1,120 @@
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MetaMessage:CONNECT,1
+carleton.sysc3303.common.connection.MetaMessage:ACCEPT,1
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:UP
+carleton.sysc3303.common.connection.MapMessage:000000000|020002020|020020020|002020200|000022220|020020020|000022000|020000020|000000000
+000000000
+020002020
+020020020
+002020200
+000022220
+020020020
+000022000
+020000020
+000000000
+carleton.sysc3303.common.connection.PosMessage:1,0,0
+carleton.sysc3303.common.connection.PosMessage:1,0,0
+carleton.sysc3303.common.connection.PosMessage:1,0,1
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:LEFT
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:RIGHT
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:UP
+carleton.sysc3303.common.connection.PosMessage:1,0,2
+carleton.sysc3303.common.connection.PosMessage:2,0,0
+carleton.sysc3303.common.connection.PosMessage:2,0,1
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:UP
+carleton.sysc3303.common.connection.PosMessage:1,0,3
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MetaMessage:CONNECT,1
+carleton.sysc3303.common.connection.MetaMessage:ACCEPT,1
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:UP
+carleton.sysc3303.common.connection.MapMessage:000000000|020002020|020020020|002020200|000022220|020020020|000022000|020000020|000000000
+000000000
+020002020
+020020020
+002020200
+000022220
+020020020
+000022000
+020000020
+000000000
+carleton.sysc3303.common.connection.PosMessage:1,0,0
+carleton.sysc3303.common.connection.PosMessage:1,0,0
+carleton.sysc3303.common.connection.PosMessage:1,0,1
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:LEFT
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:RIGHT
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:UP
+carleton.sysc3303.common.connection.PosMessage:1,0,2
+carleton.sysc3303.common.connection.PosMessage:2,0,0
+carleton.sysc3303.common.connection.PosMessage:2,0,1
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:UP
+carleton.sysc3303.common.connection.PosMessage:1,0,3
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MetaMessage:CONNECT,1
+carleton.sysc3303.common.connection.MetaMessage:ACCEPT,1
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:UP
+carleton.sysc3303.common.connection.MapMessage:000000000|020002020|020020020|002020200|000022220|020020020|000022000|020000020|000000000
+000000000
+020002020
+020020020
+002020200
+000022220
+020020020
+000022000
+020000020
+000000000
+carleton.sysc3303.common.connection.PosMessage:1,0,0
+carleton.sysc3303.common.connection.PosMessage:1,0,0
+carleton.sysc3303.common.connection.PosMessage:1,0,1
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:LEFT
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:RIGHT
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:UP
+carleton.sysc3303.common.connection.PosMessage:1,0,2
+carleton.sysc3303.common.connection.PosMessage:2,0,0
+carleton.sysc3303.common.connection.PosMessage:2,0,1
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:UP
+carleton.sysc3303.common.connection.PosMessage:1,0,3
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MetaMessage:CONNECT,1
+carleton.sysc3303.common.connection.MetaMessage:ACCEPT,1
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:UP
+carleton.sysc3303.common.connection.MapMessage:000000000|020002020|020020020|002020200|000022220|020020020|000022000|020000020|000000000
+000000000
+020002020
+020020020
+002020200
+000022220
+020020020
+000022000
+020000020
+000000000
+carleton.sysc3303.common.connection.PosMessage:1,0,0
+carleton.sysc3303.common.connection.PosMessage:1,0,0
+carleton.sysc3303.common.connection.PosMessage:1,0,1
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:LEFT
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:RIGHT
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:UP
+carleton.sysc3303.common.connection.PosMessage:1,0,2
+carleton.sysc3303.common.connection.PosMessage:2,0,0
+carleton.sysc3303.common.connection.PosMessage:2,0,1
+Added message to queue
+Sending data (raw): carleton.sysc3303.common.connection.MoveMessage:UP
+carleton.sysc3303.common.connection.PosMessage:1,0,3
