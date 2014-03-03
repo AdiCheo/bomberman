@@ -383,10 +383,8 @@ public class GameBoard
             setPlayerPosition(p, new Position(x, y));
             server.pushMessageAll(new PosMessage(p.getId(), x, y));
             System.out.printf(
-                    "Player %d moved from (%d,%d) to (%d,%d)",
+                    "Player %d moved from (%d,%d) to (%d,%d)\n",
                     p.getId(), pos.getX(), pos.getY(), x, y);
-
-            System.out.println(tiles[x][y]);
 
             if(!exit_found && isExit(x, y))
             {
@@ -588,9 +586,9 @@ public class GameBoard
      */
     public boolean isOccupied(int x, int y)
     {
-        if(isExit(x, y))
+        if(tiles[x][y] != Tile.EMPTY && !isExit(x, y))
         {
-            return false;
+            return true;
         }
 
         Position tmp = new Position(x, y);
