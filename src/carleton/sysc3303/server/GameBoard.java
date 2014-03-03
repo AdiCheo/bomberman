@@ -553,7 +553,20 @@ public class GameBoard
      */
     public boolean isOccupied(int x, int y)
     {
-        return tiles[x][y] != 'E';
+    	//If tile is an empty tile or the exit return false
+    	if(tiles[x][y] == 'E' || tiles[x][y] == 'X')
+    		return false;
+    	else//Else return true
+    		return true;
+        //return tiles[x][y] != 'E';
+    }
+    
+    public boolean isExit(int x,int y)
+    {
+    	if(tiles[x][y] == 'X')
+    		return true;
+    	else
+    		return false;
     }
 
 
