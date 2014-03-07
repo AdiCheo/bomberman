@@ -1,7 +1,7 @@
 package carleton.sysc3303.client.connection;
 
 import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
 import carleton.sysc3303.common.*;
@@ -20,7 +20,7 @@ public abstract class AbstractConnection implements IConnection
     protected List<MapListener> mapListeners;
     protected List<ConnectionStatusListener> connectionListeners;
     protected List<GameStateListener> stateListeners;
-    protected LinkedBlockingQueue<IMessage> messageQueue;
+    protected BlockingQueue<IMessage> messageQueue;
     protected boolean run;
 
 
@@ -62,11 +62,13 @@ public abstract class AbstractConnection implements IConnection
     @Override
     public void queueMessage(IMessage m)
     {
-        synchronized(messageQueue)
+        try
         {
-            messageQueue.add(m);
+            messageQueue.put(m);
             System.out.println("Added message to queue");
-            messageQueue.notify();
+        } catch (InterruptedException e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -81,21 +83,12 @@ public abstract class AbstractConnection implements IConnection
             {
                 while(true)
                 {
-                    synchronized(messageQueue)
+                    try
                     {
-                        while(messageQueue.isEmpty())
-                        {
-                            try
-                            {
-                                messageQueue.wait();
-                            }
-                            catch (InterruptedException e)
-                            {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        sendMessage(messageQueue.remove());
+                        sendMessage(messageQueue.take());
+                    } catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
                     }
                 }
             }
