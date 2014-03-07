@@ -24,7 +24,7 @@ public interface IServer extends Runnable
      * @param	m
      * @param	c
      */
-    public void pushMessage(IMessage m, IClient c);
+    public void queueMessage(IMessage m, IClient c);
 
 
     /**
@@ -32,7 +32,7 @@ public interface IServer extends Runnable
      *
      * @param m
      */
-    public void pushMessageAll(IMessage m);
+    public void queueMessageAll(IMessage m);
 
 
     /**

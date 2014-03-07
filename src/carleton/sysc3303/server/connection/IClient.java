@@ -26,12 +26,4 @@ public interface IClient
      * @return
      */
     public int getId();
-
-
-    /**
-     * Send data to the client.
-     *
-     * @param data
-     */
-    public void sendMessage(byte[] data);
 }

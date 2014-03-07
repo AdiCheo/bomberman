@@ -9,6 +9,21 @@ public abstract class AbstractClient implements IClient
     protected int id;
 
 
+    /**
+     * Constructor.
+     *
+     * @param id
+     * @param address
+     * @param port
+     */
+    public AbstractClient(int id, InetAddress address, int port)
+    {
+        this.id = id;
+        this.address = address;
+        this.port = port;
+    }
+
+
     @Override
     public InetAddress getAddress()
     {

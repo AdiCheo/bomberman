@@ -23,7 +23,6 @@ public class Window extends JFrame
     private JPanel loading_panel;
     private IConnection c;
     private Map<Integer, Position> positions;
-    private Board b;
 
 
     /**

@@ -3,8 +3,9 @@ package carleton.sysc3303.server.connection;
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.*;
 
-import carleton.sysc3303.common.connection.MetaMessage;
+import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
 
 public class UDPServer extends AbstractServer
@@ -14,6 +15,8 @@ public class UDPServer extends AbstractServer
     private int buffer_size;
     private int connection_counter;
     private DatagramSocket serverSocket;
+    private BlockingQueue<DatagramPacket> outgoing;
+    private BlockingQueue<DatagramPacket> incoming;
 
 
     /**
@@ -24,10 +27,6 @@ public class UDPServer extends AbstractServer
     public UDPServer(int port)
     {
         this(port, 1000);
-        connectionListeners = new LinkedList<ConnectionListener>();
-        messageListeners = new LinkedList<MessageListener>();
-        clients = new HashMap<Pair<InetAddress, Integer>, IClient>();
-        connection_counter = 0;
     }
 
 
@@ -41,6 +40,12 @@ public class UDPServer extends AbstractServer
     {
         this.port = port;
         this.buffer_size = buffer_size;
+        this.connectionListeners = new LinkedList<ConnectionListener>();
+        this.messageListeners = new LinkedList<MessageListener>();
+        this.clients = new HashMap<Pair<InetAddress, Integer>, IClient>();
+        this.connection_counter = 0;
+        this.incoming = new LinkedBlockingQueue<DatagramPacket>();
+        this.outgoing = new LinkedBlockingQueue<DatagramPacket>();
     }
 
 
@@ -60,6 +65,60 @@ public class UDPServer extends AbstractServer
             return;
         }
 
+        // Thread responsible for getting incoming packets
+        // and pushing them through the system
+        new Thread() {
+            public void run()
+            {
+                while(true)
+                {
+                    DatagramPacket p;
+
+                    try
+                    {
+                        p = incoming.take();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                        continue;
+                    }
+
+                    parseMessage(p.getAddress(), p.getPort(), p.getData());
+                }
+            }
+        }.start();
+
+        // Thread responsible for taking queued messages
+        // and sending them to the recipients.
+        new Thread() {
+            public void run()
+            {
+                while(true)
+                {
+                    DatagramPacket p;
+
+                    try
+                    {
+                        p = outgoing.take();
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                        continue;
+                    }
+
+                    try
+                    {
+                        serverSocket.send(p);
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
 
         while(stillRunning())
         {
@@ -76,15 +135,35 @@ public class UDPServer extends AbstractServer
                 continue;
             }
 
-            parseMessage(
-                    receivePacket.getAddress(),
-                    receivePacket.getPort(),
-                    receivePacket.getData());
+            try
+            {
+                incoming.put(receivePacket);
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
         }
-
 
         serverSocket.close();
         // TODO: send a "close" to all clients
+    }
+
+
+    @Override
+    public void queueMessage(IMessage m, IClient c)
+    {
+        String msg = m.getClass().getCanonicalName() + ":" + m.serialize();
+        byte[] data = msg.getBytes();
+
+        try
+        {
+            outgoing.put(new DatagramPacket(data, data.length, c.getAddress(), c.getPort()));
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
     }
 
 
@@ -110,9 +189,10 @@ public class UDPServer extends AbstractServer
     protected synchronized void addClient(InetAddress ip, int port, boolean isSpectator)
     {
         Pair<InetAddress, Integer> key = new Pair<InetAddress, Integer>(ip, port);
-        IClient c = new UDPClient(serverSocket, connection_counter++, ip, port);
+        IClient c = new UDPClient(connection_counter++, ip, port);
+
         clients.put(key, c);
-        pushMessage(new MetaMessage(Type.ACCEPT, ""+c.getId()), c);
+        queueMessage(new MetaMessage(Type.ACCEPT, ""+c.getId()), c);
         invokeConnectionListeners(c, true, isSpectator);
     }
 }

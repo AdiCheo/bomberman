@@ -21,19 +21,11 @@ public abstract class AbstractServer implements IServer
 
 
     @Override
-    public void pushMessage(IMessage m, IClient c)
-    {
-        String msg = m.getClass().getCanonicalName() + ":" + m.serialize();
-        c.sendMessage(msg.getBytes());
-    }
-
-
-    @Override
-    public void pushMessageAll(IMessage m)
+    public void queueMessageAll(IMessage m)
     {
        for(IClient c: clients.values())
        {
-           pushMessage(m, c);
+           queueMessage(m, c);
        }
     }
 

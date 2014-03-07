@@ -136,7 +136,7 @@ public class GameBoard
     {
         if(players.size() == MAX_PLAYERS)
         {
-            server.pushMessage(new MetaMessage(Type.REJECT, "Server is full"), c);
+            server.queueMessage(new MetaMessage(Type.REJECT, "Server is full"), c);
             return;
         }
 
@@ -150,7 +150,7 @@ public class GameBoard
         sendInitialState(c);
 
         // notify everyone of new player
-        server.pushMessageAll(new PosMessage(c.getId(), pos.getX(), pos.getY()));
+        server.queueMessageAll(new PosMessage(c.getId(), pos.getX(), pos.getY()));
     }
 
 
@@ -162,13 +162,13 @@ public class GameBoard
     private void sendInitialState(IClient c)
     {
         // send the map
-        server.pushMessage(new MapMessage(b.createSendableBoard()), c);
+        server.queueMessage(new MapMessage(b.createSendableBoard()), c);
 
         // send everyone's current positions
         for(Entry<Integer, Position> e: players.entrySet())
         {
             Position pos = e.getValue();
-            server.pushMessage(new PosMessage(e.getKey(), pos.getX(), pos.getY()), c);
+            server.queueMessage(new PosMessage(e.getKey(), pos.getX(), pos.getY()), c);
         }
     }
 
@@ -183,7 +183,7 @@ public class GameBoard
         if(players.containsKey(c.getId()))
         {
             players.remove(c.getId());
-            server.pushMessageAll(new PosMessage(c.getId(), -1, -1));
+            server.queueMessageAll(new PosMessage(c.getId(), -1, -1));
         }
     }
 
@@ -258,7 +258,7 @@ public class GameBoard
         if(b.isPositionValid(x, y) && !b.isOccupied(x, y))
         {
             setPlayerPosition(c.getId(), new Position(x, y));
-            server.pushMessageAll(new PosMessage(c.getId(), x, y));
+            server.queueMessageAll(new PosMessage(c.getId(), x, y));
             System.out.printf(
                     "Player %d moved from (%d,%d) to (%d,%d)\n",
                     c.getId(), pos.getX(), pos.getY(), x, y);
@@ -267,13 +267,13 @@ public class GameBoard
             {
                 System.out.println("Found exit");
                 b.setExitHidden(false);
-                server.pushMessageAll(new MapMessage(b.createSendableBoard()));
+                server.queueMessageAll(new MapMessage(b.createSendableBoard()));
             }
             else if(!b.isExitHidden() && b.isExit(x, y))
             {
                 System.out.println("Game over");
                 current_state = StateMessage.State.END;
-                server.pushMessageAll(new StateMessage(current_state));
+                server.queueMessageAll(new StateMessage(current_state));
             }
         }
         else
