@@ -83,9 +83,10 @@ public class Window extends JFrame
 
         c.addMapListener(new MapListener() {
             @Override
-            public void newMap(Tile[][] walls)
+            public void newMap(Board b)
             {
-                ui.setMap(walls);
+                System.out.println(b);
+                ui.setMap(b);
                 setDisplay(States.GAME);
                 ui.repaint();
             }

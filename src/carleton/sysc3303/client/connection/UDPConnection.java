@@ -118,7 +118,7 @@ public class UDPConnection extends AbstractConnection
         if(m instanceof MapMessage)
         {
             MapMessage mm = (MapMessage)m;
-            invokeMapListeners(mm.getWalls());
+            invokeMapListeners(mm.getBoard());
         }
         else if(m instanceof PosMessage)
         {

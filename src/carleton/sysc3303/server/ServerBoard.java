@@ -1,11 +1,6 @@
 package carleton.sysc3303.server;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
+import java.io.*;
 import carleton.sysc3303.common.*;
 
 /**
@@ -16,6 +11,7 @@ import carleton.sysc3303.common.*;
 public class ServerBoard extends Board
 {
     private boolean exit_hidden;
+    private Position exit;
 
 
     /**
@@ -42,27 +38,69 @@ public class ServerBoard extends Board
 
 
     /**
+     * Creates a new board with no exit if it has not been discovered.
+     *
+     * @return
+     */
+    public Board createSendableBoard()
+    {
+        Board b = new Board(serialize());
+
+        if(exit != null)
+        {
+            boolean destructable = b.getTile(exit) == Tile.DESTRUCTABLE;
+            b.setTile(exit, destructable ? Tile.DESTRUCTABLE : Tile.EMPTY);
+        }
+
+        return b;
+    }
+
+
+    /**
      * Creates a board from a file.
      *
      * @param f
      * @throws IOException
      */
-    public ServerBoard fromFile(File f) throws IOException
+    public static ServerBoard fromFile(File f) throws IOException
     {
         BufferedReader reader = new BufferedReader(new FileReader(f));
-        StringBuilder sb = new StringBuilder();
+        int size = Integer.parseInt(reader.readLine().trim());
+        ServerBoard b = new ServerBoard(size);
         String line;
+        int y = 0;
 
         while((line = reader.readLine()) != null)
         {
-            sb.append(line);
-            sb.append('|');
+            for(int x=0; x<line.length(); x+=2)
+            {
+                Tile t;
+
+                switch(line.charAt(x))
+                {
+                case '#':
+                    t = Tile.WALL;
+                    break;
+                case '0':
+                    t = Tile.EXIT;
+                    break;
+                default:
+                    t = Tile.EMPTY;
+                }
+
+                b.setTile(x/2, y, t);
+
+                if(line.charAt(x+1) == '+')
+                {
+                    b.setTile(x/2, y, Tile.DESTRUCTABLE);
+                }
+            }
+
+            y++;
         }
 
         reader.close();
-
-        sb.deleteCharAt(sb.length() - 1);
-        return new ServerBoard(sb.toString());
+        return b;
     }
 
 
@@ -110,6 +148,41 @@ public class ServerBoard extends Board
     {
         checkPosition(x, y);
         return getTile(x, y) == Tile.EXIT;
+    }
+
+
+    /**
+     * Sets a tile.
+     *
+     * @param x
+     * @param y
+     * @param t
+     */
+    public void setTile(int x, int y, Tile t)
+    {
+        // allow only a single exit
+        if(t == Tile.EXIT)
+        {
+            if(exit != null)
+            {
+                setTile(exit, Tile.EMPTY);
+            }
+
+            exit = new Position(x, y);
+        }
+
+        super.setTile(x, y, t);
+    }
+
+
+    /**
+     * Gets the current exit position.
+     *
+     * @return
+     */
+    public Position getExit()
+    {
+        return exit;
     }
 
 

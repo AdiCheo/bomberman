@@ -9,7 +9,7 @@ import carleton.sysc3303.common.*;
 public class GameView extends JPanel
 {
     private static final long serialVersionUID = -823641346290407577L;
-    private Board board;
+    private DisplayBoard board;
 
     /**
      * Constructor.
@@ -27,10 +27,10 @@ public class GameView extends JPanel
     {
         this.setLayout(new BorderLayout());
 
-        board = new Board();
+        board = new DisplayBoard();
         add(board, BorderLayout.CENTER);
 
-        setMap(new Tile[][] {{Tile.EMPTY}});
+        setMap(new Board(0));
     }
 
     /**
@@ -51,9 +51,9 @@ public class GameView extends JPanel
      *
      * @param walls
      */
-    public void setMap(Tile[][] walls)
+    public void setMap(Board b)
     {
-        board.setWalls(walls);
+        board.setWalls(b);
         board.repaint();
     }
 }

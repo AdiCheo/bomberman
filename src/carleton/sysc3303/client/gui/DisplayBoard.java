@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import carleton.sysc3303.common.*;
+import carleton.sysc3303.common.Board.PositionTile;
 
 
 /**
@@ -13,10 +14,10 @@ import carleton.sysc3303.common.*;
  *
  * @author Kirill Stepanov
  */
-public class Board extends JPanel
+public class DisplayBoard extends JPanel
 {
     private static final long serialVersionUID = 8372907299046333935L;
-    private Tile[][] walls;
+    private Board walls;
     Map<Integer,Position> players;
 
     /**
@@ -24,7 +25,7 @@ public class Board extends JPanel
      *
      * @param walls
      */
-    public void setWalls(Tile[][] walls)
+    public void setWalls(Board walls)
     {
         this.walls = walls;
     }
@@ -34,7 +35,7 @@ public class Board extends JPanel
      *
      * @param m
      */
-    public void setPositions(Map<Integer,Position> m)
+    public void setPositions(Map<Integer, Position> m)
     {
         players = m;
     }
@@ -47,7 +48,7 @@ public class Board extends JPanel
     public void paint(Graphics _g)
     {
         super.paint(_g);
-        int size = walls.length;
+        int size = walls.getSize();
 
         Graphics2D g = (Graphics2D)_g;
         int draw_size = size * (int)(0.9 * Math.min(getWidth(), getHeight() / size));
@@ -60,33 +61,30 @@ public class Board extends JPanel
         g.fillRect(offset_x, offset_y, draw_size, draw_size);
 
         // draw the blocks
-        for(int i=0; i<size; i++)
+        for(PositionTile p: walls)
         {
-            for(int j=0; j<size; j++)
+            if(p.getTile() != Tile.EMPTY)
             {
-                if(walls[i][j] != Tile.EMPTY)
+                Color c;
+
+                switch(p.getTile())
                 {
-                    Color c;
-
-                    switch(walls[i][j])
-                    {
-                    case DESTRUCTABLE:
-                        c = Color.PINK;
-                        break;
-                    case EXIT:
-                        c = Color.BLUE;
-                        break;
-                    default:
-                        c = Color.BLACK;
-                    }
-
-                    g.setColor(c);
-                    g.fillRect(
-                        offset_x + i * block_size,
-                        offset_y + draw_size - ((j+1) * block_size),
-                        block_size,
-                        block_size);
+                case DESTRUCTABLE:
+                    c = Color.YELLOW;
+                    break;
+                case EXIT:
+                    c = Color.BLUE;
+                    break;
+                default:
+                    c = Color.BLACK;
                 }
+
+                g.setColor(c);
+                g.fillRect(
+                    offset_x + p.getX() * block_size,
+                    offset_y + p.getY() * block_size,
+                    block_size,
+                    block_size);
             }
         }
 

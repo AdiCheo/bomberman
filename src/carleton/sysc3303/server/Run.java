@@ -14,15 +14,18 @@ public class Run
     {
         IServer s = new UDPServer(9999);
         GameBoard gb;
+        ServerBoard b;
 
         if(args.length == 1)
         {
-            gb = new GameBoard(s, new File(args[0]));
+            b = ServerBoard.fromFile(new File(args[0]));
         }
         else
         {
-            gb = new GameBoard(s, 9);
+            b = new ServerBoard(20);
         }
+
+        gb = new GameBoard(s, b);
 
         new Thread(s).start(); // background the server
 

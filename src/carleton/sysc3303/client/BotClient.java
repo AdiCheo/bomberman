@@ -54,14 +54,6 @@ public class BotClient
             }
         });
 
-        c.addMapListener(new MapListener() {
-            @Override
-            public void newMap(Tile[][] walls)
-            {
-                // TODO Auto-generated method stub
-            }
-        });
-
         c.addPositionListener(new PositionListener() {
             @Override
             public void move(int object, Position pos)

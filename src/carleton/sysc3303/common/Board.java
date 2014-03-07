@@ -24,10 +24,7 @@ public class Board implements Iterable<PositionTile>
      */
     public Board(int size)
     {
-        this.size = size;
-        this.walls = new Tile[size][size];
-        this.breakableWalls = new boolean[size][size];
-        this.players = new HashMap<Integer, Position>();
+        init(size);
     }
 
 
@@ -41,23 +38,44 @@ public class Board implements Iterable<PositionTile>
     public Board(String s)
     {
         String[] rows = s.split("\\|");
-        this.size = rows.length;
-        walls = new Tile[this.size][this.size];
-        breakableWalls = new boolean[this.size][this.size];
+        init(rows.length);
         Tile[] tiles = Tile.values();
 
-        for(int i=0; i<rows.length; i++)
+        for(int i=0; i<size; i++)
         {
-            for(int j=0; j<rows.length; j+=2)
+            for(int j=0; j<size*2; j+=2)
             {
                 int t = Integer.parseInt(""+rows[i].charAt(j));
-                setTile(i, j/2, tiles[t]);
+                setTile(j/2, i, tiles[t]);
 
-                if(rows[i].charAt(j+1) == '-')
+                if(rows[i].charAt(j+1) == '+')
                 {
-                    setTile(i, j/2, Tile.DESTRUCTABLE);
+                    setTile(j/2, i, Tile.DESTRUCTABLE);
                 }
             }
+        }
+    }
+
+
+    /**
+     * Called from constructors only.
+     */
+    protected void init(int size)
+    {
+        if(size < 0)
+        {
+            throw new IllegalArgumentException("Board size may not be negative");
+        }
+
+        this.size = size;
+        this.walls = new Tile[size][size];
+        this.breakableWalls = new boolean[size][size];
+        this.players = new HashMap<Integer, Position>();
+
+        for(Position p: this)
+        {
+            walls[p.getX()][p.getY()] = Tile.EMPTY;
+            breakableWalls[p.getX()][p.getY()] = false;
         }
     }
 
@@ -82,6 +100,8 @@ public class Board implements Iterable<PositionTile>
             sb.append(getWall(pt).ordinal());
             sb.append(hasBreakableWall(pt) ? '+' : '-');
         }
+
+        System.out.println(sb.toString());
 
         return sb.toString();
     }
@@ -252,6 +272,31 @@ public class Board implements Iterable<PositionTile>
 
 
     /**
+     * Checks if the given position is valid.
+     *
+     * @param p
+     * @return
+     */
+    public boolean isPositionValid(Position p)
+    {
+        return isPositionValid(p.getX(), p.getY());
+    }
+
+
+    /**
+     * Checks if the given position is valid.
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    public boolean isPositionValid(int x, int y)
+    {
+        return !(x < 0 || y < 0 || x >= size || y >= size);
+    }
+
+
+    /**
      * Creates an iterator for the board.
      *
      * @return
@@ -288,7 +333,7 @@ public class Board implements Iterable<PositionTile>
                 c = ' ';
             }
 
-            tmp[pt.getX()][pt.getY()] = c;
+            tmp[pt.getY()][pt.getX()] = c;
         }
 
         StringBuilder sb = new StringBuilder();
@@ -365,7 +410,7 @@ public class Board implements Iterable<PositionTile>
      */
     protected void checkPosition(int x, int y)
     {
-        if(x < 0 || y < 0 || x >= size || y >= size)
+        if(!isPositionValid(x, y))
         {
             throw new IllegalArgumentException("At least one value is out of bounds.");
         }
@@ -432,7 +477,6 @@ public class Board implements Iterable<PositionTile>
             throw new UnsupportedOperationException(
                     "Cannot modify the board through the iterator.");
         }
-
     }
 
 

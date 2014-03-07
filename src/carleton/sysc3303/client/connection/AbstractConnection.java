@@ -123,11 +123,11 @@ public abstract class AbstractConnection implements IConnection
      *
      * @param blocks
      */
-    protected void invokeMapListeners(Tile[][] walls)
+    protected void invokeMapListeners(Board b)
     {
         for(MapListener e: mapListeners)
         {
-            e.newMap(walls);
+            e.newMap(b);
         }
     }
 
