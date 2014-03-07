@@ -33,16 +33,6 @@ public class GameView extends JPanel
         setMap(new Board(0));
     }
 
-    /**
-     * Lets the board know when changes are made
-     *
-     * @param m
-     */
-    public void setPositions(Map<Integer,Position> m)
-    {
-        board.setPositions(m);
-    }
-
 
     /**
      * Set the internal board's walls.

@@ -1,13 +1,12 @@
 package carleton.sysc3303.client.gui;
 
 import javax.swing.*;
+import java.awt.*;
+import java.util.*;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
-
-import java.awt.*;
-import java.util.*;
 
 /**
  * The primary display window.
@@ -24,6 +23,7 @@ public class Window extends JFrame
     private JPanel loading_panel;
     private IConnection c;
     private Map<Integer, Position> positions;
+    private Board b;
 
 
     /**
@@ -36,7 +36,6 @@ public class Window extends JFrame
         this.c = c;
         this.ui = new GameView();
         positions = new HashMap<Integer, Position>();
-        ui.setPositions(positions);
         init();
         hookEvents();
     }
@@ -48,7 +47,7 @@ public class Window extends JFrame
     private void init()
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 600);
+        setSize(600, 600);
         setMinimumSize(getSize());
         setTitle("Bomberman");
 
@@ -85,8 +84,8 @@ public class Window extends JFrame
             @Override
             public void newMap(Board b)
             {
-                System.out.println(b);
                 ui.setMap(b);
+                b.setPlayers(positions);
                 setDisplay(States.GAME);
                 ui.repaint();
             }

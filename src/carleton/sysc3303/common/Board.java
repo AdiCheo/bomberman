@@ -130,6 +130,17 @@ public class Board implements Iterable<PositionTile>
 
 
     /**
+     * Gets current map of players.
+     *
+     * @return
+     */
+    public Map<Integer, Position> getPlayers()
+    {
+        return players;
+    }
+
+
+    /**
      * Checks is position is empty.
      *
      * @param p

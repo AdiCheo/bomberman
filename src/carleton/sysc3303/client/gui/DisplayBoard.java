@@ -18,7 +18,6 @@ public class DisplayBoard extends JPanel
 {
     private static final long serialVersionUID = 8372907299046333935L;
     private Board walls;
-    Map<Integer,Position> players;
 
     /**
      * Set the walls using a boolean matrix.
@@ -30,15 +29,6 @@ public class DisplayBoard extends JPanel
         this.walls = walls;
     }
 
-    /**
-     * Update the player's positions
-     *
-     * @param m
-     */
-    public void setPositions(Map<Integer, Position> m)
-    {
-        players = m;
-    }
 
     /**
      * Repaint the board.
@@ -90,16 +80,13 @@ public class DisplayBoard extends JPanel
 
         //draw players
         g.setColor(Color.RED);
-        if(players != null)
+        for(Entry<Integer, Position> e: walls.getPlayers().entrySet())
         {
-            for(Entry<Integer, Position> e: players.entrySet())
-            {
-                g.fillRect(
-                offset_x + e.getValue().getX() * block_size,
-                offset_y + draw_size - ((e.getValue().getY()+1) * block_size),
-                block_size,
-                block_size);
-            }
+            g.fillRect(
+            offset_x + e.getValue().getX() * block_size,
+            offset_y + draw_size - ((e.getValue().getY()+1) * block_size),
+            block_size,
+            block_size);
         }
 
 
