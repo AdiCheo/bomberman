@@ -38,12 +38,12 @@ public class Board implements Iterable<PositionTile>
      * @param s
      * @return
      */
-    public static Board unserialize(String s)
+    public Board(String s)
     {
         String[] rows = s.split("\\|");
-        Board b = new Board(rows.length);
-        b.walls = new Tile[rows.length][rows.length];
-        b.breakableWalls = new boolean[rows.length][rows.length];
+        this.size = rows.length;
+        walls = new Tile[this.size][this.size];
+        breakableWalls = new boolean[this.size][this.size];
         Tile[] tiles = Tile.values();
 
         for(int i=0; i<rows.length; i++)
@@ -51,12 +51,14 @@ public class Board implements Iterable<PositionTile>
             for(int j=0; j<rows.length; j+=2)
             {
                 int t = Integer.parseInt(""+rows[i].charAt(j));
-                b.walls[i][j/2] = tiles[t];
-                b.breakableWalls[i][j/2] = rows[i].charAt(j+1) == '0' ? false : true;
+                setTile(i, j/2, tiles[t]);
+
+                if(rows[i].charAt(j+1) == '-')
+                {
+                    setTile(i, j/2, Tile.DESTRUCTABLE);
+                }
             }
         }
-
-        return b;
     }
 
 
@@ -77,8 +79,8 @@ public class Board implements Iterable<PositionTile>
                 sb.append('|');
             }
 
-            sb.append(walls[pt.getX()][pt.getY()].ordinal());
-            sb.append(breakableWalls[pt.getX()][pt.getY()] ? 1 : 0);
+            sb.append(getWall(pt).ordinal());
+            sb.append(hasBreakableWall(pt) ? '+' : '-');
         }
 
         return sb.toString();
@@ -130,11 +132,11 @@ public class Board implements Iterable<PositionTile>
     {
         checkPosition(x, y);
 
-        switch(walls[x][y])
+        switch(getWall(x, y))
         {
         case EMPTY:
         case EXIT:
-            return breakableWalls[x][y];
+            return hasBreakableWall(x, y);
         default:
             return false;
         }
@@ -199,12 +201,12 @@ public class Board implements Iterable<PositionTile>
     {
         checkPosition(x, y);
 
-        if(breakableWalls[x][y])
+        if(hasBreakableWall(x, y))
         {
             return Tile.DESTRUCTABLE;
         }
 
-        return walls[x][y];
+        return getWall(x, y);
     }
 
 
@@ -233,6 +235,12 @@ public class Board implements Iterable<PositionTile>
 
         if(t == Tile.DESTRUCTABLE)
         {
+            if(walls[x][y] == Tile.WALL)
+            {
+                throw new IllegalArgumentException(
+                        "Cannot have a breakable wall on top of a regular wall.");
+            }
+
             breakableWalls[x][y] = true;
         }
         else
@@ -255,7 +263,7 @@ public class Board implements Iterable<PositionTile>
 
 
     /**
-     * Converts the map to string.
+     * Converts the map to a human readable string.
      */
     public String toString()
     {
@@ -298,12 +306,64 @@ public class Board implements Iterable<PositionTile>
 
 
     /**
+     * Gets the wall at the given position (no breakable walls).
+     *
+     * @param p
+     * @return
+     */
+    protected Tile getWall(Position p)
+    {
+        return getWall(p.getX(), p.getY());
+    }
+
+
+    /**
+     * Gets the wall at the given position (no breakable walls).
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    protected Tile getWall(int x, int y)
+    {
+        checkPosition(x, y);
+        return walls[x][y];
+    }
+
+
+    /**
+     * Checks if there is a breakable wall at the given position.
+     *
+     * @param p
+     * @return
+     */
+    protected boolean hasBreakableWall(Position p)
+    {
+        return hasBreakableWall(p.getX(), p.getY());
+    }
+
+
+    /**
+     * Checks if there is a breakable wall at the given position.
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    protected boolean hasBreakableWall(int x, int y)
+    {
+        checkPosition(x, y);
+        return breakableWalls[x][y];
+    }
+
+
+    /**
      * Throws an exception if the position is not valid.
      *
      * @param x
      * @param y
      */
-    private void checkPosition(int x, int y)
+    protected void checkPosition(int x, int y)
     {
         if(x < 0 || y < 0 || x >= size || y >= size)
         {
@@ -379,9 +439,8 @@ public class Board implements Iterable<PositionTile>
     /**
      * The class returned by the iterator.
      */
-    public class PositionTile
+    public class PositionTile extends Position
     {
-        private Position p;
         private Tile t;
 
 
@@ -393,19 +452,8 @@ public class Board implements Iterable<PositionTile>
          */
         public PositionTile(Position p, Tile t)
         {
-            this.p = p;
+            super(p.getX(), p.getY());
             this.t = t;
-        }
-
-
-        /**
-         * Gets the current position.
-         *
-         * @return
-         */
-        public Position getPosition()
-        {
-            return p;
         }
 
 
@@ -417,28 +465,6 @@ public class Board implements Iterable<PositionTile>
         public Tile getTile()
         {
             return t;
-        }
-
-
-        /**
-         * Gets the x-coordinate.
-         *
-         * @return
-         */
-        public int getX()
-        {
-            return p.getX();
-        }
-
-
-        /**
-         * Gets the y-coordinate.
-         *
-         * @return
-         */
-        public int getY()
-        {
-            return getY();
         }
     }
 }

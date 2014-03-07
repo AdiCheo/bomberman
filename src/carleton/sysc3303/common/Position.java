@@ -11,6 +11,12 @@ public class Position
     private int x, y;
 
 
+    /**
+     * Constructor.
+     *
+     * @param x
+     * @param y
+     */
     public Position(int x, int y)
     {
         this.x = x;
@@ -18,18 +24,34 @@ public class Position
     }
 
 
+    /**
+     * Gets the x-coordinate.
+     *
+     * @return
+     */
     public int getX()
     {
         return x;
     }
 
 
+    /**
+     * Gets the y-coordinate.
+     *
+     * @return
+     */
     public int getY()
     {
         return y;
     }
 
 
+    /**
+     * Checks if this object is equal to another.
+     *
+     * @param o
+     * @return
+     */
     public boolean equals(Object o)
     {
         if(o == null || !(o instanceof Position))
@@ -43,6 +65,11 @@ public class Position
     }
 
 
+    /**
+     * Display the position as a string.
+     *
+     * @return
+     */
     public String toString()
     {
         return String.format("(%d, %d)", x, y);

@@ -1,24 +1,4 @@
 package carleton.sysc3303.server;
-/*
- * Game board legend
- *
- * B represents a brick wall, W represents a wooden wall(can be blown up by bombs)
- * E represents the tile is empty, X represents the exit
- * O represents a bomb is presents, A represents an AI is present
- * Any lower case letter represents a player
- *
- * 	Game board representation(n X n)
- *  0n	1n	2n	3n	4n	5n	6n	7n	...	nn
- *  ...	...	...	...	...	...	...	...	...	...
- * 	07	17	27	37	47	57	67	77	...	n7
- * 	06	16	26	36	46	56	66	76	...	n6
- * 	05	15	25	35	45	55	65	75	...	n5
- * 	04	14	24	34	44	54	64	74	...	n4
- * 	03	13	23	33	43	53	63	73	...	n3
- * 	02	12	22	32	42	52	62	72	...	n2
- * 	01	11	21	31	41	51	61	71	...	n1
- * 	00	10	20	30	40	50	60	70	...	n0
- */
 
 
 import java.io.*;
