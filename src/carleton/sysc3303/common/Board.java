@@ -33,13 +33,55 @@ public class Board implements Iterable<PositionTile>
 
     /**
      * Creates a board from a serialized string.
+     * The string does not include players.
      *
      * @param s
      * @return
      */
-    public static Board fromString(String s)
+    public static Board unserialize(String s)
     {
-        return new Board(2);
+        String[] rows = s.split("\\|");
+        Board b = new Board(rows.length);
+        b.walls = new Tile[rows.length][rows.length];
+        b.breakableWalls = new boolean[rows.length][rows.length];
+        Tile[] tiles = Tile.values();
+
+        for(int i=0; i<rows.length; i++)
+        {
+            for(int j=0; j<rows.length; j+=2)
+            {
+                int t = Integer.parseInt(""+rows[i].charAt(j));
+                b.walls[i][j/2] = tiles[t];
+                b.breakableWalls[i][j/2] = rows[i].charAt(j+1) == '0' ? false : true;
+            }
+        }
+
+        return b;
+    }
+
+
+    /**
+     * Converts the current state into a simple string.
+     * Does not include players.
+     *
+     * @return
+     */
+    public String serialize()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        for(PositionTile pt: this)
+        {
+            if(pt.getX() == 0 && pt.getY() != 0)
+            {
+                sb.append('|');
+            }
+
+            sb.append(walls[pt.getX()][pt.getY()].ordinal());
+            sb.append(breakableWalls[pt.getX()][pt.getY()] ? 1 : 0);
+        }
+
+        return sb.toString();
     }
 
 
@@ -92,7 +134,7 @@ public class Board implements Iterable<PositionTile>
         {
         case EMPTY:
         case EXIT:
-            return breakableWalls[x][y] && isOccupied(x, y);
+            return breakableWalls[x][y];
         default:
             return false;
         }
