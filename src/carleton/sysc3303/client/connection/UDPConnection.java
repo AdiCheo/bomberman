@@ -2,6 +2,7 @@ package carleton.sysc3303.client.connection;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.util.LinkedList;
 
@@ -78,33 +79,14 @@ public class UDPConnection extends AbstractConnection
      */
     protected void parseMessage(byte[] data)
     {
-        String[] msg = new String(data).trim().split(":");
-
-        @SuppressWarnings("rawtypes")
-        Constructor c;
-        IMessage m;
-
         try
         {
-            c = Class.forName(msg[0]).getConstructor(new Class[]{String.class});
+            processMessage(IMessageFactory.forge(data));
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            return;
         }
-
-        try
-        {
-            m = (IMessage)c.newInstance(msg[1]);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return;
-        }
-
-        processMessage(m);
     }
 
 
@@ -156,11 +138,10 @@ public class UDPConnection extends AbstractConnection
     @Override
     protected void sendMessage(IMessage m)
     {
-        String msg = m.getClass().getCanonicalName() + ":" + m.serialize();
-        byte[] buffer = msg.getBytes();
+        byte[] buffer = IMessageFactory.serialize(m);
 
         System.out.print("Sending data (raw): ");
-        System.out.println(msg);
+        System.out.println(new String(buffer));
 
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, ip);
 

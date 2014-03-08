@@ -83,29 +83,15 @@ public abstract class AbstractServer implements IServer
      */
     protected void parseMessage(InetAddress a, int port, byte[] data)
     {
-        String[] msg = new String(data).trim().split(":");
         IClient cl = null;
-        @SuppressWarnings("rawtypes")
-        Constructor c;
         IMessage m;
 
         try
         {
-            c = Class.forName(msg[0]).getConstructor(new Class[]{String.class});
+            m = IMessageFactory.forge(data);
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            return;
-        }
-
-        try
-        {
-            m = (IMessage)c.newInstance(msg[1]);
-        }
-        catch (Exception e)
-        {
-            System.out.println(msg[1].length());
             e.printStackTrace();
             return;
         }
@@ -113,7 +99,7 @@ public abstract class AbstractServer implements IServer
         try
         {
             cl = getClient(a, port);
-            System.out.println("Message from known client");
+            System.out.println("Message from known client: " + cl.getId());
         }
         catch(Exception e)
         {

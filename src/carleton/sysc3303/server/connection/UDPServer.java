@@ -153,8 +153,7 @@ public class UDPServer extends AbstractServer
     @Override
     public void queueMessage(IMessage m, IClient c)
     {
-        String msg = m.getClass().getCanonicalName() + ":" + m.serialize();
-        byte[] data = msg.getBytes();
+        byte[] data = IMessageFactory.serialize(m);
 
         try
         {
