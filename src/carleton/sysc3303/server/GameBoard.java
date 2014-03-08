@@ -62,7 +62,7 @@ public class GameBoard
 
         server.addConnectionListener(new ConnectionListener() {
             @Override
-            public void connectionChanged(IClient c, boolean connected, boolean isSpectator)
+            public void connectionChanged(IClient c, boolean connected, String args)
             {
                 if(current_state == StateMessage.State.END)
                 {
@@ -73,7 +73,7 @@ public class GameBoard
                 {
                     if(connected)
                     {
-                        if(isSpectator)
+                        if(args.equals("0"))
                         {
                             newSpectator(c);
                         }

@@ -187,7 +187,7 @@ public class UDPServer extends AbstractServer
 
 
     @Override
-    protected synchronized void addClient(InetAddress ip, int port, boolean isSpectator)
+    protected synchronized void addClient(InetAddress ip, int port, String args)
     {
         Pair<InetAddress, Integer> key = new Pair<InetAddress, Integer>(ip, port);
         IClient c = new UDPClient(connection_counter++, ip, port);
@@ -195,6 +195,6 @@ public class UDPServer extends AbstractServer
 
         clients.put(key, c);
         queueMessage(new MetaMessage(Type.ACCEPT, "" + c.getId()), c);
-        invokeConnectionListeners(c, true, isSpectator);
+        invokeConnectionListeners(c, true, args);
     }
 }

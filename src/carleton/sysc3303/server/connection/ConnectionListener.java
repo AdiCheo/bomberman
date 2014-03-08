@@ -11,5 +11,5 @@ public abstract class ConnectionListener implements EventListener
      * @param connected
      * @param isSpectator
      */
-    public abstract void connectionChanged(IClient c, boolean connected, boolean isSpectator);
+    public abstract void connectionChanged(IClient c, boolean connected, String args);
 }

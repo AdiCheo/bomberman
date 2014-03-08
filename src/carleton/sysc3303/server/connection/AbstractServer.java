@@ -50,11 +50,11 @@ public abstract class AbstractServer implements IServer
      * @param connected
      * @param isSpectator
      */
-    protected void invokeConnectionListeners(IClient c, boolean connected, boolean isSpectator)
+    protected void invokeConnectionListeners(IClient c, boolean connected, String args)
     {
         for(ConnectionListener cl: connectionListeners)
         {
-            cl.connectionChanged(c, connected, isSpectator);
+            cl.connectionChanged(c, connected, args);
         }
     }
 
@@ -137,7 +137,7 @@ public abstract class AbstractServer implements IServer
         switch(m.getStatus())
         {
         case CONNECT:
-            addClient(ip, port, m.getMessage().equals("0"));
+            addClient(ip, port, m.getMessage());
             break;
         case DISCONNECT:
             removeClient(cl);
@@ -153,9 +153,9 @@ public abstract class AbstractServer implements IServer
      *
      * @param ip
      * @param port
-     * @param boolean
+     * @param args
      */
-    protected abstract void addClient(InetAddress ip, int port, boolean isSpectator);
+    protected abstract void addClient(InetAddress ip, int port, String args);
 
 
     /**
@@ -167,7 +167,7 @@ public abstract class AbstractServer implements IServer
     {
         Pair<InetAddress, Integer> tmp = new Pair<InetAddress, Integer>(cl.getAddress(), cl.getPort());
         clients.remove(tmp);
-        invokeConnectionListeners(cl, false, false); // FIXME
+        invokeConnectionListeners(cl, false, null); // FIXME
         System.out.println("Client disconnected");
     }
 

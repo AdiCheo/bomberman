@@ -38,8 +38,7 @@ public class Pinger implements Runnable
     {
         server.addConnectionListener(new ConnectionListener() {
             @Override
-            public void connectionChanged(IClient c, boolean connected,
-                    boolean isSpectator)
+            public void connectionChanged(IClient c, boolean connected, String args)
             {
                 if(connected)
                 {
