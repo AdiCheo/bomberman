@@ -105,7 +105,15 @@ public class BotClient
                     //Read lines
                     while(isRunning() && (line = reader.readLine()) != null)
                     {
-                        m = new MoveMessage(Direction.valueOf(line.trim()));
+                        try
+                        {
+                            m = new MoveMessage(Direction.valueOf(line.trim()));
+                        }
+                        catch(IllegalArgumentException e)
+                        {
+                            continue;
+                        }
+
                         c.queueMessage(m);
                         Thread.sleep(delay);
                     }

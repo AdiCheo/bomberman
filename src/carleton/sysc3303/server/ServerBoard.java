@@ -46,7 +46,7 @@ public class ServerBoard extends Board
     {
         Board b = new Board(serialize());
 
-        if(exit != null)
+        if(exit != null && exit_hidden)
         {
             boolean destructable = b.getTile(exit) == Tile.DESTRUCTABLE;
             b.setTile(exit, destructable ? Tile.DESTRUCTABLE : Tile.EMPTY);
@@ -88,11 +88,11 @@ public class ServerBoard extends Board
                     t = Tile.EMPTY;
                 }
 
-                b.setTile(x/2, y, t);
+                b.setTile(x/2, size - y - 1, t);
 
                 if(line.charAt(x+1) == '+')
                 {
-                    b.setTile(x/2, y, Tile.DESTRUCTABLE);
+                    b.setTile(x/2, size - y - 1, Tile.DESTRUCTABLE);
                 }
             }
 
@@ -147,7 +147,13 @@ public class ServerBoard extends Board
     public boolean isExit(int x, int y)
     {
         checkPosition(x, y);
-        return getTile(x, y) == Tile.EXIT;
+
+        if(exit == null)
+        {
+            return false;
+        }
+
+        return exit.getX() == x && exit.getY() == y;
     }
 
 

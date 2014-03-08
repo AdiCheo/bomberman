@@ -101,8 +101,6 @@ public class Board implements Iterable<PositionTile>
             sb.append(hasBreakableWall(pt) ? '+' : '-');
         }
 
-        System.out.println(sb.toString());
-
         return sb.toString();
     }
 
@@ -266,18 +264,18 @@ public class Board implements Iterable<PositionTile>
 
         if(t == Tile.DESTRUCTABLE)
         {
-            if(walls[x][y] == Tile.WALL)
+            if(walls[size - y - 1][x] == Tile.WALL)
             {
                 throw new IllegalArgumentException(
                         "Cannot have a breakable wall on top of a regular wall.");
             }
 
-            breakableWalls[x][y] = true;
+            breakableWalls[size - y - 1][x] = true;
         }
         else
         {
-            breakableWalls[x][y] = false;
-            walls[x][y] = t;
+            breakableWalls[size - y - 1][x] = false;
+            walls[size - y - 1][x] = t;
         }
     }
 
@@ -344,7 +342,7 @@ public class Board implements Iterable<PositionTile>
                 c = ' ';
             }
 
-            tmp[pt.getY()][pt.getX()] = c;
+            tmp[size - pt.getY() - 1][pt.getX()] = c;
         }
 
         StringBuilder sb = new StringBuilder();
@@ -383,7 +381,7 @@ public class Board implements Iterable<PositionTile>
     protected Tile getWall(int x, int y)
     {
         checkPosition(x, y);
-        return walls[x][y];
+        return walls[size - y - 1][x];
     }
 
 
@@ -409,7 +407,7 @@ public class Board implements Iterable<PositionTile>
     protected boolean hasBreakableWall(int x, int y)
     {
         checkPosition(x, y);
-        return breakableWalls[x][y];
+        return breakableWalls[size - y - 1][x];
     }
 
 

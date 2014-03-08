@@ -71,7 +71,7 @@ public class DisplayBoard extends JPanel
                 g.setColor(c);
                 g.fillRect(
                     offset_x + p.getX() * block_size,
-                    offset_y + p.getY() * block_size,
+                    offset_y + draw_size - ((p.getY() + 1) * block_size),
                     block_size,
                     block_size);
             }
