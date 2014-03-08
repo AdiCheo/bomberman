@@ -16,7 +16,8 @@ public class GameBoard
 
     private ServerBoard b;
     private IServer server;
-    private Map<Integer, Position> players;
+    private Map<Integer, Position> player_positions;
+    private Map<Integer, Player> players;
     private Queue<Character> letters;
     private StateMessage.State current_state;
 
@@ -43,13 +44,12 @@ public class GameBoard
     {
         this.server = server;
         this.b = b;
-        this.players = new HashMap<Integer, Position>();
+        this.player_positions = new HashMap<Integer, Position>();
+        this.players = new HashMap<Integer, Player>();
         this.letters = new ArrayDeque<Character>();
         this.current_state = StateMessage.State.NOTSTARTED;
 
-        System.out.println(b);
-
-        this.b.setPlayers(players);
+        this.b.setPlayers(player_positions);
 
         for(char i='a'; i<'z'; i++)
         {
@@ -134,11 +134,14 @@ public class GameBoard
      */
     private void addPlayer(IClient c)
     {
-        if(players.size() == MAX_PLAYERS)
+        if(player_positions.size() == MAX_PLAYERS)
         {
             server.queueMessage(new MetaMessage(Type.REJECT, "Server is full"), c);
             return;
         }
+
+        Player p = new Player(c.getId());
+        players.put(p.getId(), p);
 
         // new player position
         Position pos = getNewPosition();
@@ -165,7 +168,7 @@ public class GameBoard
         server.queueMessage(new MapMessage(b.createSendableBoard()), c);
 
         // send everyone's current positions
-        for(Entry<Integer, Position> e: players.entrySet())
+        for(Entry<Integer, Position> e: player_positions.entrySet())
         {
             Position pos = e.getValue();
             server.queueMessage(new PosMessage(e.getKey(), pos.getX(), pos.getY()), c);
@@ -180,8 +183,9 @@ public class GameBoard
      */
     private void removePlayer(IClient c)
     {
-        if(players.containsKey(c.getId()))
+        if(player_positions.containsKey(c.getId()))
         {
+            player_positions.remove(c.getId());
             players.remove(c.getId());
             server.queueMessageAll(new PosMessage(c.getId(), -1, -1));
         }
@@ -237,7 +241,19 @@ public class GameBoard
      */
     private void handleMove(IClient c, MoveMessage m)
     {
-        Position pos = players.get(c.getId());
+        Player p = players.get(c.getId());
+
+        if(!p.canMove())
+        {
+            System.out.printf("Player %d tried to move too early\n", c.getId());
+            return;
+        }
+        else
+        {
+            p.setLastMoveTime(new Date());
+        }
+
+        Position pos = player_positions.get(c.getId());
         int x = pos.getX(), y = pos.getY();
 
         switch(m.getDirection())
@@ -293,22 +309,6 @@ public class GameBoard
      */
     private void setPlayerPosition(int id, Position pos)
     {
-        players.put(id, pos);
-    }
-
-
-    /**
-     * Checks if two positions are adjacent to each other
-     *
-     * @param x
-     * @param y
-     * @param x2
-     * @param y2
-     * @return
-     */
-    public boolean isAdjacent(int x, int y, int x2, int y2)
-    {
-        return (Math.abs(x - x2) == 1 && Math.abs(y - y2) == 0) ||
-                (Math.abs(x - x2) == 0 && Math.abs(y - y2) == 1);
+        player_positions.put(id, pos);
     }
 }

@@ -1,13 +1,16 @@
 package carleton.sysc3303.server;
 
+import java.util.Date;
 
 /**
  * A class representing a player on the server.
  */
 public class Player
 {
+    private static final int TIME_BETWEEN_MOVES = 250;
+
     private int id;
-    private char display;
+    private Date lastMoveTime;
 
 
     /**
@@ -15,10 +18,10 @@ public class Player
      *
      * @param id
      */
-    public Player(int id, char display)
+    public Player(int id)
     {
         this.id = id;
-        this.display = display;
+        this.lastMoveTime = new Date(0);
     }
 
 
@@ -34,13 +37,35 @@ public class Player
 
 
     /**
-     * Gets the player's character representation.
+     * Gets the time that the player last moved at.
      *
      * @return
      */
-    public char getDisplay()
+    public Date getLastMoveTime()
     {
-        return display;
+        return lastMoveTime;
+    }
+
+
+    /**
+     * Sets the time the player last moved at.
+     *
+     * @param t
+     */
+    public void setLastMoveTime(Date t)
+    {
+        lastMoveTime = t;
+    }
+
+
+    /**
+     * Checks if the player is allowed to move yet.
+     *
+     * @return
+     */
+    public boolean canMove()
+    {
+        return (new Date().getTime() - lastMoveTime.getTime()) >= TIME_BETWEEN_MOVES;
     }
 
 
