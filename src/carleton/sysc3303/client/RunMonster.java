@@ -3,6 +3,7 @@ package carleton.sysc3303.client;
 import java.io.File;
 import java.net.*;
 import carleton.sysc3303.client.connection.*;
+import carleton.sysc3303.common.PlayerTypes;
 
 public class RunMonster
 {
@@ -14,9 +15,9 @@ public class RunMonster
      */
     public static void main(String[] args) throws UnknownHostException
     {
-    	IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
-               
-        new BotClient(c, new File(args[0]), 333,Types.MONSTER);
+        IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
+
+        new BotClient(c, new File(args[0]), 333, PlayerTypes.MONSTER);
 
         new Thread(c).start();
     }

@@ -79,10 +79,10 @@ public class GameBoard
                         }
                         else
                         {
-                        	if(args.equals("1p"))
-                        		addPlayer(c,false);
-                        	if(args.equals("1m"))
-                        		addPlayer(c,true);
+                            if(args.equals("1p"))
+                                addPlayer(c, false);
+                            if(args.equals("1m"))
+                                addPlayer(c, true);
                         }
                     }
                     else
@@ -127,7 +127,7 @@ public class GameBoard
      *
      * @param c
      */
-    private void addPlayer(IClient c, boolean playerType)
+    private void addPlayer(IClient c, boolean isMonster)
     {
         if(player_positions.size() == MAX_PLAYERS)
         {
@@ -135,7 +135,17 @@ public class GameBoard
             return;
         }
 
-        Player p = new Player(c.getId(),playerType);//TO CONFIRM
+        Player p;
+
+        if(isMonster)
+        {
+            p = new Monster(c.getId());
+        }
+        else
+        {
+            p = new Player(c.getId());
+        }
+
         players.put(p.getId(), p);
 
         // new player position
@@ -148,7 +158,7 @@ public class GameBoard
         sendInitialState(c);
 
         // notify everyone of new player
-        server.queueMessage(new PosMessage(c.getId(), pos.getX(), pos.getY()));
+        server.queueMessage(new PosMessage(c.getId(), pos, p.getType()));
     }
 
 
@@ -166,7 +176,8 @@ public class GameBoard
         for(Entry<Integer, Position> e: player_positions.entrySet())
         {
             Position pos = e.getValue();
-            server.queueMessage(new PosMessage(e.getKey(), pos.getX(), pos.getY()), c);
+            Player p = players.get(e.getKey());
+            server.queueMessage(new PosMessage(e.getKey(), pos, p.getType()), c);
         }
     }
 
@@ -181,8 +192,8 @@ public class GameBoard
         if(player_positions.containsKey(c.getId()))
         {
             player_positions.remove(c.getId());
-            players.remove(c.getId());
-            server.queueMessage(new PosMessage(c.getId(), -1, -1));
+            Player p = players.remove(c.getId());
+            server.queueMessage(new PosMessage(c.getId(), -1, -1, p.getType()));
         }
     }
 
@@ -266,59 +277,58 @@ public class GameBoard
             x++;
         }
 
-        if(p.getIsMonster() == false)
+        if(!(p instanceof Monster))
         {
-        	if(b.isPositionValid(x, y) && b.isEmpty(x, y) && !b.isOccupied(x, y))
-        	{
-        		setPlayerPosition(c.getId(), new Position(x, y));
-        		server.queueMessage(new PosMessage(c.getId(), x, y));
-        		/*System.out.printf(
-                    	"Player %d moved from %s to (%d,%d)\n",
-                    	c.getId(), pos, x, y);*/
+            if(b.isPositionValid(x, y) && b.isEmpty(x, y) && !b.isOccupied(x, y))
+            {
+                setPlayerPosition(c.getId(), new Position(x, y));
+                server.queueMessage(new PosMessage(c.getId(), x, y, p.getType()));
+                /*System.out.printf(
+                        "Player %d moved from %s to (%d,%d)\n",
+                        c.getId(), pos, x, y);*/
 
-        		if(b.isExitHidden() && b.isExit(x, y))
-        		{
-        			System.out.println("Found exit");
-        			b.setExitHidden(false);
-        			server.queueMessage(new MapMessage(b.createSendableBoard()));
-        		}
-        		else if(!b.isExitHidden() && b.isExit(x, y))
-        		{
-        			System.out.println("Game over");
-        			current_state = StateMessage.State.END;
-        			server.queueMessage(new StateMessage(current_state));
-        		}
-        	}
-        	else
-        	{
-        		System.out.printf(
-        				"Player %d tried to move from %s to (%d,%d), but failed\n",
-        				c.getId(), pos, x, y);
-        	}
+                if(b.isExitHidden() && b.isExit(x, y))
+                {
+                    System.out.println("Found exit");
+                    b.setExitHidden(false);
+                    server.queueMessage(new MapMessage(b.createSendableBoard()));
+                }
+                else if(!b.isExitHidden() && b.isExit(x, y))
+                {
+                    System.out.println("Game over");
+                    current_state = StateMessage.State.END;
+                    server.queueMessage(new StateMessage(current_state));
+                }
+            }
+            else
+            {
+                System.out.printf(
+                        "Player %d tried to move from %s to (%d,%d), but failed\n",
+                        c.getId(), pos, x, y);
+            }
         }
-        
-        if(p.getIsMonster() == true)
+        else
         {
-        	if(b.isPositionValid(x,y) && b.isEmpty(x, y))
-        	{
-        		setPlayerPosition(c.getId(), new Position(x,y));
-        		server.queueMessage(new PosMessage(c.getId(),x,y));
-        		/*System.outprintf(
-        		 * 		"Player %d moved from %s to (%d,%d) \n",
-        		 * 		c.getId(), pos, x, y);*/
-        		
-        	}
-        	else
-        	{
-        		System.out.printf(
-        				"Player %d tried to move from %s to (%d,%d), but failed\n",
-        				c.getId(),pos, x, y);
-        	}
-        		
+            if(b.isPositionValid(x,y) && b.isEmpty(x, y))
+            {
+                setPlayerPosition(c.getId(), new Position(x,y));
+                server.queueMessage(new PosMessage(c.getId(), x, y, p.getType()));
+                /*System.outprintf(
+                 * 		"Player %d moved from %s to (%d,%d) \n",
+                 * 		c.getId(), pos, x, y);*/
+
+            }
+            else
+            {
+                System.out.printf(
+                        "Player %d tried to move from %s to (%d,%d), but failed\n",
+                        c.getId(),pos, x, y);
+            }
+
         }
     }
-    
-    
+
+
     /**
      * Set a player's position.
      *

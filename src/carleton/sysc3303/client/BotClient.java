@@ -15,7 +15,7 @@ public class BotClient
     private IConnection c;
     private boolean run;
     private int delay;
-    private Types t;
+    private PlayerTypes t;
 
     /**
      * Constructor.
@@ -23,14 +23,14 @@ public class BotClient
      * @param c
      * @param command
      */
-    public BotClient(IConnection c, File command, int delay, Types t)
+    public BotClient(IConnection c, File command, int delay, PlayerTypes t)
     {
         this.commandList = command;
         this.c = c;
         this.delay = delay;
         this.run = false;
         this.t = t;
-        
+
         init();
     }
 
@@ -62,14 +62,16 @@ public class BotClient
             {
                 // TODO Auto-generated method stub
             }
-        });  
-        
-        if(t.toString().equals("PLAYER"))
+        });
+
+        if(t == PlayerTypes.PLAYER)
         {
-        	clientType = "p";
+            clientType = "p";
         }
         else
-        	clientType = "m";
+        {
+            clientType = "m";
+        }
 
         c.queueMessage(new MetaMessage(Type.CONNECT, "1" + clientType));
     }

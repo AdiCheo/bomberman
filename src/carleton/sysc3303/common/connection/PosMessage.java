@@ -1,10 +1,11 @@
 package carleton.sysc3303.common.connection;
 
-import carleton.sysc3303.common.Position;
+import carleton.sysc3303.common.*;
 
 public class PosMessage implements IMessage
 {
     private int pid, x, y;
+    private PlayerTypes type;
 
 
     /**
@@ -14,11 +15,12 @@ public class PosMessage implements IMessage
      * @param x		X-coordinate
      * @param y		Y-coordinate
      */
-    public PosMessage(int pid, int x, int y)
+    public PosMessage(int pid, int x, int y, PlayerTypes type)
     {
         this.pid = pid;
         this.x = x;
         this.y = y;
+        this.type = type;
     }
 
 
@@ -28,9 +30,9 @@ public class PosMessage implements IMessage
      * @param pid
      * @param pos
      */
-    public PosMessage(int pid, Position pos)
+    public PosMessage(int pid, Position pos, PlayerTypes type)
     {
-        this(pid, pos.getX(), pos.getY());
+        this(pid, pos.getX(), pos.getY(), type);
     }
 
 
@@ -46,6 +48,18 @@ public class PosMessage implements IMessage
         this.pid = Integer.parseInt(args[0]);
         this.x = Integer.parseInt(args[1]);
         this.y = Integer.parseInt(args[2]);
+        this.type = PlayerTypes.valueOf(args[3]);
+    }
+
+
+    /**
+     * Gets the player type.
+     *
+     * @return
+     */
+    public PlayerTypes getType()
+    {
+        return type;
     }
 
 
@@ -85,6 +99,6 @@ public class PosMessage implements IMessage
     @Override
     public String serialize()
     {
-        return pid + "," + x + "," + y;
+        return String.format("%d,%d,%d,%s", pid, x, y, type.toString());
     }
 }

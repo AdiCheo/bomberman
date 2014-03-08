@@ -2,6 +2,8 @@ package carleton.sysc3303.server;
 
 import java.util.Date;
 
+import carleton.sysc3303.common.PlayerTypes;
+
 /**
  * A class representing a player on the server.
  */
@@ -11,7 +13,6 @@ public class Player
 
     private int id;
     private Date lastMoveTime;
-    private boolean isMonster;
 
 
     /**
@@ -19,11 +20,10 @@ public class Player
      *
      * @param id
      */
-    public Player(int id, boolean b)
+    public Player(int id)
     {
         this.id = id;
         this.lastMoveTime = new Date(0);
-        this.isMonster = b;
     }
 
 
@@ -37,10 +37,6 @@ public class Player
         return id;
     }
 
-    public boolean getIsMonster()
-    {
-    	return isMonster;
-    }
 
     /**
      * Gets the time that the player last moved at.
@@ -83,6 +79,17 @@ public class Player
     public int hashCode()
     {
         return new Integer(id).hashCode();
+    }
+
+
+    /**
+     * Gets the player type.
+     *
+     * @return
+     */
+    public PlayerTypes getType()
+    {
+        return PlayerTypes.PLAYER;
     }
 
 
