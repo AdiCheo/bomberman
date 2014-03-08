@@ -13,7 +13,6 @@ public class Run
     public static void main(String[] args) throws IOException
     {
         IServer s = new UDPServer(9999);
-        GameBoard gb;
         ServerBoard b;
 
         if(args.length == 1)
@@ -25,8 +24,7 @@ public class Run
             b = new ServerBoard(20);
         }
 
-        gb = new GameBoard(s, b);
-
+        new GameBoard(s, b);
         new Thread(s).start(); // background the server
 
         System.out.println("Started");

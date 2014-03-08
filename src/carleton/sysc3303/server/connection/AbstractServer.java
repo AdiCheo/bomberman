@@ -219,6 +219,7 @@ public abstract class AbstractServer implements IServer
         }
 
 
+        @SuppressWarnings("rawtypes")
         @Override
         public boolean equals(Object obj)
         {

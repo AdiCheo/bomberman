@@ -2,7 +2,6 @@ package carleton.sysc3303.client.gui;
 
 import java.awt.*;
 import javax.swing.JPanel;
-import java.util.*;
 import java.util.Map.Entry;
 
 import carleton.sysc3303.common.*;

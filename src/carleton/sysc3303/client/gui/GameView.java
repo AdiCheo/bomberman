@@ -2,7 +2,6 @@ package carleton.sysc3303.client.gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 
 import carleton.sysc3303.common.*;
 

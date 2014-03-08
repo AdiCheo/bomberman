@@ -1,8 +1,6 @@
 package carleton.sysc3303.client.connection;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.util.LinkedList;
 
