@@ -15,7 +15,7 @@ public class RunBot
     public static void main(String[] args) throws UnknownHostException
     {
         IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
-        BotClient b = new BotClient(c, new File(args[0]), 1000);
+        BotClient b = new BotClient(c, new File(args[0]), 333);
 
         new Thread(c).start();
     }

@@ -1,12 +1,14 @@
 package carleton.sysc3303.server.connection;
 
 import java.net.InetAddress;
+import java.util.Date;
 
 public abstract class AbstractClient implements IClient
 {
     protected InetAddress address;
     protected int port;
     protected int id;
+    protected Date lastActive;
 
 
     /**
@@ -21,6 +23,7 @@ public abstract class AbstractClient implements IClient
         this.id = id;
         this.address = address;
         this.port = port;
+        this.lastActive = new Date(0);
     }
 
 
@@ -42,5 +45,19 @@ public abstract class AbstractClient implements IClient
     public int getId()
     {
         return id;
+    }
+
+
+    @Override
+    public synchronized Date getLastActive()
+    {
+        return lastActive;
+    }
+
+
+    @Override
+    public synchronized void setLastActive(Date date)
+    {
+        lastActive = date;
     }
 }

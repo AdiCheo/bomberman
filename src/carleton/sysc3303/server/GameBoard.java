@@ -146,7 +146,7 @@ public class GameBoard
         // new player position
         Position pos = getNewPosition();
 
-        System.out.printf("Player %d starts at (%d,%d)\n", c.getId(), pos.getX(), pos.getY());
+        System.out.printf("Player %d starts at %s\n", c.getId(), pos);
         setPlayerPosition(c.getId(), pos);
 
         // send player the initial state
@@ -275,9 +275,9 @@ public class GameBoard
         {
             setPlayerPosition(c.getId(), new Position(x, y));
             server.queueMessageAll(new PosMessage(c.getId(), x, y));
-            System.out.printf(
-                    "Player %d moved from (%d,%d) to (%d,%d)\n",
-                    c.getId(), pos.getX(), pos.getY(), x, y);
+            /*System.out.printf(
+                    "Player %d moved from %s to (%d,%d)\n",
+                    c.getId(), pos, x, y);*/
 
             if(b.isExitHidden() && b.isExit(x, y))
             {
@@ -294,9 +294,9 @@ public class GameBoard
         }
         else
         {
-            System.out.printf(
-                    "Player %d tried to move from (%d,%d) to (%d,%d), but failed\n",
-                    c.getId(), pos.getX(), pos.getY(), x, y);
+            /*System.out.printf(
+                    "Player %d tried to move from %s to (%d,%d), but failed\n",
+                    c.getId(), pos, x, y);*/
         }
     }
 

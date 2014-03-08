@@ -44,6 +44,14 @@ public interface IServer extends Runnable
 
 
     /**
+     * Removes a client from the current list.
+     *
+     * @param c
+     */
+    public void removeClient(IClient c);
+
+
+    /**
      * Adds a new listener that listens for messages from connected clients.
      *
      * @param ml

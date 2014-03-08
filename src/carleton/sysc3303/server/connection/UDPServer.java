@@ -46,6 +46,8 @@ public class UDPServer extends AbstractServer
         this.connection_counter = 0;
         this.incoming = new LinkedBlockingQueue<DatagramPacket>();
         this.outgoing = new LinkedBlockingQueue<DatagramPacket>();
+
+        new Thread(new Pinger(this, 30000, 5000)).start();
     }
 
 
@@ -189,9 +191,10 @@ public class UDPServer extends AbstractServer
     {
         Pair<InetAddress, Integer> key = new Pair<InetAddress, Integer>(ip, port);
         IClient c = new UDPClient(connection_counter++, ip, port);
+        c.setLastActive(new Date());
 
         clients.put(key, c);
-        queueMessage(new MetaMessage(Type.ACCEPT, ""+c.getId()), c);
+        queueMessage(new MetaMessage(Type.ACCEPT, "" + c.getId()), c);
         invokeConnectionListeners(c, true, isSpectator);
     }
 }

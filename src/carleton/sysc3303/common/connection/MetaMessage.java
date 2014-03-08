@@ -28,6 +28,16 @@ public class MetaMessage implements IMessage
      * Constructor.
      *
      * @param type
+     */
+    public MetaMessage(Type type)
+    {
+        this(type, "");
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param type
      * @param message
      */
     public MetaMessage(Type type, String message)

@@ -1,6 +1,5 @@
 package carleton.sysc3303.server.connection;
 
-import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.util.*;
 import carleton.sysc3303.common.connection.*;
@@ -100,6 +99,7 @@ public abstract class AbstractServer implements IServer
         {
             cl = getClient(a, port);
             System.out.println("Message from known client: " + cl.getId());
+            cl.setLastActive(new Date());
         }
         catch(Exception e)
         {
@@ -128,6 +128,12 @@ public abstract class AbstractServer implements IServer
      */
     protected void parseMeta(IClient cl, MetaMessage m, InetAddress ip, int port)
     {
+        if(cl == null && m.getStatus() != MetaMessage.Type.CONNECT)
+        {
+            // silently ignore non-connection messages from unknown clients
+            return;
+        }
+
         switch(m.getStatus())
         {
         case CONNECT:
@@ -157,7 +163,7 @@ public abstract class AbstractServer implements IServer
      *
      * @param cl
      */
-    protected synchronized void removeClient(IClient cl)
+    public synchronized void removeClient(IClient cl)
     {
         Pair<InetAddress, Integer> tmp = new Pair<InetAddress, Integer>(cl.getAddress(), cl.getPort());
         clients.remove(tmp);
