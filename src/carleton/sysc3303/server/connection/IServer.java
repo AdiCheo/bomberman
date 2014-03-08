@@ -32,7 +32,7 @@ public interface IServer extends Runnable
      *
      * @param m
      */
-    public void queueMessageAll(IMessage m);
+    public void queueMessage(IMessage m);
 
 
     /**

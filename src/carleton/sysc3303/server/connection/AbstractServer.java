@@ -20,7 +20,7 @@ public abstract class AbstractServer implements IServer
 
 
     @Override
-    public void queueMessageAll(IMessage m)
+    public void queueMessage(IMessage m)
     {
        for(IClient c: clients.values())
        {

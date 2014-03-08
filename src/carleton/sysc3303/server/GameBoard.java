@@ -146,7 +146,7 @@ public class GameBoard
         sendInitialState(c);
 
         // notify everyone of new player
-        server.queueMessageAll(new PosMessage(c.getId(), pos.getX(), pos.getY()));
+        server.queueMessage(new PosMessage(c.getId(), pos.getX(), pos.getY()));
     }
 
 
@@ -180,7 +180,7 @@ public class GameBoard
         {
             player_positions.remove(c.getId());
             players.remove(c.getId());
-            server.queueMessageAll(new PosMessage(c.getId(), -1, -1));
+            server.queueMessage(new PosMessage(c.getId(), -1, -1));
         }
     }
 
@@ -267,7 +267,7 @@ public class GameBoard
         if(b.isPositionValid(x, y) && b.isEmpty(x, y) && !b.isOccupied(x, y))
         {
             setPlayerPosition(c.getId(), new Position(x, y));
-            server.queueMessageAll(new PosMessage(c.getId(), x, y));
+            server.queueMessage(new PosMessage(c.getId(), x, y));
             /*System.out.printf(
                     "Player %d moved from %s to (%d,%d)\n",
                     c.getId(), pos, x, y);*/
@@ -276,13 +276,13 @@ public class GameBoard
             {
                 System.out.println("Found exit");
                 b.setExitHidden(false);
-                server.queueMessageAll(new MapMessage(b.createSendableBoard()));
+                server.queueMessage(new MapMessage(b.createSendableBoard()));
             }
             else if(!b.isExitHidden() && b.isExit(x, y))
             {
                 System.out.println("Game over");
                 current_state = StateMessage.State.END;
-                server.queueMessageAll(new StateMessage(current_state));
+                server.queueMessage(new StateMessage(current_state));
             }
         }
         else
