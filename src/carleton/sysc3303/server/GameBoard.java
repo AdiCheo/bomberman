@@ -18,7 +18,6 @@ public class GameBoard
     private IServer server;
     private Map<Integer, Position> player_positions;
     private Map<Integer, Player> players;
-    private Queue<Character> letters;
     private StateMessage.State current_state;
 
 
@@ -46,15 +45,9 @@ public class GameBoard
         this.b = b;
         this.player_positions = new HashMap<Integer, Position>();
         this.players = new HashMap<Integer, Player>();
-        this.letters = new ArrayDeque<Character>();
         this.current_state = StateMessage.State.NOTSTARTED;
 
         this.b.setPlayers(player_positions);
-
-        for(char i='a'; i<'z'; i++)
-        {
-            letters.add(i);
-        }
 
         hookEvents();
     }
