@@ -167,7 +167,7 @@ public class Board implements Iterable<PositionTile>
         {
         case EMPTY:
         case EXIT:
-            return hasBreakableWall(x, y);
+            return !hasBreakableWall(x, y);
         default:
             return false;
         }

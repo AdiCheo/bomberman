@@ -212,7 +212,7 @@ public class GameBoard
             randomX = randomGenerator.nextInt(b.getSize());
             randomY = randomGenerator.nextInt(b.getSize());
 
-        } while (b.isOccupied(randomX, randomY));
+        } while (b.isOccupied(randomX, randomY) && !b.isEmpty(randomX, randomY));
 
         return new Position(randomX, randomY);
     }
@@ -271,7 +271,7 @@ public class GameBoard
             x++;
         }
 
-        if(b.isPositionValid(x, y) && !b.isOccupied(x, y))
+        if(b.isPositionValid(x, y) && b.isEmpty(x, y) && !b.isOccupied(x, y))
         {
             setPlayerPosition(c.getId(), new Position(x, y));
             server.queueMessageAll(new PosMessage(c.getId(), x, y));
@@ -294,9 +294,9 @@ public class GameBoard
         }
         else
         {
-            /*System.out.printf(
+            System.out.printf(
                     "Player %d tried to move from %s to (%d,%d), but failed\n",
-                    c.getId(), pos, x, y);*/
+                    c.getId(), pos, x, y);
         }
     }
 
