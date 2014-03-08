@@ -79,7 +79,7 @@ public class MetaMessage implements IMessage
     {
         return message;
     }
-
+ 
 
     @Override
     public String serialize()

@@ -4,7 +4,7 @@ import java.io.File;
 import java.net.*;
 import carleton.sysc3303.client.connection.*;
 
-public class RunBot
+public class RunMonster
 {
     /**
      * Application entry point.
@@ -14,10 +14,10 @@ public class RunBot
      */
     public static void main(String[] args) throws UnknownHostException
     {
-        IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
+    	IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
                
-        new BotClient(c, new File(args[0]), 333,Types.PLAYER);
-        
+        new BotClient(c, new File(args[0]), 333,Types.MONSTER);
+
         new Thread(c).start();
     }
 }

@@ -6,7 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 public final class IMessageFactory
 {
     /**
-     * Hidden constructor to prevent initlization.
+     * Hidden constructor to prevent initialization.
      */
     private IMessageFactory()
     {
