@@ -23,6 +23,7 @@ public class Window extends JFrame
     private JPanel loading_panel;
     private IConnection c;
     private Map<Integer, Position> positions;
+    private Map<Integer, Color> colors;
 
 
     /**
@@ -35,6 +36,8 @@ public class Window extends JFrame
         this.c = c;
         this.ui = new GameView();
         positions = new HashMap<Integer, Position>();
+        colors = new HashMap<Integer, Color>();
+
         init();
         hookEvents();
     }
@@ -63,6 +66,8 @@ public class Window extends JFrame
         add(ui, States.GAME.toString());
         add(done_panel, States.DONE.toString());
         setDisplay(States.LOADING);
+
+        ui.setColors(colors);
     }
 
 
@@ -92,15 +97,28 @@ public class Window extends JFrame
 
         c.addPositionListener(new PositionListener() {
             @Override
-            public void move(int id, Position pos)
+            public void move(int id, Position pos, PlayerTypes type)
             {
                 if(pos.getX() < 0 || pos.getY() < 0)
                 {
                     positions.remove(id);
+                    colors.remove(id);
                 }
                 else
                 {
                     positions.put(id, pos);
+                    Color c;
+
+                    switch(type)
+                    {
+                    case MONSTER:
+                        c = Color.CYAN;
+                        break;
+                    default:
+                        c = Color.BLUE;
+                    }
+
+                    colors.put(id, c);
                 }
 
                 // force ui update

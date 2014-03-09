@@ -2,6 +2,7 @@ package carleton.sysc3303.client.gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Map;
 
 import carleton.sysc3303.common.*;
 
@@ -43,6 +44,16 @@ public class GameView extends JPanel
     public void setMap(Board b)
     {
         board.setWalls(b);
-        board.repaint();
+    }
+
+
+    /**
+     * Sets the color mappings.
+     *
+     * @param colors
+     */
+    public void setColors(Map<Integer, Color> colors)
+    {
+        board.setColors(colors);
     }
 }

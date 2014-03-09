@@ -2,6 +2,8 @@ package carleton.sysc3303.client.gui;
 
 import java.awt.*;
 import javax.swing.JPanel;
+
+import java.util.Map;
 import java.util.Map.Entry;
 
 import carleton.sysc3303.common.*;
@@ -17,6 +19,7 @@ public class DisplayBoard extends JPanel
 {
     private static final long serialVersionUID = 8372907299046333935L;
     private Board walls;
+    private Map<Integer, Color> colors;
 
     /**
      * Set the walls using a boolean matrix.
@@ -26,6 +29,17 @@ public class DisplayBoard extends JPanel
     public void setWalls(Board walls)
     {
         this.walls = walls;
+    }
+
+
+    /**
+     * Stores the colors map.
+     *
+     * @param colors
+     */
+    public void setColors(Map<Integer, Color> colors)
+    {
+        this.colors = colors;
     }
 
 
@@ -77,15 +91,26 @@ public class DisplayBoard extends JPanel
             }
         }
 
+        Color c;
+
         //draw players
-        g.setColor(Color.RED);
         for(Entry<Integer, Position> e: walls.getPlayers().entrySet())
         {
+            if(colors != null && colors.containsKey(e.getKey()))
+            {
+                c = colors.get(e.getKey());
+            }
+            else
+            {
+                c = Color.RED;
+            }
+
+            g.setColor(c);
             g.fillRect(
-            offset_x + e.getValue().getX() * block_size,
-            offset_y + draw_size - ((e.getValue().getY()+1) * block_size),
-            block_size,
-            block_size);
+                offset_x + e.getValue().getX() * block_size,
+                offset_y + draw_size - ((e.getValue().getY()+1) * block_size),
+                block_size,
+                block_size);
         }
 
 

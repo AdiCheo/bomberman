@@ -109,11 +109,11 @@ public abstract class AbstractConnection implements IConnection
      * @param old
      * @param new_
      */
-    protected void invokePositionListeners(int obj, Position pos)
+    protected void invokePositionListeners(int obj, Position pos, PlayerTypes type)
     {
         for(PositionListener e: positionListeners)
         {
-            e.move(obj, pos);
+            e.move(obj, pos, type);
         }
     }
 

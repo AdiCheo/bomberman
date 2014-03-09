@@ -56,14 +56,6 @@ public class BotClient
             }
         });
 
-        c.addPositionListener(new PositionListener() {
-            @Override
-            public void move(int object, Position pos)
-            {
-                // TODO Auto-generated method stub
-            }
-        });
-
         if(t == PlayerTypes.PLAYER)
         {
             clientType = "p";

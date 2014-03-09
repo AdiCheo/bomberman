@@ -5,7 +5,6 @@ import java.net.*;
 import java.util.LinkedList;
 
 import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
-import carleton.sysc3303.common.Position;
 import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
 
@@ -103,7 +102,7 @@ public class UDPConnection extends AbstractConnection
         else if(m instanceof PosMessage)
         {
             PosMessage pm = (PosMessage)m;
-            invokePositionListeners(pm.getPid(), new Position(pm.getX(), pm.getY()));
+            invokePositionListeners(pm.getPid(), pm.getPosition(), pm.getType());
         }
         else if(m instanceof MetaMessage)
         {

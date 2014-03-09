@@ -96,6 +96,17 @@ public class PosMessage implements IMessage
     }
 
 
+    /**
+     * Creates an instance of the position.
+     *
+     * @return
+     */
+    public Position getPosition()
+    {
+        return new Position(x, y);
+    }
+
+
     @Override
     public String serialize()
     {
