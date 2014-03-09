@@ -73,16 +73,19 @@ public class GameBoard
                 {
                     if(connected)
                     {
-                        if(args.equals("0"))
+                        String[] split = args.split(",");
+
+                        if(split[0].equals("0"))
                         {
                             newSpectator(c);
                         }
+                        else if(split.length == 2)
+                        {
+                            addPlayer(c, split[1].equals("m"));
+                        }
                         else
                         {
-                            if(args.equals("1p"))
-                                addPlayer(c, false);
-                            if(args.equals("1m"))
-                                addPlayer(c, true);
+                            System.out.println("Invalid connection message: " + args);
                         }
                     }
                     else

@@ -54,7 +54,7 @@ public class MetaMessage implements IMessage
      */
     public MetaMessage(String data)
     {
-        String[] args = data.split(",");
+        String[] args = data.split(",", 2);
         this.type = Type.valueOf(args[0]);
         this.message = args.length == 1 ? "" : args[1];
     }
@@ -73,13 +73,14 @@ public class MetaMessage implements IMessage
 
     /**
      * Get the message
+     *
      * @return
      */
     public String getMessage()
     {
         return message;
     }
- 
+
 
     @Override
     public String serialize()

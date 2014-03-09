@@ -73,7 +73,7 @@ public class BotClient
             clientType = "m";
         }
 
-        c.queueMessage(new MetaMessage(Type.CONNECT, "1" + clientType));
+        c.queueMessage(new MetaMessage(Type.CONNECT, "1," + clientType));
     }
 
 
