@@ -17,6 +17,7 @@ import carleton.sysc3303.common.connection.StateMessage;
 public abstract class AbstractConnection implements IConnection
 {
     protected List<PositionListener> positionListeners;
+    protected List<BombListener> bombListeners;
     protected List<MapListener> mapListeners;
     protected List<ConnectionStatusListener> connectionListeners;
     protected List<GameStateListener> stateListeners;
@@ -114,6 +115,22 @@ public abstract class AbstractConnection implements IConnection
         for(PositionListener e: positionListeners)
         {
             e.move(obj, pos, type);
+        }
+    }
+
+
+    /**
+     * Invoke all listeners bound to this event.
+     *
+     * @param obj
+     * @param old
+     * @param new_
+     */
+    protected void invokeBombListeners(int obj, Position pos, PlayerTypes type)
+    {
+        for(BombListener e: bombListeners)
+        {
+            e.bomb(obj, pos, type);
         }
     }
 

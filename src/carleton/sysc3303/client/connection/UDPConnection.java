@@ -104,6 +104,11 @@ public class UDPConnection extends AbstractConnection
             PosMessage pm = (PosMessage)m;
             invokePositionListeners(pm.getPid(), pm.getPosition(), pm.getType());
         }
+        else if(m instanceof BombMessage)
+        {
+            BombMessage bm = (BombMessage)m;
+            invokeBombListeners(bm.getPid(), bm.getPosition(), bm.getType());
+        }
         else if(m instanceof MetaMessage)
         {
             MetaMessage mm = (MetaMessage)m;
