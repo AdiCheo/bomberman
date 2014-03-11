@@ -92,6 +92,7 @@ public class BotClient
                 String line;
                 BufferedReader reader;
                 MoveMessage m;
+                BombMessage b;
 
                 try
                 {
@@ -108,16 +109,23 @@ public class BotClient
                     //Read lines
                     while(isRunning() && (line = reader.readLine()) != null)
                     {
-                        try
-                        {
-                            m = new MoveMessage(Direction.valueOf(line.trim()));
-                        }
-                        catch(IllegalArgumentException e)
-                        {
-                            continue;
-                        }
-
-                        c.queueMessage(m);
+                    	if (line.trim().equals("BOMB")){
+                    		b = new BombMessage();
+                    		
+	                        c.queueMessage(b);
+                    	}
+                    	else {
+	                        try
+	                        {
+	                            m = new MoveMessage(Direction.valueOf(line.trim()));
+	                        }
+	                        catch(IllegalArgumentException e)
+	                        {
+	                            continue;
+	                        }
+	
+	                        c.queueMessage(m);
+                    	}
                         Thread.sleep(delay);
                     }
                 }

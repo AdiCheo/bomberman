@@ -50,7 +50,7 @@ public final class IMessageFactory
 
 
     /**
-     * Serialzes the message.
+     * Serializes the message.
      *
      * @param m
      * @return

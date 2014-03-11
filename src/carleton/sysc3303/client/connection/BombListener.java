@@ -12,5 +12,6 @@ public abstract class BombListener implements EventListener
      * @param pos
      * @param type
      */
-    public abstract void bomb(int object, Position pos, PlayerTypes type);
+    public abstract void bomb();
+
 }

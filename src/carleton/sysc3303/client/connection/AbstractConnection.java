@@ -122,15 +122,14 @@ public abstract class AbstractConnection implements IConnection
     /**
      * Invoke all listeners bound to this event.
      *
-     * @param obj
      * @param old
      * @param new_
      */
-    protected void invokeBombListeners(int obj, Position pos, PlayerTypes type)
+    protected void invokeBombListeners()
     {
         for(BombListener e: bombListeners)
         {
-            e.bomb(obj, pos, type);
+            e.bomb();
         }
     }
 
