@@ -241,6 +241,14 @@ public class GameBoard
      */
     private void handleMessage(IClient c, IMessage m)
     {
+        Player p = players.get(c.getId());
+
+        if(p.isDead())
+        {
+            System.out.printf("Player %d tried to do something, but they are dead.\n", c.getId());
+            return;
+        }
+
         if(m instanceof MoveMessage)
         {
             handleMove(c, (MoveMessage)m);
@@ -264,7 +272,7 @@ public class GameBoard
 
         if(!p.canMove())
         {
-            System.out.printf("Player %d tried to move too early or is dead\n", c.getId());
+            System.out.printf("Player %d tried to move too early\n", c.getId());
             return;
         }
         else
