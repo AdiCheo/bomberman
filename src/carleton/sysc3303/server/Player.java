@@ -52,7 +52,7 @@ public class Player
 
     public int getBomb()
     {
-    	return remainingBombs;
+        return remainingBombs;
     }
 
     /**
@@ -74,7 +74,7 @@ public class Player
     public boolean canMove()
     {
         return (new Date().getTime() - lastMoveTime.getTime()) >= TIME_BETWEEN_MOVES;
-    }     
+    }
 
 
     /**
@@ -87,12 +87,6 @@ public class Player
         if(remainingBombs > 0)
         {
             remainingBombs--;
-            
-            if(remainingBombs == 0)
-            {
-            	BombFactory bf = new BombFactory(3000,this);
-            	new Thread(bf).start();
-            }
             return true;
         }
 
@@ -107,8 +101,8 @@ public class Player
     {
         remainingBombs++;
     }
-    
-    
+
+
     /**
      * Calculates the object's hash.
      *
@@ -154,25 +148,25 @@ public class Player
 
 class BombFactory implements Runnable
 {
-	int delay;
-	Player p;
-	
-	public BombFactory(int d, Player p)
-	{
-		delay = d;
-		this.p = p;
-	}
-	
-	public void run()
-	{
-		try 
-		{
-			Thread.sleep(delay);
-		}catch (InterruptedException e) 
-			{
-				e.printStackTrace();
-			}
-		
-		p.incrementRemainingBombs();
-	}
+    int delay;
+    Player p;
+
+    public BombFactory(int d, Player p)
+    {
+        delay = d;
+        this.p = p;
+    }
+
+    public void run()
+    {
+        try
+        {
+            Thread.sleep(delay);
+        }catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+
+        p.incrementRemainingBombs();
+    }
 }
