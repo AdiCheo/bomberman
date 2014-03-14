@@ -138,7 +138,18 @@ public class DisplayBoard extends JPanel
                         block_size, block_size);
             }
         }
-
+        
+        //Draw explosion
+        c = Color.ORANGE;
+        for(Entry<Integer, Position> e: walls.getExplosion().entrySet())
+        {
+        	g.setColor(c);
+        	g.fillRect(
+        			offset_x + e.getValue().getX() * block_size,
+        			offset_y + e.getValue().getY() * block_size,
+        			block_size,
+        			block_size);
+        }
 
         // draw the lines
         g.setColor(Color.GRAY);

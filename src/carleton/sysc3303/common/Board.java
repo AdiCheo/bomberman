@@ -16,7 +16,7 @@ public class Board implements Iterable<PositionTile>
     protected int size;
     protected Map<Integer, Position> players;
     protected Map<Integer, Position> bombs;
-
+    protected Map<Integer, Position> explosions;
 
     /**
      * Constructor.
@@ -73,7 +73,8 @@ public class Board implements Iterable<PositionTile>
         this.breakableWalls = new boolean[size][size];
         this.players = new HashMap<Integer, Position>();
         this.bombs = new HashMap<Integer, Position>();
-
+        this.explosions = new HashMap<Integer, Position>();
+        
         for(Position p: this)
         {
             walls[p.getX()][p.getY()] = Tile.EMPTY;
@@ -132,6 +133,11 @@ public class Board implements Iterable<PositionTile>
     {
         this.bombs = bombs;
     }
+    
+    public void setExplosion(Map<Integer, Position> explosion)
+    {
+    	this.explosions = explosions;
+    }
 
 
     /**
@@ -149,6 +155,10 @@ public class Board implements Iterable<PositionTile>
         return bombs;
     }
 
+    public Map<Integer, Position> getExplosion()
+    {
+    	return explosions;
+    }
     /**
      * Checks is position is empty.
      *
