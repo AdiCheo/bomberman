@@ -239,6 +239,10 @@ public class GameBoard
         {
             handleMove(c, (MoveMessage)m);
         }
+        else if(m instanceof BombPlacedMessage)
+        {
+            System.out.printf("Player %d placed a bomb.\n", c.getId());
+        }
     }
 
 
