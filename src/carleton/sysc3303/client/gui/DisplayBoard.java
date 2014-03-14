@@ -184,25 +184,25 @@ public class DisplayBoard extends JPanel
             g.setColor(Color.ORANGE);
 
             // right
-            for(int i=0; i<size && walls.isPositionValid(x, y) && walls.isEmpty(x+i, y); i++)
+            for(int i=0; i<size && walls.isPositionValid(x+i, y) && walls.isEmpty(x+i, y); i++)
             {
                 drawSquare(g, x+i, y);
             }
 
             // left
-            for(int i=1; i<size && walls.isPositionValid(x, y) && walls.isEmpty(x-i, y); i++)
+            for(int i=1; i<size && walls.isPositionValid(x-i, y) && walls.isEmpty(x-i, y); i++)
             {
                 drawSquare(g, x-i, y);
             }
 
             // up
-            for(int i=1; i<size && walls.isPositionValid(x, y) && walls.isEmpty(x, y+i); i++)
+            for(int i=1; i<size && walls.isPositionValid(x, y+i) && walls.isEmpty(x, y+i); i++)
             {
                 drawSquare(g, x, y+i);
             }
 
             // down
-            for(int i=1; i<size && walls.isPositionValid(x, y) && walls.isEmpty(x, y-i); i++)
+            for(int i=1; i<size && walls.isPositionValid(x, y-i) && walls.isEmpty(x, y-i); i++)
             {
                 drawSquare(g, x, y-i);
             }

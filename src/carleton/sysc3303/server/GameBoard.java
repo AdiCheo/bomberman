@@ -14,6 +14,7 @@ public class GameBoard
 {
     public static final int MAX_PLAYERS = 4;
     public static final int BOMB_TIMEOUT = 3000;
+    public static final int BOMB_EXPLODING = 1000;
     public static final int EXPLODE_SIZE = 3;
 
     private ServerBoard b;
@@ -393,7 +394,7 @@ public class GameBoard
      */
     private void handleBombExplode(int owner, int bomb)
     {
-        Position p = bombs.get(bomb);
+        final Position p = bombs.get(bomb);
         int x = p.getX(), y = p.getY();
 
         // right
@@ -425,6 +426,25 @@ public class GameBoard
         // FIXME: should check if anything changed first
         server.queueMessage(new MapMessage(b.createSendableBoard()));
         server.queueMessage(new BombMessage(p, EXPLODE_SIZE));
+
+        new Thread() {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    Thread.sleep(BOMB_EXPLODING);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                    return;
+                }
+
+                // delete the bomb after a timeout
+                server.queueMessage(new BombMessage(p, -1));
+            }
+        }.start();
     }
 
 

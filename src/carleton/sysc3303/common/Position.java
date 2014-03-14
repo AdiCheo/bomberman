@@ -1,6 +1,5 @@
 package carleton.sysc3303.common;
 
-import carleton.sysc3303.server.Player;
 /**
  * Like Point2D, but for integers only.
  *
@@ -43,6 +42,15 @@ public class Position
     public int getY()
     {
         return y;
+    }
+
+
+    /**
+     * Calculates the hashcode.
+     */
+    public int hashCode()
+    {
+        return (x * y) ^ (x + y);
     }
 
 

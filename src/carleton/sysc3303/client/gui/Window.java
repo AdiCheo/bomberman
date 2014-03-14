@@ -146,7 +146,7 @@ public class Window extends JFrame
             @Override
             public void bomb(Position pos, int size)
             {
-                if(pos.getX() < 0 || pos.getY() < 0)
+                if(size < 0)
                 {
                     bombs.remove(pos);
                 }
