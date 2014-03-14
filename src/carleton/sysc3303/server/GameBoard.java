@@ -15,7 +15,7 @@ public class GameBoard
     public static final int MAX_PLAYERS = 4;
     public static final int BOMB_TIMEOUT = 3000;
     public static final int BOMB_EXPLODING = 1000;
-    public static final int EXPLODE_SIZE = 3;
+    public static final int EXPLODE_SIZE = 10;
 
     private ServerBoard b;
     private IServer server;
@@ -264,7 +264,7 @@ public class GameBoard
 
         if(!p.canMove())
         {
-            System.out.printf("Player %d tried to move too early\n", c.getId());
+            System.out.printf("Player %d tried to move too early or is dead\n", c.getId());
             return;
         }
         else
@@ -473,13 +473,26 @@ public class GameBoard
         try
         {
             int id = b.playerAt(x, y);
-            // kill player here, somehow
+            killPlayer(id);
             System.out.printf("Player %d should be dead.\n", id);
         }
         // no player at the given tile
         catch(RuntimeException e) {}
 
         return true;
+    }
+
+
+    /**
+     * Player died or was killed.
+     *
+     * @param id
+     */
+    private void killPlayer(int id)
+    {
+        Player p = players.get(id);
+        p.setDead(true);
+        server.queueMessage(new PosMessage(id, -1, -1, p.getType()));
     }
 
 

@@ -14,6 +14,7 @@ public class Player
     private int id;
     private Date lastMoveTime;
     private int remainingBombs;
+    private boolean dead;
 
 
     /**
@@ -26,6 +27,7 @@ public class Player
         this.id = id;
         this.lastMoveTime = new Date(0);
         this.remainingBombs = 1; // hardcoded limit
+        this.dead = false;
     }
 
 
@@ -50,6 +52,11 @@ public class Player
         return lastMoveTime;
     }
 
+    /**
+     * Gets the current bomb count.
+     *
+     * @return
+     */
     public int getBomb()
     {
         return remainingBombs;
@@ -73,7 +80,7 @@ public class Player
      */
     public boolean canMove()
     {
-        return (new Date().getTime() - lastMoveTime.getTime()) >= TIME_BETWEEN_MOVES;
+        return !isDead() && (new Date().getTime() - lastMoveTime.getTime()) >= TIME_BETWEEN_MOVES;
     }
 
 
@@ -122,6 +129,28 @@ public class Player
     public PlayerTypes getType()
     {
         return PlayerTypes.PLAYER;
+    }
+
+
+    /**
+     * Checks if player is dead or not.
+     *
+     * @return
+     */
+    public boolean isDead()
+    {
+        return dead;
+    }
+
+
+    /**
+     * Sets the player's life/death status.
+     *
+     * @param dead
+     */
+    public void setDead(boolean dead)
+    {
+        this.dead = dead;
     }
 
 
