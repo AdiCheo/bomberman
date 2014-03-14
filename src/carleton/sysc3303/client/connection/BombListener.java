@@ -8,10 +8,8 @@ public abstract class BombListener implements EventListener
     /**
      * Invoked when something moves.
      *
-     * @param object
      * @param pos
-     * @param type
+     * @param size
      */
-    public abstract void bomb();
-
+    public abstract void bomb(Position pos, int size);
 }

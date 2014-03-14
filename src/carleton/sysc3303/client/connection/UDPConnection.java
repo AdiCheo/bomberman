@@ -107,7 +107,7 @@ public class UDPConnection extends AbstractConnection
         else if(m instanceof BombMessage)
         {
             BombMessage bm = (BombMessage)m;
-            invokeBombListeners();
+            invokeBombListeners(bm.getPosition(), bm.getSize());
         }
         else if(m instanceof MetaMessage)
         {

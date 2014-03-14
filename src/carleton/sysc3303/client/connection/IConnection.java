@@ -42,6 +42,14 @@ public interface IConnection extends Runnable
 
 
     /**
+     * Adds a listener that listens for placed bombs.
+     *
+     * @param e
+     */
+    public void addBombListener(BombListener e);
+
+
+    /**
      * Sends a message to the server.
      *
      * @param m

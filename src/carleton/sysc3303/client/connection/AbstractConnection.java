@@ -61,6 +61,13 @@ public abstract class AbstractConnection implements IConnection
 
 
     @Override
+    public void addBombListener(BombListener e)
+    {
+        bombListeners.add(e);
+    }
+
+
+    @Override
     public void queueMessage(IMessage m)
     {
         try
@@ -125,11 +132,11 @@ public abstract class AbstractConnection implements IConnection
      * @param old
      * @param new_
      */
-    protected void invokeBombListeners()
+    protected void invokeBombListeners(Position pos, int size)
     {
         for(BombListener e: bombListeners)
         {
-            e.bomb();
+            e.bomb(pos, size);
         }
     }
 
