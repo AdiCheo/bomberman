@@ -127,10 +127,10 @@ public class Board implements Iterable<PositionTile>
     {
         this.players = players;
     }
-    
+
     public void setBombs(Map<Integer, Position> bombs)
     {
-    	this.bombs = bombs;
+        this.bombs = bombs;
     }
 
 
@@ -146,7 +146,7 @@ public class Board implements Iterable<PositionTile>
 
     public Map<Integer, Position> getBombs()
     {
-    	return bombs;
+        return bombs;
     }
 
     /**
@@ -188,7 +188,7 @@ public class Board implements Iterable<PositionTile>
      *
      * @param p
      * @return
-     * @throws Exception
+     * @throws RuntimeException
      */
     public int playerAt(Position p) throws RuntimeException
     {
@@ -212,9 +212,9 @@ public class Board implements Iterable<PositionTile>
      * @param x
      * @param y
      * @return
-     * @throws Exception
+     * @throws RuntimeException
      */
-    public int playerAt(int x, int y) throws Exception
+    public int playerAt(int x, int y) throws RuntimeException
     {
         return playerAt(new Position(x, y));
     }
@@ -253,6 +253,38 @@ public class Board implements Iterable<PositionTile>
         return isOccupied(new Position(x, y));
     }
 
+
+    /**
+     * Checks if there is a bomb at the given position.
+     *
+     * @param p
+     */
+    public boolean hasBomb(Position p)
+    {
+        checkPosition(p.getX(), p.getY());
+
+        for(Position b: bombs.values())
+        {
+            if(b.equals(p))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Checks if there is a bomb at the given position.
+     *
+     * @param x
+     * @param y
+     */
+    public boolean hasBomb(int x, int y)
+    {
+        return hasBomb(new Position(x, y));
+    }
 
     /**
      * Gets the tile at the given position.

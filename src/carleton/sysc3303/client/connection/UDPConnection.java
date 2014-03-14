@@ -31,6 +31,7 @@ public class UDPConnection extends AbstractConnection
         this.connectionListeners = new LinkedList<ConnectionStatusListener>();
         this.positionListeners = new LinkedList<PositionListener>();
         this.stateListeners = new LinkedList<GameStateListener>();
+        this.bombListeners = new LinkedList<BombListener>();
     }
 
 

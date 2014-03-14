@@ -56,4 +56,15 @@ public class GameView extends JPanel
     {
         board.setColors(colors);
     }
+
+
+    /**
+     * Sets the bombs.
+     *
+     * @param bombs
+     */
+    public void setBombs(Map<Position, Integer> bombs)
+    {
+        board.setBombs(bombs);
+    }
 }

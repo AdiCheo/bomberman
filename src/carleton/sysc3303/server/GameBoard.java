@@ -13,11 +13,14 @@ import carleton.sysc3303.server.connection.*;
 public class GameBoard
 {
     public static final int MAX_PLAYERS = 4;
+    public static final int BOMB_TIMEOUT = 3000;
+    public static final int EXPLODE_SIZE = 3;
 
     private ServerBoard b;
     private IServer server;
     private Map<Integer, Position> player_positions;
     private Map<Integer, Player> players;
+    private Map<Integer, Position> bombs;
     private StateMessage.State current_state;
 
 
@@ -44,10 +47,12 @@ public class GameBoard
         this.server = server;
         this.b = b;
         this.player_positions = new HashMap<Integer, Position>();
+        this.bombs = new HashMap<Integer, Position>();
         this.players = new HashMap<Integer, Player>();
         this.current_state = StateMessage.State.NOTSTARTED;
 
         this.b.setPlayers(player_positions);
+        this.b.setBombs(bombs);
 
         hookEvents();
     }
@@ -239,12 +244,10 @@ public class GameBoard
         {
             handleMove(c, (MoveMessage)m);
         }
-        
-        if(m instanceof BombPlacedMessage)
+        else if(m instanceof BombPlacedMessage)
         {
             handleBomb(c);
         }
-
     }
 
 
@@ -288,7 +291,10 @@ public class GameBoard
 
         if(!(p instanceof Monster))
         {
-            if(b.isPositionValid(x, y) && b.isEmpty(x, y) && !b.isOccupied(x, y))
+            if(b.isPositionValid(x, y) &&
+               b.isEmpty(x, y) &&
+               !b.isOccupied(x, y) &&
+               !b.hasBomb(x, y))
             {
                 setPlayerPosition(c.getId(), new Position(x, y));
                 server.queueMessage(new PosMessage(c.getId(), x, y, p.getType()));
@@ -318,7 +324,9 @@ public class GameBoard
         }
         else
         {
-            if(b.isPositionValid(x,y) && b.isEmpty(x, y))
+            if(b.isPositionValid(x,y) &&
+               b.isEmpty(x, y) &&
+               !b.hasBomb(x, y))
             {
                 setPlayerPosition(c.getId(), new Position(x,y));
                 server.queueMessage(new PosMessage(c.getId(), x, y, p.getType()));
@@ -336,90 +344,160 @@ public class GameBoard
 
         }
     }
-    
-    //Handles bombs from clients
+
+
+    /**
+     * Handles newly placed bombs by players.
+     *
+     * @param c
+     */
     private void handleBomb(IClient c)
     {
         Position pos = player_positions.get(c.getId());
         Player p = players.get(c.getId());
-    	int x = pos.getX(), y = pos.getY();
-    	
-        if(p.getBomb() != 0)
-        {
-        	b.setTile(x,y,Tile.BOMB);
-        	p.decrementRemainingBombs();
-        	//Set timer
-        /*	
-        	try{
-        		Thread.sleep(3000);
-        	}catch(InterruptedException e)
-        	{
-        		e.printStackTrace();
-        	}
-        */	
 
-        
-        	//Timer ends set off bomb, destroying everything that is not unbreakable
-        	Position adjacentTile[] = getAdjacentTile(x, y);
-        	
-        	for(Position aTile : adjacentTile)
-        	{	
-        		if(b.getTile(aTile) == Tile.DESTRUCTABLE)
-        		{
-        			b.setTile(aTile,Tile.EMPTY);
-        		}
-        		
-        		if(b.isOccupied(aTile))
-        		{
-        			b.setTile(aTile,Tile.EMPTY);
-        			//players.get(aTile).setLife(players.get(aTile).getLife());
-        		}
-        	}       	
-        }
-        
-        else
+        if(!p.decrementRemainingBombs())
         {
-        	System.out.printf("Player %d tried to move from %s to (%d,%d), but failed \n",
-        			c.getId(), pos, x, y);
+            System.out.printf("Player %d tried to place a bomb, but they can't\n", p.getId());
+            return;
         }
-    	
+
+        System.out.printf("Player %d placed a bomb as %s\n", p.getId(), pos);
+
+        final Object that = this;
+        Bomb b = new Bomb(c.getId(), BOMB_TIMEOUT);
+        b.setListener(new BombExplodedListener() {
+            @Override
+            public void bombExploded(int owner, int bomb)
+            {
+                synchronized(that)
+                {
+                    handleBombExplode(owner, bomb);
+                }
+            }
+        });
+
+        bombs.put(b.getId(), pos);
+
+        server.queueMessage(new BombMessage(pos, 0));
+
+        new Thread(b).start(); // start and background the bomb
     }
-    
+
+
+    /**
+     * Handles the bomb's explosion.
+     *
+     * @param owner
+     * @param bomb
+     */
+    private void handleBombExplode(int owner, int bomb)
+    {
+        Position p = bombs.get(bomb);
+        int x = p.getX(), y = p.getY();
+
+        // right
+        // includes the square with the bomb itself
+        for(int i=0; i<EXPLODE_SIZE && handleBombExplodeTile(x + i, y); i++);
+
+        // left
+        for(int i=1; i<EXPLODE_SIZE && handleBombExplodeTile(x - i, y); i++);
+
+        // up
+        for(int i=1; i<EXPLODE_SIZE && handleBombExplodeTile(x, y + i); i++);
+
+        // down
+        for(int i=1; i<EXPLODE_SIZE && handleBombExplodeTile(x, y - i); i++);
+
+        bombs.remove(bomb);
+
+        Player player = players.get(owner);
+
+        // player could have disconnected by the time the bomb explodes
+        if(player != null)
+        {
+            player.incrementRemainingBombs();
+        }
+
+        System.out.printf("Player %d's bomb exploded at %s\n", owner, p);
+
+        // in case some blocks were destroyed
+        // FIXME: should check if anything changed first
+        server.queueMessage(new MapMessage(b.createSendableBoard()));
+        server.queueMessage(new BombMessage(p, EXPLODE_SIZE));
+    }
+
+
+    /**
+     * Handles the effects of a bomb's explosion at a given tile.
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    private boolean handleBombExplodeTile(int x, int y)
+    {
+        // stop when reached edge
+        if(!b.isPositionValid(x, y))
+        {
+            return false;
+        }
+
+        // break boxes
+        if(b.getTile(x, y) == Tile.DESTRUCTABLE)
+        {
+            b.setTile(x, y, Tile.EMPTY);
+        }
+
+
+        try
+        {
+            int id = b.playerAt(x, y);
+            // kill player here, somehow
+            System.out.printf("Player %d should be dead.\n", id);
+        }
+        // no player at the given tile
+        catch(RuntimeException e) {}
+
+        return true;
+    }
+
+
     //Returns all adjacent square to a tile, including itself
     protected Position[] getAdjacentTile(int x, int y)
-    {  	
-    	Position p[] = new Position[5];
-    	int i = 1;
-    	
-    	p[0] = new Position(x,y);
-    	
-    	if(b.isPositionValid(x+1, y))
-    	{
-    		p[i] = new Position(x+1,y);
-    		i++;
-    	}
-    	
-    		if(b.isPositionValid(x-1, y))
-    		{
-    			p[i] = new Position(x-1, y);
-    			i++;
-    		}
-    		
-    			if(b.isPositionValid(x, y+1))
-    			{
-    				p[i] = new Position(x, y+1);
-    				i++;
-    			}
-    			
-    				if(b.isPositionValid(x, y-1))
-    				{
-    					p[i] = new Position(x, y-1);
-    					i++;
-    				}
-    				
-    	return p;
+    {
+        Position p[] = new Position[5];
+        int i = 1;
+
+        p[0] = new Position(x,y);
+
+        if(b.isPositionValid(x+1, y))
+        {
+            p[i] = new Position(x+1,y);
+            i++;
+        }
+
+            if(b.isPositionValid(x-1, y))
+            {
+                p[i] = new Position(x-1, y);
+                i++;
+            }
+
+                if(b.isPositionValid(x, y+1))
+                {
+                    p[i] = new Position(x, y+1);
+                    i++;
+                }
+
+                    if(b.isPositionValid(x, y-1))
+                    {
+                        p[i] = new Position(x, y-1);
+                        i++;
+                    }
+
+        return p;
     }
-   
+
 
 
     /**

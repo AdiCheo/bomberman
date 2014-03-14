@@ -98,7 +98,7 @@ public abstract class AbstractServer implements IServer
         try
         {
             cl = getClient(a, port);
-            System.out.println("Message from known client: " + cl.getId());
+            //System.out.println("Message from known client: " + cl.getId());
             cl.setLastActive(new Date());
         }
         catch(Exception e)

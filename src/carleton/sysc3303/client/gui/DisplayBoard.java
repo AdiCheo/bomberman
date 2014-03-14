@@ -20,6 +20,7 @@ public class DisplayBoard extends JPanel
     private static final long serialVersionUID = 8372907299046333935L;
     private Board walls;
     private Map<Integer, Color> colors;
+    private Map<Position, Integer> bombs;
 
     /**
      * Set the walls using a boolean matrix.
@@ -40,6 +41,17 @@ public class DisplayBoard extends JPanel
     public void setColors(Map<Integer, Color> colors)
     {
         this.colors = colors;
+    }
+
+
+    /**
+     * Sets the bombs.
+     *
+     * @param bombs
+     */
+    public void setBombs(Map<Position, Integer> bombs)
+    {
+        this.bombs = bombs;
     }
 
 
@@ -112,16 +124,19 @@ public class DisplayBoard extends JPanel
                 block_size,
                 block_size);
         }
-        
-        //draw bombs        
-        c = Color.BLACK;
-        for(Entry<Integer, Position> e: walls.getBombs().entrySet())
+
+        if(bombs != null)
         {
-        	g.setColor(c);
-        	g.fillOval(
-        			offset_x + e.getValue().getX(),
-        			offset_y + e.getValue().getY(),
-        			block_size, block_size);
+            //draw bombs
+            c = Color.BLACK;
+            for(Entry<Position, Integer> e: bombs.entrySet())
+            {
+                g.setColor(c);
+                g.fillOval(
+                        offset_x + e.getKey().getX() * block_size,
+                        offset_y + draw_size - ((e.getKey().getY()+1) * block_size),
+                        block_size, block_size);
+            }
         }
 
 

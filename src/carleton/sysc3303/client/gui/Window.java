@@ -3,6 +3,7 @@ package carleton.sysc3303.client.gui;
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
@@ -24,6 +25,7 @@ public class Window extends JFrame
     private IConnection c;
     private Map<Integer, Position> positions;
     private Map<Integer, Color> colors;
+    private Map<Position, Integer> bombs;
 
 
     /**
@@ -35,8 +37,9 @@ public class Window extends JFrame
     {
         this.c = c;
         this.ui = new GameView();
-        positions = new HashMap<Integer, Position>();
-        colors = new HashMap<Integer, Color>();
+        positions = new ConcurrentHashMap<Integer, Position>();
+        colors = new ConcurrentHashMap<Integer, Color>();
+        bombs = new ConcurrentHashMap<Position, Integer>();
 
         init();
         hookEvents();
@@ -68,6 +71,7 @@ public class Window extends JFrame
         setDisplay(States.LOADING);
 
         ui.setColors(colors);
+        ui.setBombs(bombs);
     }
 
 
@@ -134,6 +138,24 @@ public class Window extends JFrame
                 {
                     setDisplay(States.DONE);
                 }
+            }
+        });
+
+
+        c.addBombListener(new BombListener() {
+            @Override
+            public void bomb(Position pos, int size)
+            {
+                if(pos.getX() < 0 || pos.getY() < 0)
+                {
+                    bombs.remove(pos);
+                }
+                else
+                {
+                    bombs.put(pos, size);
+                }
+
+                ui.repaint();
             }
         });
 
