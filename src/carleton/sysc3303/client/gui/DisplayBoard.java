@@ -112,6 +112,17 @@ public class DisplayBoard extends JPanel
                 block_size,
                 block_size);
         }
+        
+        //draw bombs        
+        c = Color.BLACK;
+        for(Entry<Integer, Position> e: walls.getBombs().entrySet())
+        {
+        	g.setColor(c);
+        	g.fillOval(
+        			offset_x + e.getValue().getX(),
+        			offset_y + e.getValue().getY(),
+        			block_size, block_size);
+        }
 
 
         // draw the lines

@@ -239,10 +239,12 @@ public class GameBoard
         {
             handleMove(c, (MoveMessage)m);
         }
-        else if(m instanceof BombPlacedMessage)
+        
+        if(m instanceof BombPlacedMessage)
         {
-            System.out.printf("Player %d placed a bomb.\n", c.getId());
+            handleBomb(c);
         }
+
     }
 
 
@@ -334,6 +336,90 @@ public class GameBoard
 
         }
     }
+    
+    //Handles bombs from clients
+    private void handleBomb(IClient c)
+    {
+        Position pos = player_positions.get(c.getId());
+        Player p = players.get(c.getId());
+    	int x = pos.getX(), y = pos.getY();
+    	
+        if(p.getBomb() != 0)
+        {
+        	b.setTile(x,y,Tile.BOMB);
+        	p.decrementRemainingBombs();
+        	//Set timer
+        /*	
+        	try{
+        		Thread.sleep(3000);
+        	}catch(InterruptedException e)
+        	{
+        		e.printStackTrace();
+        	}
+        */	
+
+        
+        	//Timer ends set off bomb, destroying everything that is not unbreakable
+        	Position adjacentTile[] = getAdjacentTile(x, y);
+        	
+        	for(Position aTile : adjacentTile)
+        	{	
+        		if(b.getTile(aTile) == Tile.DESTRUCTABLE)
+        		{
+        			b.setTile(aTile,Tile.EMPTY);
+        		}
+        		
+        		if(b.isOccupied(aTile))
+        		{
+        			b.setTile(aTile,Tile.EMPTY);
+        			//players.get(aTile).setLife(players.get(aTile).getLife());
+        		}
+        	}       	
+        }
+        
+        else
+        {
+        	System.out.printf("Player %d tried to move from %s to (%d,%d), but failed \n",
+        			c.getId(), pos, x, y);
+        }
+    	
+    }
+    
+    //Returns all adjacent square to a tile, including itself
+    protected Position[] getAdjacentTile(int x, int y)
+    {  	
+    	Position p[] = new Position[5];
+    	int i = 1;
+    	
+    	p[0] = new Position(x,y);
+    	
+    	if(b.isPositionValid(x+1, y))
+    	{
+    		p[i] = new Position(x+1,y);
+    		i++;
+    	}
+    	
+    		if(b.isPositionValid(x-1, y))
+    		{
+    			p[i] = new Position(x-1, y);
+    			i++;
+    		}
+    		
+    			if(b.isPositionValid(x, y+1))
+    			{
+    				p[i] = new Position(x, y+1);
+    				i++;
+    			}
+    			
+    				if(b.isPositionValid(x, y-1))
+    				{
+    					p[i] = new Position(x, y-1);
+    					i++;
+    				}
+    				
+    	return p;
+    }
+   
 
 
     /**

@@ -50,6 +50,10 @@ public class Player
         return lastMoveTime;
     }
 
+    public int getBomb()
+    {
+    	return remainingBombs;
+    }
 
     /**
      * Sets the time the player last moved at.

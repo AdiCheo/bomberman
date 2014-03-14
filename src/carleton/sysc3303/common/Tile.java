@@ -5,5 +5,6 @@ public enum Tile
     EMPTY,
     DESTRUCTABLE,
     WALL,
-    EXIT
+    EXIT,
+    BOMB
 }

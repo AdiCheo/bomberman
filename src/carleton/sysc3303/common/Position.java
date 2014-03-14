@@ -1,6 +1,6 @@
 package carleton.sysc3303.common;
 
-
+import carleton.sysc3303.server.Player;
 /**
  * Like Point2D, but for integers only.
  *
