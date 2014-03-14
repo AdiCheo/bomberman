@@ -227,7 +227,7 @@ public class GameBoard
             randomX = randomGenerator.nextInt(b.getSize());
             randomY = randomGenerator.nextInt(b.getSize());
 
-        } while (b.isOccupied(randomX, randomY) && !b.isEmpty(randomX, randomY));
+        } while (b.isOccupied(randomX, randomY) || !b.isEmpty(randomX, randomY));
 
         return new Position(randomX, randomY);
     }
