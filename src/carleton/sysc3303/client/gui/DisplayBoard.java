@@ -21,6 +21,7 @@ public class DisplayBoard extends JPanel
     private Board walls;
     private Map<Integer, Color> colors;
     private Map<Position, Integer> bombs;
+    private int offset_x, offset_y, block_size, draw_size;
 
     /**
      * Set the walls using a boolean matrix.
@@ -66,10 +67,10 @@ public class DisplayBoard extends JPanel
         int size = walls.getSize();
 
         Graphics2D g = (Graphics2D)_g;
-        int draw_size = size * (int)(0.9 * Math.min(getWidth(), getHeight() / size));
-        int offset_x = (getWidth() - draw_size)/2;
-        int offset_y = (getHeight() - draw_size)/2;
-        int block_size = draw_size / size;
+        draw_size = size * (int)(0.9 * Math.min(getWidth(), getHeight() / size));
+        offset_x = (getWidth() - draw_size)/2;
+        offset_y = (getHeight() - draw_size)/2;
+        block_size = draw_size / size;
 
         // board background color
         g.setColor(Color.WHITE);
@@ -95,11 +96,7 @@ public class DisplayBoard extends JPanel
                 }
 
                 g.setColor(c);
-                g.fillRect(
-                    offset_x + p.getX() * block_size,
-                    offset_y + draw_size - ((p.getY() + 1) * block_size),
-                    block_size,
-                    block_size);
+                drawSquare(g, p);
             }
         }
 
@@ -118,11 +115,7 @@ public class DisplayBoard extends JPanel
             }
 
             g.setColor(c);
-            g.fillRect(
-                offset_x + e.getValue().getX() * block_size,
-                offset_y + draw_size - ((e.getValue().getY()+1) * block_size),
-                block_size,
-                block_size);
+            drawSquare(g, e.getValue());
         }
 
         if(bombs != null)
@@ -132,23 +125,8 @@ public class DisplayBoard extends JPanel
             for(Entry<Position, Integer> e: bombs.entrySet())
             {
                 g.setColor(c);
-                g.fillOval(
-                        offset_x + e.getKey().getX() * block_size,
-                        offset_y + draw_size - ((e.getKey().getY()+1) * block_size),
-                        block_size, block_size);
+                drawBomb(g, e.getKey());
             }
-        }
-        
-        //Draw explosion
-        c = Color.ORANGE;
-        for(Entry<Integer, Position> e: walls.getExplosion().entrySet())
-        {
-        	g.setColor(c);
-        	g.fillRect(
-        			offset_x + e.getValue().getX() * block_size,
-        			offset_y + e.getValue().getY() * block_size,
-        			block_size,
-        			block_size);
         }
 
         // draw the lines
@@ -163,5 +141,62 @@ public class DisplayBoard extends JPanel
                 offset_x, offset_y + i * block_size,
                 offset_x + draw_size, offset_y + i * block_size);
         }
+    }
+
+
+    /**
+     * Simplifies drawing squares.
+     *
+     * @param g
+     * @param x
+     * @param y
+     */
+    private void drawSquare(Graphics2D g, int x, int y)
+    {
+        g.fillRect(
+                offset_x + x * block_size,
+                offset_y + draw_size - ((y + 1) * block_size),
+                block_size,
+                block_size);
+    }
+
+    /**
+     * Simplifies drawing squares.
+     *
+     * @param g
+     * @param p
+     */
+    private void drawSquare(Graphics2D g, Position p)
+    {
+        drawSquare(g, p.getX(), p.getY());
+    }
+
+
+    /**
+     * Simplifies drawing bombs.
+     *
+     * @param g
+     * @param x
+     * @param y
+     */
+    private void drawBomb(Graphics2D g, int x, int y)
+    {
+        g.fillOval(
+                offset_x + x * block_size,
+                offset_y + draw_size - ((y + 1) * block_size),
+                block_size,
+                block_size);
+    }
+
+
+    /**
+     * Simplifies drawing bombs.
+     *
+     * @param g
+     * @param p
+     */
+    private void drawBomb(Graphics2D g, Position p)
+    {
+        drawBomb(g, p.getX(), p.getY());
     }
 }
