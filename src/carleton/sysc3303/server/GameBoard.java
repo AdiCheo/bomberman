@@ -290,8 +290,10 @@ public class GameBoard
             x++;
         }
 
+        // regular players
         if(!(p instanceof Monster))
         {
+            // checks if they can move where they want to move
             if(b.isPositionValid(x, y) &&
                b.isEmpty(x, y) &&
                !b.isOccupied(x, y) &&
@@ -299,16 +301,15 @@ public class GameBoard
             {
                 setPlayerPosition(c.getId(), new Position(x, y));
                 server.queueMessage(new PosMessage(c.getId(), x, y, p.getType()));
-                /*System.out.printf(
-                        "Player %d moved from %s to (%d,%d)\n",
-                        c.getId(), pos, x, y);*/
 
+                // reveal the exit if it's hidden
                 if(b.isExitHidden() && b.isExit(x, y))
                 {
                     System.out.println("Found exit");
                     b.setExitHidden(false);
                     server.queueMessage(new MapMessage(b.createSendableBoard()));
                 }
+                // end the game if they stepped onto a visible exit
                 else if(!b.isExitHidden() && b.isExit(x, y))
                 {
                     System.out.println("Game over");
@@ -325,21 +326,36 @@ public class GameBoard
         }
         else
         {
+            // checks if they can go where they want to go
             if(b.isPositionValid(x,y) &&
                b.isEmpty(x, y) &&
                !b.hasBomb(x, y))
             {
+                try
+                {
+                    int target_id = b.playerAt(x, y);
+                    Player target = players.get(target_id);
+
+                    if(target instanceof Monster)
+                    {
+                        System.out.println("A monster tried to step on another monster.");
+                        return;
+                    }
+                    else
+                    {
+                        System.out.printf("Player %d got killed by a monster.\n", target_id);
+                        target.setDead(true);
+                    }
+                }
+                catch(RuntimeException e){}
+
                 setPlayerPosition(c.getId(), new Position(x,y));
                 server.queueMessage(new PosMessage(c.getId(), x, y, p.getType()));
-                /*System.outprintf(
-                 * 		"Player %d moved from %s to (%d,%d) \n",
-                 * 		c.getId(), pos, x, y);*/
-
             }
             else
             {
                 System.out.printf(
-                        "Player %d tried to move from %s to (%d,%d), but failed\n",
+                        "Monster %d tried to move from %s to (%d,%d), but failed\n",
                         c.getId(),pos, x, y);
             }
 
