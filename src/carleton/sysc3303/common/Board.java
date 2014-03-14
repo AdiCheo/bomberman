@@ -173,6 +173,43 @@ public class Board implements Iterable<PositionTile>
 
 
     /**
+     * Gets player id of the one at the given position.
+     *
+     * @param p
+     * @return
+     * @throws Exception
+     */
+    public int playerAt(Position p) throws RuntimeException
+    {
+        checkPosition(p.getX(), p.getY());
+
+        for(Map.Entry<Integer, Position> e: players.entrySet())
+        {
+            if(p.equals(e.getValue()))
+            {
+                return e.getKey();
+            }
+        }
+
+        throw new RuntimeException(String.format("No player at %s", p));
+    }
+
+
+    /**
+     * Gets player id of the one at the given position.
+     *
+     * @param x
+     * @param y
+     * @return
+     * @throws Exception
+     */
+    public int playerAt(int x, int y) throws Exception
+    {
+        return playerAt(new Position(x, y));
+    }
+
+
+    /**
      * Checks if a player exists at the given position.
      *
      * @param p
@@ -180,17 +217,16 @@ public class Board implements Iterable<PositionTile>
      */
     public boolean isOccupied(Position p)
     {
-        checkPosition(p.getX(), p.getY());
-
-        for(Position c: players.values())
+        try
         {
-            if(p.equals(c))
-            {
-                return true;
-            }
+            playerAt(p); // throws exception if no one present
+        }
+        catch(RuntimeException e)
+        {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
 

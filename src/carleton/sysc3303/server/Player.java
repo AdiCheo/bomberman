@@ -13,6 +13,7 @@ public class Player
 
     private int id;
     private Date lastMoveTime;
+    private int remainingBombs;
 
 
     /**
@@ -24,6 +25,7 @@ public class Player
     {
         this.id = id;
         this.lastMoveTime = new Date(0);
+        this.remainingBombs = 1; // hardcoded limit
     }
 
 
@@ -68,6 +70,32 @@ public class Player
     public boolean canMove()
     {
         return (new Date().getTime() - lastMoveTime.getTime()) >= TIME_BETWEEN_MOVES;
+    }
+
+
+    /**
+     * Decrements the number of bombs the player has at the moment.
+     *
+     * @return
+     */
+    public synchronized boolean decrementRemainingBombs()
+    {
+        if(remainingBombs > 0)
+        {
+            remainingBombs--;
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Increments the number of available bombs.
+     */
+    public synchronized void incrementRemainingBombs()
+    {
+        remainingBombs++;
     }
 
 
