@@ -22,6 +22,7 @@ public class GameBoard
     private Map<Integer, Position> player_positions;
     private Map<Integer, Player> players;
     private Map<Integer, Position> bombs;
+    private Map<Integer, Position> exploding_bombs;
     private StateMessage.State current_state;
 
 
@@ -49,6 +50,7 @@ public class GameBoard
         this.b = b;
         this.player_positions = new HashMap<Integer, Position>();
         this.bombs = new HashMap<Integer, Position>();
+        this.exploding_bombs = new HashMap<Integer, Position>();
         this.players = new HashMap<Integer, Player>();
         this.current_state = StateMessage.State.NOTSTARTED;
 
@@ -298,6 +300,8 @@ public class GameBoard
             x++;
         }
 
+        Position newPosition = new Position(x, y);
+
         // regular players
         if(!(p instanceof Monster))
         {
@@ -307,7 +311,15 @@ public class GameBoard
                !b.isOccupied(x, y) &&
                !b.hasBomb(x, y))
             {
-                setPlayerPosition(c.getId(), new Position(x, y));
+                // player was dumb
+                if(withinExplosionRange(newPosition))
+                {
+                    System.out.printf("Player %d walked into an explosion.\n", c.getId());
+                    killPlayer(c.getId());
+                    return;
+                }
+
+                setPlayerPosition(c.getId(), newPosition);
                 server.queueMessage(new PosMessage(c.getId(), x, y, p.getType()));
 
                 // reveal the exit if it's hidden
@@ -416,7 +428,7 @@ public class GameBoard
      * @param owner
      * @param bomb
      */
-    private void handleBombExplode(int owner, int bomb)
+    private void handleBombExplode(int owner, final int bomb)
     {
         final Position p = bombs.get(bomb);
         int x = p.getX(), y = p.getY();
@@ -446,6 +458,8 @@ public class GameBoard
 
         System.out.printf("Player %d's bomb exploded at %s\n", owner, p);
 
+        exploding_bombs.put(bomb, p);
+
         // in case some blocks were destroyed
         // FIXME: should check if anything changed first
         server.queueMessage(new MapMessage(b.createSendableBoard()));
@@ -467,6 +481,11 @@ public class GameBoard
 
                 // delete the bomb after a timeout
                 server.queueMessage(new BombMessage(p, -1));
+
+                synchronized(exploding_bombs)
+                {
+                    exploding_bombs.remove(bomb);
+                }
             }
         }.start();
     }
@@ -505,6 +524,28 @@ public class GameBoard
 
         return true;
     }
+
+
+    /**
+     * Checks if a player walks into an explosion.
+     *
+     * @param p
+     * @return
+     */
+    private boolean withinExplosionRange(Position p)
+    { synchronized(exploding_bombs) {
+
+        for(Position bomb: exploding_bombs.values())
+        {
+            if((bomb.getX() == p.getX() && Math.abs(p.getY() - bomb.getY()) < EXPLODE_SIZE) ||
+               (bomb.getY() == p.getY() && Math.abs(p.getX() - bomb.getX()) < EXPLODE_SIZE))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }}
 
 
     /**
