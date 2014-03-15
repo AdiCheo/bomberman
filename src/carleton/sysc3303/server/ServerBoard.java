@@ -1,6 +1,8 @@
 package carleton.sysc3303.server;
 
 import java.io.*;
+import java.util.Random;
+
 import carleton.sysc3303.common.*;
 
 /**
@@ -189,6 +191,32 @@ public class ServerBoard extends Board
     public Position getExit()
     {
         return exit;
+    }
+
+
+    /**
+     * Get a starting position for a new player.
+     * TODO: make it random but smart.
+     *
+     * @return
+     */
+    public Position getEmptyPosition()
+    {
+        int randomX;
+        int randomY;
+        Random randomGenerator = new Random();
+
+        System.out.println("Getting new player pos");
+
+        // Find available start location
+        do
+        {
+            randomX = randomGenerator.nextInt(getSize());
+            randomY = randomGenerator.nextInt(getSize());
+
+        } while (isOccupied(randomX, randomY) || !isEmpty(randomX, randomY));
+
+        return new Position(randomX, randomY);
     }
 
 
