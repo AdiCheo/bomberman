@@ -7,6 +7,7 @@ import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
 import carleton.sysc3303.common.connection.MoveMessage.Direction;
+import carleton.sysc3303.common.connection.StateMessage;
 
 
 public class BotClient
@@ -40,21 +41,7 @@ public class BotClient
      */
     private void init()
     {
-        final Object that = this;
-        String clientType = "e";
-
-        c.addConnectionStatusListener(new ConnectionStatusListener() {
-            @Override
-            public void statusChanged(State s)
-            {
-                synchronized(that)
-                {
-                    run = s == State.CONNECTED;
-                }
-
-                start();
-            }
-        });
+        String clientType;
 
         if(t == PlayerTypes.PLAYER)
         {
@@ -64,6 +51,27 @@ public class BotClient
         {
             clientType = "m";
         }
+
+        c.addGameStateListener(new GameStateListener() {
+            @Override
+            public void stateChanged(StateMessage.State state)
+            {
+                System.out.println(state);
+                switch(state)
+                {
+                case STARTED:
+                    run = true;
+                    start();
+                    break;
+                case NOTSTARTED:
+                    c.queueMessage(new StateMessage(StateMessage.State.STARTED));
+                    break;
+                case END:
+                    run = false;
+                }
+            }
+
+        });
 
         c.queueMessage(new MetaMessage(Type.CONNECT, "1," + clientType));
     }

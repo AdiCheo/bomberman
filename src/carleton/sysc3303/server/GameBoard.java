@@ -71,53 +71,48 @@ public class GameBoard
         server.addConnectionListener(new ConnectionListener() {
             @Override
             public void connectionChanged(IClient c, boolean connected, String args)
-            {
+            { synchronized(that) {
                 if(current_state == StateMessage.State.END)
                 {
                     return;
                 }
 
-                synchronized(that)
-                {
-                    if(connected)
-                    {
-                        String[] split = args.split(",");
 
-                        if(split[0].equals("0"))
-                        {
-                            newSpectator(c);
-                        }
-                        else if(split.length == 2)
-                        {
-                            addPlayer(c, split[1].equals("m"));
-                        }
-                        else
-                        {
-                            System.out.println("Invalid connection message: " + args);
-                        }
+                if(connected)
+                {
+                    String[] split = args.split(",");
+
+                    if(split[0].equals("0"))
+                    {
+                        newSpectator(c);
+                    }
+                    else if(split.length == 2)
+                    {
+                        addPlayer(c, split[1].equals("m"));
                     }
                     else
                     {
-                        removePlayer(c);
+                        System.out.println("Invalid connection message: " + args);
                     }
                 }
-            }
+                else
+                {
+                    removePlayer(c);
+                }
+            }}
         });
 
         server.addMessageListener(new MessageListener() {
             @Override
             public void newMessage(IClient c, IMessage m)
-            {
+            { synchronized(that) {
                 if(current_state == StateMessage.State.END)
                 {
                     return;
                 }
 
-                synchronized(that)
-                {
-                    handleMessage(c, m);
-                }
-            }
+                handleMessage(c, m);
+            }}
         });
     }
 
@@ -165,11 +160,18 @@ public class GameBoard
         System.out.printf("Player %d starts at %s\n", c.getId(), pos);
         setPlayerPosition(c.getId(), pos);
 
-        // send player the initial state
-        sendInitialState(c);
+        if(current_state == StateMessage.State.STARTED)
+        {
+            // send player the initial state
+            sendInitialState(c);
 
-        // notify everyone of new player
-        server.queueMessage(new PosMessage(c.getId(), pos, p.getType()));
+            // notify everyone of new player
+            server.queueMessage(new PosMessage(c.getId(), pos, p.getType()));
+        }
+        else
+        {
+            server.queueMessage(new StateMessage(current_state), c);
+        }
     }
 
 
@@ -180,6 +182,9 @@ public class GameBoard
      */
     private void sendInitialState(IClient c)
     {
+        // send the current state
+        server.queueMessage(new StateMessage(current_state), c);
+
         // send the map
         server.queueMessage(new MapMessage(b.createSendableBoard()), c);
 
@@ -189,6 +194,27 @@ public class GameBoard
             Position pos = e.getValue();
             Player p = players.get(e.getKey());
             server.queueMessage(new PosMessage(e.getKey(), pos, p.getType()), c);
+        }
+    }
+
+
+    /**
+     * Sends everything we got to everyone.
+     */
+    private void sendInitialState()
+    {
+        // send the current state
+        server.queueMessage(new StateMessage(current_state));
+
+        // send the map
+        server.queueMessage(new MapMessage(b.createSendableBoard()));
+
+        // send everyone's current positions
+        for(Entry<Integer, Position> e: player_positions.entrySet())
+        {
+            Position pos = e.getValue();
+            Player p = players.get(e.getKey());
+            server.queueMessage(new PosMessage(e.getKey(), pos, p.getType()));
         }
     }
 
@@ -258,6 +284,10 @@ public class GameBoard
         else if(m instanceof BombPlacedMessage)
         {
             handleBomb(c);
+        }
+        else if(m instanceof StateMessage)
+        {
+            handleStateMessage(c, (StateMessage)m);
         }
     }
 
@@ -406,12 +436,9 @@ public class GameBoard
         b.setListener(new BombExplodedListener() {
             @Override
             public void bombExploded(int owner, int bomb)
-            {
-                synchronized(that)
-                {
-                    handleBombExplode(owner, bomb);
-                }
-            }
+            { synchronized(that) {
+                handleBombExplode(owner, bomb);
+            }}
         });
 
         bombs.put(b.getId(), pos);
@@ -419,6 +446,38 @@ public class GameBoard
         server.queueMessage(new BombMessage(pos, 0));
 
         new Thread(b).start(); // start and background the bomb
+    }
+
+
+    /**
+     * Handles state messages from clients.
+     *
+     * @param c
+     * @param m
+     */
+    private void handleStateMessage(IClient c, StateMessage m)
+    {
+        // clients can't change state when game not started
+        if(current_state != StateMessage.State.NOTSTARTED)
+        {
+            return;
+        }
+
+        if(m.getState() == StateMessage.State.STARTED &&
+           current_state == StateMessage.State.NOTSTARTED)
+        {
+            startGame();
+        }
+    }
+
+
+    /**
+     * Initializes the game.
+     */
+    private void startGame()
+    {
+        current_state = StateMessage.State.STARTED;
+        sendInitialState();
     }
 
 

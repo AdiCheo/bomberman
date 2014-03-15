@@ -22,6 +22,7 @@ public class Window extends JFrame
     private GameView ui;
     private CardLayout layout;
     private JPanel loading_panel;
+    private JLabel loading_label;
     private IConnection c;
     private Map<Integer, Position> positions;
     private Map<Integer, Color> colors;
@@ -60,7 +61,8 @@ public class Window extends JFrame
         setLayout(layout);
 
         loading_panel = new JPanel();
-        loading_panel.add(new JLabel("Loading"));
+        loading_label = new JLabel("Loading");
+        loading_panel.add(loading_label);
 
         JPanel done_panel = new JPanel();
         done_panel.add(new JLabel("Game over"));
@@ -94,7 +96,6 @@ public class Window extends JFrame
             {
                 ui.setMap(b);
                 b.setPlayers(positions);
-                setDisplay(States.GAME);
                 ui.repaint();
             }
         });
@@ -134,9 +135,16 @@ public class Window extends JFrame
             @Override
             public void stateChanged(StateMessage.State state)
             {
-                if(state == StateMessage.State.END)
+                switch(state)
                 {
+                case END:
                     setDisplay(States.DONE);
+                    break;
+                case STARTED:
+                    setDisplay(States.GAME);
+                    break;
+                case NOTSTARTED:
+                    loading_label.setText("Connected. Game as not started yet.");
                 }
             }
         });
