@@ -17,7 +17,7 @@ public class RunBot
     {
         IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
 
-        new BotClient(c, new File(args[0]), 333, PlayerTypes.PLAYER);
+        new BotClient(c, new File(args[0]), 300, PlayerTypes.PLAYER);
 
         new Thread(c).start();
     }

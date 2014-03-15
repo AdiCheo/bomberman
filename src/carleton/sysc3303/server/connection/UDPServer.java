@@ -12,7 +12,7 @@ public class UDPServer extends AbstractServer
 {
     private int port;
     private boolean run = false;
-    private int buffer_size;
+    private int bufferSize, sendFrequency;
     private int connection_counter;
     private DatagramSocket serverSocket;
     private BlockingQueue<DatagramPacket> outgoing;
@@ -24,9 +24,9 @@ public class UDPServer extends AbstractServer
      *
      * @param port
      */
-    public UDPServer(int port)
+    public UDPServer(int port, int sendFrequency)
     {
-        this(port, 1000);
+        this(port, 1000, sendFrequency);
     }
 
 
@@ -36,10 +36,11 @@ public class UDPServer extends AbstractServer
      * @param port
      * @param buffer_length
      */
-    public UDPServer(int port, int buffer_size)
+    public UDPServer(int port, int bufferSize, int sendFrequency)
     {
         this.port = port;
-        this.buffer_size = buffer_size;
+        this.bufferSize = bufferSize;
+        this.sendFrequency = sendFrequency;
         this.connectionListeners = new LinkedList<ConnectionListener>();
         this.messageListeners = new LinkedList<MessageListener>();
         this.clients = new HashMap<Pair<InetAddress, Integer>, IClient>();
@@ -98,23 +99,21 @@ public class UDPServer extends AbstractServer
             {
                 while(true)
                 {
-                    DatagramPacket p;
-
                     try
                     {
-                        p = outgoing.take();
-                    }
-                    catch (InterruptedException e)
-                    {
-                        e.printStackTrace();
-                        continue;
-                    }
+                        List<DatagramPacket> tmp = new ArrayList<DatagramPacket>(outgoing.size());
+                        outgoing.drainTo(tmp);
 
-                    try
-                    {
-                        serverSocket.send(p);
+                        for(DatagramPacket p: tmp)
+                        {
+                            serverSocket.send(p);
+                        }
+
+                        Thread.sleep(sendFrequency);
+
+                        //serverSocket.send(outgoing.take());
                     }
-                    catch (IOException e)
+                    catch (Exception e)
                     {
                         e.printStackTrace();
                     }
@@ -124,8 +123,8 @@ public class UDPServer extends AbstractServer
 
         while(stillRunning())
         {
-            byte[] buffer = new byte[buffer_size];
-            receivePacket = new DatagramPacket(buffer, buffer_size);
+            byte[] buffer = new byte[bufferSize];
+            receivePacket = new DatagramPacket(buffer, bufferSize);
 
             try
             {
