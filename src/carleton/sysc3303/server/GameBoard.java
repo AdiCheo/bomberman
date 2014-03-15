@@ -195,6 +195,19 @@ public class GameBoard
             Player p = players.get(e.getKey());
             server.queueMessage(new PosMessage(e.getKey(), pos, p.getType()), c);
         }
+
+        synchronized(exploding_bombs)
+        {
+            for(Entry<Integer, Position> e: bombs.entrySet())
+            {
+                server.queueMessage(new BombMessage(e.getValue(), 0), c);
+            }
+
+            for(Entry<Integer, Position> e: exploding_bombs.entrySet())
+            {
+                server.queueMessage(new BombMessage(e.getValue(), EXPLODE_SIZE), c);
+            }
+        }
     }
 
 
@@ -488,7 +501,7 @@ public class GameBoard
      * @param bomb
      */
     private void handleBombExplode(int owner, final int bomb)
-    {
+    { synchronized(exploding_bombs) {
         final Position p = bombs.get(bomb);
         int x = p.getX(), y = p.getY();
 
@@ -547,7 +560,7 @@ public class GameBoard
                 }
             }
         }.start();
-    }
+    }}
 
 
     /**
