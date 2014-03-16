@@ -4,6 +4,11 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/**
+ * test case to test player bomb dodging
+ * @author Nick Mancuso
+ *
+ */
 public class BombDodge {
 
 	@Test
