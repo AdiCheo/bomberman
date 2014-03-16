@@ -30,18 +30,18 @@ public class PlayersTouch extends BaseTest {
         commands1 = new ArrayList<String>();
         commands2 = new ArrayList<String>();
         board = new ServerBoard(20);
-        target1 = new Position(5, 5);
+        target1 = new Position(6, 6);
         target2 = new Position(6, 5);
 
         commands1.add("DOWN");
         commands2.add("UP");
 
-        board.addStartingPosition(new Position(5, 5));
+        board.addStartingPosition(new Position(6, 6));
         board.addStartingPosition(new Position(6, 5));
     }
 
 
-    @Test(timeout = 500)
+    @Test(timeout = 2000)
     public void test() throws InterruptedException
     {
         server.run();
@@ -49,16 +49,19 @@ public class PlayersTouch extends BaseTest {
         clientConnection2.run();
 
         TestGameBoard logic = new TestGameBoard(server, board);
-        BotClient bot1 = new BotClient(clientConnection, moveSpeed, PlayerTypes.PLAYER);
-        BotClient bot2 = new BotClient(clientConnection2, moveSpeed, PlayerTypes.PLAYER);
 
+        BotClient bot1 = new BotClient(clientConnection, moveSpeed, PlayerTypes.PLAYER);
         bot1.waitForConnection();
-        bot2.waitForConnection();
         bot1.setCommands(commands1);
+
+        BotClient bot2 = new BotClient(clientConnection2, moveSpeed, PlayerTypes.PLAYER);
+        bot2.waitForConnection();
         bot2.setCommands(commands2);
 
         int bot1id = clientConnection.getId();
         int bot2id = clientConnection2.getId();
+
+        assertEquals("There are two players connected.", 2, logic.getConnectedPlayers());
 
         assertEquals(logic.getPlayerPosition(bot1id), target1);
         assertEquals(logic.getPlayerPosition(bot2id), target2);
@@ -67,10 +70,12 @@ public class PlayersTouch extends BaseTest {
         logic.setGameState(State.STARTED);
 
         bot1.waitForCompletion();
-        bot1.waitForCompletion();
+        bot2.waitForCompletion();
 
         //Verify Collision Was Ignored
-        assertEquals(logic.getPlayerPosition(bot1id), target1);
-        assertEquals(logic.getPlayerPosition(bot2id), target2);
+        assertEquals("First bot in expected position.", target1, logic.getPlayerPosition(bot1id));
+        assertEquals("Second bot in expected position.", target2, logic.getPlayerPosition(bot2id));
+
+        System.out.println("moo");
     }
 }

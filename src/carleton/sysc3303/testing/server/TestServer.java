@@ -86,7 +86,7 @@ public class TestServer extends AbstractServer
         c.setLastActive(new Date());
 
         clients.put(key, c);
-        queueMessage(new MetaMessage(Type.ACCEPT, "" + c.getId()), c);
         invokeConnectionListeners(c, true, args);
+        queueMessage(new MetaMessage(Type.ACCEPT, "" + c.getId()), c);
     }
 }

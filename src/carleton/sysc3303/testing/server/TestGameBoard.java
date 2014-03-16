@@ -44,4 +44,16 @@ public class TestGameBoard extends GameBoard
             startGame();
         }
     }
+
+
+    /**
+     * Gets the number of connected players.
+     * Includes monster and regular players.
+     *
+     * @return
+     */
+    public synchronized int getConnectedPlayers()
+    {
+        return players.size();
+    }
 }
