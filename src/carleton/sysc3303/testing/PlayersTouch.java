@@ -2,56 +2,72 @@ package carleton.sysc3303.testing;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
-import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import carleton.sysc3303.client.BotClient;
-import carleton.sysc3303.client.connection.IConnection;
-import carleton.sysc3303.client.connection.UDPConnection;
 import carleton.sysc3303.common.PlayerTypes;
-import carleton.sysc3303.server.GameBoard;
+import carleton.sysc3303.common.Position;
 import carleton.sysc3303.server.ServerBoard;
-import carleton.sysc3303.server.connection.IServer;
-import carleton.sysc3303.server.connection.UDPServer;
+import carleton.sysc3303.testing.server.TestGameBoard;
 
-public class PlayersTouch {
+public class PlayersTouch extends BaseTest {
+    private List<String> commands1, commands2;
+    private ServerBoard board;
+    private Position target1, target2;
 
     @Before
-    public void setUp() throws Exception
+    public void setUp()
     {
-        //Set up server
-        IServer s = new UDPServer(9999, 50);
-        ServerBoard b;
+        super.setUp();
+        commands1 = new ArrayList<String>();
+        commands2 = new ArrayList<String>();
+        board = new ServerBoard(20);
+        target1 = new Position(5, 5);
+        target2 = new Position(6, 5);
 
-        b = new ServerBoard(20);
+        commands1.add("DOWN");
+        commands2.add("UP");
 
-        new GameBoard(s, b);
-        new Thread(s).start(); // background the server
-
-        System.out.println("Started");
-
-        //Place bot
-        IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
-
-        new BotClient(c, 300, PlayerTypes.PLAYER).setCommands(new File("bot.txt"));
-        new Thread(c).start();
+        board.addStartingPosition(new Position(5, 5));
+        board.addStartingPosition(new Position(6, 5));
     }
 
-    @After
-    public void tearDown() throws Exception {
 
+    @Test(timeout = 500)
+    public void test() throws InterruptedException
+    {    	
+        server.run();
+        clientConnection.run();
+        clientConnection2.run();
+
+        TestGameBoard logic = new TestGameBoard(server, board);
+        BotClient bot1 = new BotClient(clientConnection, moveSpeed, PlayerTypes.PLAYER);
+        BotClient bot2 = new BotClient(clientConnection2, moveSpeed, PlayerTypes.PLAYER);
+
+        bot1.waitForConnection();
+        bot2.waitForConnection();
+        
+        //Verify Starting Positions
+        /*Position pos = logic.getPlayerPosition(0);
+        assertEquals(pos, target1);
+        pos = logic.getPlayerPosition(1);
+        assertEquals(pos, target2);*/
+        
+        bot1.setCommands(commands1);
+        bot2.setCommands(commands2);
+        bot1.start();
+        bot2.start();
+        bot1.waitForCompletion();
+        bot1.waitForCompletion();
+
+        //Verify Collision Was Ignored
+        Position pos = logic.getPlayerPosition(0);
+        assertEquals(pos, target1);
+        pos = logic.getPlayerPosition(1);
+        assertEquals(pos, target2);
     }
-
-    @Test
-    public void test() {
-        //wait for collision...
-
-        //when collision happens
-            //check if collision happened as expected
-    }
-
 }
