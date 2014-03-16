@@ -17,6 +17,7 @@ public class BotClient
     private int delay;
     private PlayerTypes t;
     private List<String> commands;
+    private Boolean isConnected;
 
     /**
      * Constructor.
@@ -30,6 +31,7 @@ public class BotClient
         this.delay = delay;
         this.run = false;
         this.t = t;
+        this.isConnected = false;
 
         init();
     }
@@ -97,11 +99,9 @@ public class BotClient
             @Override
             public void stateChanged(StateMessage.State state)
             {
-                System.out.println(state);
                 switch(state)
                 {
                 case STARTED:
-                    run = true;
                     start();
                     break;
                 case NOTSTARTED:
@@ -116,6 +116,18 @@ public class BotClient
                 }
             }
 
+        });
+
+        c.addConnectionStatusListener(new ConnectionStatusListener() {
+            @Override
+            public void statusChanged(State s)
+            {
+                synchronized(isConnected)
+                {
+                    isConnected.notifyAll();
+                    isConnected = s == State.CONNECTED;
+                }
+            }
         });
 
         c.queueMessage(new MetaMessage(Type.CONNECT, "1," + clientType));
@@ -134,43 +146,99 @@ public class BotClient
 
 
     /**
+     * Blocking call that unblocks once the queue is depleted.
+     *
+     * @throws InterruptedException
+     */
+    public void waitForCompletion() throws InterruptedException
+    {
+        synchronized(commands)
+        {
+            while(commands.size() > 0)
+            {
+                commands.wait();
+            }
+        }
+    }
+
+
+    /**
+     * Blocking call that unblocks once the bot connects to the server.
+     *
+     * @throws InterruptedException
+     */
+    public void waitForConnection() throws InterruptedException
+    {
+        synchronized(isConnected)
+        {
+            while(!isConnected)
+            {
+                isConnected.wait();
+            }
+        }
+    }
+
+
+    /**
+     * Sets the bot's current state.
+     *
+     * @param run
+     */
+    protected synchronized void setRunning(boolean run)
+    {
+        this.run = run;
+        notifyAll();
+    }
+
+
+    /**
      * Start executing moves.
      */
     public void start()
     {
+        setRunning(true);
+
         new Thread(new Runnable() {
             @Override
             public void run()
             {
                 IMessage m;
 
-                for(String line: commands)
+                synchronized(commands)
                 {
-                    if (line.equals("BOMB"))
+                    while(commands.size() > 0 && isRunning())
                     {
-                        c.queueMessage(new BombPlacedMessage());
-                    }
-                    else {
+                        String line = commands.remove(0);
+
+                        if (line.equals("BOMB"))
+                        {
+                            c.queueMessage(new BombPlacedMessage());
+                        }
+                        else
+                        {
+                            try
+                            {
+                                m = new MoveMessage(Direction.valueOf(line));
+                            }
+                            catch(IllegalArgumentException e)
+                            {
+                                continue;
+                            }
+
+                            c.queueMessage(m);
+                        }
+
                         try
                         {
-                            m = new MoveMessage(Direction.valueOf(line));
+                            Thread.sleep(delay);
                         }
-                        catch(IllegalArgumentException e)
+                        catch (InterruptedException e)
                         {
-                            continue;
+                            e.printStackTrace();
                         }
-
-                        c.queueMessage(m);
                     }
 
-                    try
-                    {
-                        Thread.sleep(delay);
-                    }
-                    catch (InterruptedException e)
-                    {
-                        e.printStackTrace();
-                    }
+                    commands.notifyAll();
                 }
             }
         }).start();

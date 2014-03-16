@@ -17,14 +17,14 @@ public class GameBoard
     public static final int BOMB_EXPLODING = 1000;
     public static final int EXPLODE_SIZE = 10;
 
-    private ServerBoard b;
-    private IServer server;
-    private Map<Integer, Position> player_positions;
-    private Map<Integer, Player> players;
-    private Map<Integer, Position> bombs;
-    private Map<Integer, Position> exploding_bombs;
-    private StateMessage.State current_state;
-    private int currentPlayers;
+    protected ServerBoard b;
+    protected IServer server;
+    protected Map<Integer, Position> player_positions;
+    protected Map<Integer, Player> players;
+    protected Map<Integer, Position> bombs;
+    protected Map<Integer, Position> exploding_bombs;
+    protected StateMessage.State current_state;
+    protected int currentPlayers;
 
 
     /**

@@ -69,6 +69,17 @@ public class TestConnection extends AbstractConnection
 
 
     /**
+     * Gets the connection id.
+     *
+     * @return
+     */
+    public int getId()
+    {
+        return id;
+    }
+
+
+    /**
      * Receives a message from the server.
      */
     public void receiveMessage(byte[] data)

@@ -30,6 +30,7 @@ public abstract class AbstractConnection implements IConnection
     protected BlockingQueue<IMessage> messageQueue;
     protected Object messageQueueNotifier;
     protected boolean run;
+    protected int id;
 
 
     protected AbstractConnection()
@@ -196,6 +197,7 @@ public abstract class AbstractConnection implements IConnection
             {
             case ACCEPT:
                 this.invokeConnectionStatusListeners(State.CONNECTED);
+                id = Integer.parseInt(mm.getMessage());
                 break;
             case DISCONNECT:
             case REJECT:
