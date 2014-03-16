@@ -20,10 +20,11 @@ import carleton.sysc3303.server.connection.UDPServer;
 
 public class PlayersTouch {
 
-	@Before
-	public void setUp() throws Exception {
-		//Set up server		
-		IServer s = new UDPServer(9999, 50);
+    @Before
+    public void setUp() throws Exception
+    {
+        //Set up server
+        IServer s = new UDPServer(9999, 50);
         ServerBoard b;
 
         b = new ServerBoard(20);
@@ -32,26 +33,25 @@ public class PlayersTouch {
         new Thread(s).start(); // background the server
 
         System.out.println("Started");
-        
+
         //Place bot
         IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
 
-        new BotClient(c, new File("bot.txt"), 300, PlayerTypes.PLAYER);
-
+        new BotClient(c, 300, PlayerTypes.PLAYER).setCommands(new File("bot.txt"));
         new Thread(c).start();
-	}
+    }
 
-	@After
-	public void tearDown() throws Exception {
-		
-	}
+    @After
+    public void tearDown() throws Exception {
 
-	@Test
-	public void test() {
-		//wait for collision...
-		
-		//when collision happens
-			//check if collision happened as expected
-	}
+    }
+
+    @Test
+    public void test() {
+        //wait for collision...
+
+        //when collision happens
+            //check if collision happened as expected
+    }
 
 }
