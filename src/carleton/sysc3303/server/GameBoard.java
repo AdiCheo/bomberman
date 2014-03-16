@@ -155,7 +155,7 @@ public class GameBoard
         players.put(p.getId(), p);
 
         // new player position
-        Position pos = getNewPosition();
+        Position pos = b.getEmptyPosition();
 
         System.out.printf("Player %d starts at %s\n", c.getId(), pos);
         setPlayerPosition(c.getId(), pos);
@@ -245,32 +245,6 @@ public class GameBoard
             Player p = players.remove(c.getId());
             server.queueMessage(new PosMessage(c.getId(), -1, -1, p.getType()));
         }
-    }
-
-
-    /**
-     * Get a starting position for a new player.
-     * TODO: make it random but smart.
-     *
-     * @return
-     */
-    private Position getNewPosition()
-    {
-        int randomX;
-        int randomY;
-        Random randomGenerator = new Random();
-
-        System.out.println("Getting new player pos");
-
-        // Find available start location
-        do
-        {
-            randomX = randomGenerator.nextInt(b.getSize());
-            randomY = randomGenerator.nextInt(b.getSize());
-
-        } while (b.isOccupied(randomX, randomY) || !b.isEmpty(randomX, randomY));
-
-        return new Position(randomX, randomY);
     }
 
 

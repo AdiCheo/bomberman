@@ -12,7 +12,7 @@ public class Run
      */
     public static void main(String[] args) throws IOException
     {
-        IServer s = new UDPServer(9999);
+        IServer s = new UDPServer(9999, 50);
         ServerBoard b;
 
         if(args.length == 1)

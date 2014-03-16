@@ -52,6 +52,14 @@ public class BotClient
             clientType = "m";
         }
 
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run()
+            {
+                c.exit();
+            }
+        });
+
         c.addGameStateListener(new GameStateListener() {
             @Override
             public void stateChanged(StateMessage.State state)
@@ -67,7 +75,7 @@ public class BotClient
                     c.queueMessage(new StateMessage(StateMessage.State.STARTED));
                     break;
                 case END:
-                    run = false;
+                    System.exit(0);
                 }
             }
 

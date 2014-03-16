@@ -11,14 +11,6 @@ public abstract class AbstractServer implements IServer
     protected List<ConnectionListener> connectionListeners;
     protected List<MessageListener> messageListeners;
 
-
-    @Override
-    public synchronized IClient[] getClients()
-    {
-        return (IClient[])clients.values().toArray();
-    }
-
-
     @Override
     public void queueMessage(IMessage m)
     {

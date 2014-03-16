@@ -11,14 +11,6 @@ public interface IServer extends Runnable
 
 
     /**
-     * Gets list of all currently connected clients.
-     *
-     * @return
-     */
-    public IClient[] getClients();
-
-
-    /**
      * Sends a message to one specific client.
      *
      * @param	m
