@@ -4,6 +4,11 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/**
+ * test case to test player bombing
+ * @author Nick Mancuso
+ *
+ */
 public class PlayerBombs {
 
 	@Test
