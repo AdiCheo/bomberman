@@ -14,6 +14,7 @@ public class Board implements Iterable<PositionTile>
     protected Tile[][] walls;
     protected boolean[][] breakableWalls;
     protected int size;
+    protected Position[] startingPositions;
     protected Map<Integer, Position> players;
     protected Map<Integer, Position> bombs;
     protected Map<Integer, Position> explosions;
@@ -74,6 +75,7 @@ public class Board implements Iterable<PositionTile>
         this.players = new HashMap<Integer, Position>();
         this.bombs = new HashMap<Integer, Position>();
         this.explosions = new HashMap<Integer, Position>();
+        this.startingPositions = new Position[4];
         
         for(Position p: this)
         {
@@ -138,7 +140,6 @@ public class Board implements Iterable<PositionTile>
     {
     	this.explosions = explosions;
     }
-
 
     /**
      * Gets current map of players.
@@ -367,8 +368,38 @@ public class Board implements Iterable<PositionTile>
             walls[size - y - 1][x] = t;
         }
     }
+    
+    public void setStartingPosition(Position p)
+    {
+    	if(!isPositionValid(p))
+    		return;
+    	if(getTile(p) == Tile.WALL)
+    		return;
+    	if(getTile(p) == Tile.DESTRUCTABLE)
+    		return;
+    	if(getTile(p) == Tile.EXIT)
+    		return;
+    	
+    	if(startingPositions[0] == null)
+    		startingPositions[0] = p;
+    	else if(startingPositions[1] == null)
+    		startingPositions[1] = p;
+    	else if(startingPositions[2] == null)
+    		startingPositions[2] = p;
+    	else if(startingPositions[3] == null)
+    		startingPositions[3] = p;
+    }
 
-
+    public Position getStartingPosition()
+    {
+    	for(int i=0;i<3;i++)
+    	{
+    		if(!isOccupied(startingPositions[i]))
+    				return startingPositions[i];
+    	}
+    	
+    	return new Position(-1,-1);
+    }
     /**
      * Checks if the given position is valid.
      *

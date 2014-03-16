@@ -72,7 +72,53 @@ public class BotClient
                     start();
                     break;
                 case NOTSTARTED:
-                    c.queueMessage(new StateMessage(StateMessage.State.STARTED));
+                	
+                	BufferedReader reader;
+                	String line;
+                	
+                	//Gets first line from bot to start game
+                	try 
+                	{
+    					reader = new BufferedReader(new FileReader(commandList));
+    				}
+                	catch (FileNotFoundException e) 
+                	{
+    					e.printStackTrace();
+    					return;
+    				}
+                	
+                	try 
+                	{
+    					line = reader.readLine();
+    				} 
+                	catch (IOException e) 
+    				{
+    					e.printStackTrace();
+    					try 
+    					{
+    						reader.close();
+    					}
+    					catch (IOException e1)
+    					{
+    						e1.printStackTrace();
+    					}
+    					return;
+    				}
+                	line.trim();
+                	
+                	//Starts the game
+                	if(line.equals(new String("START")))
+                	{
+                		c.queueMessage(new StateMessage(StateMessage.State.STARTED));
+                		try
+                		{
+                			reader.close();
+                		}
+                		catch (IOException e)
+                		{
+                			e.printStackTrace();
+                		}
+                	}
                     break;
                 case END:
                     System.exit(0);

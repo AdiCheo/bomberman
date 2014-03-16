@@ -24,6 +24,7 @@ public class GameBoard
     private Map<Integer, Position> bombs;
     private Map<Integer, Position> exploding_bombs;
     private StateMessage.State current_state;
+    private int currentPlayers;
 
 
     /**
@@ -53,6 +54,7 @@ public class GameBoard
         this.exploding_bombs = new HashMap<Integer, Position>();
         this.players = new HashMap<Integer, Player>();
         this.current_state = StateMessage.State.NOTSTARTED;
+        this.currentPlayers = 0;
 
         this.b.setPlayers(player_positions);
         this.b.setBombs(bombs);
@@ -135,7 +137,8 @@ public class GameBoard
      */
     private void addPlayer(IClient c, boolean isMonster)
     {
-        if(player_positions.size() == MAX_PLAYERS)
+    	Position pos = null;
+        if(currentPlayers == MAX_PLAYERS && !isMonster)
         {
             server.queueMessage(new MetaMessage(Type.REJECT, "Server is full"), c);
             return;
@@ -150,12 +153,20 @@ public class GameBoard
         else
         {
             p = new Player(c.getId());
+            currentPlayers++;
         }
 
         players.put(p.getId(), p);
 
-        // new player position
-        Position pos = b.getEmptyPosition();
+        // new player position       
+      	pos = b.getStartingPosition();
+        
+        
+        // if all starting positions are taken or isMonster is true
+        if(pos == null || pos.getX() == -1 || pos.getY() == -1)
+        {
+        	pos = b.getEmptyPosition();
+        }
 
         System.out.printf("Player %d starts at %s\n", c.getId(), pos);
         setPlayerPosition(c.getId(), pos);
@@ -381,7 +392,8 @@ public class GameBoard
                     else
                     {
                         System.out.printf("Player %d got killed by a monster.\n", target_id);
-                        target.setDead(true);
+                        killPlayer(target_id);
+                        System.out.printf("Player %d should be dead.\n", target_id);
                     }
                 }
                 catch(RuntimeException e){}
