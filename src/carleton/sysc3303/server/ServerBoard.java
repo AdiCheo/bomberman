@@ -70,33 +70,50 @@ public class ServerBoard extends Board
         int size = Integer.parseInt(reader.readLine().trim());
         ServerBoard b = new ServerBoard(size);
         String line;
+        String[] splitString = new String[2];
+        Position startingPosition;
+        int pX, pY;
         int y = 0;
 
         while((line = reader.readLine()) != null)
         {
-            for(int x=0; x<line.length(); x+=2)
-            {
-                Tile t;
+        	if(y < size)
+        	{
+        		for(int x=0; x<line.length(); x+=2)
+        		{
+        			Tile t;
 
-                switch(line.charAt(x))
-                {
-                case '#':
-                    t = Tile.WALL;
-                    break;
-                case '0':
-                    t = Tile.EXIT;
-                    break;
-                default:
-                    t = Tile.EMPTY;
-                }
+        			switch(line.charAt(x))
+        			{
+        			case '#':
+        				t = Tile.WALL;
+        				break;
+        			case '0':
+        				t = Tile.EXIT;
+        				break;
+        			default:
+        				t = Tile.EMPTY;
+        			}
 
-                b.setTile(x/2, size - y - 1, t);
+        			b.setTile(x/2, size - y - 1, t);
 
-                if(line.charAt(x+1) == '+')
-                {
-                    b.setTile(x/2, size - y - 1, Tile.DESTRUCTABLE);
-                }
-            }
+        			if(line.charAt(x+1) == '+')
+        			{
+        				b.setTile(x/2, size - y - 1, Tile.DESTRUCTABLE);
+        			}
+        		}
+        	}
+            
+            if(y >= size)
+        	{
+        		splitString = line.split(",");
+        		pX = Integer.parseInt(splitString[0]);
+        		pY = Integer.parseInt(splitString[1]);
+        		startingPosition = new Position(pX,pY);
+        		
+        		if(b.isPositionValid(startingPosition))
+        			b.setStartingPosition(startingPosition);
+        	}
 
             y++;
         }
