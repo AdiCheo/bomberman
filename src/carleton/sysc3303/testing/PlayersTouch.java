@@ -11,6 +11,7 @@ import org.junit.Test;
 import carleton.sysc3303.client.BotClient;
 import carleton.sysc3303.common.PlayerTypes;
 import carleton.sysc3303.common.Position;
+import carleton.sysc3303.common.connection.StateMessage.State;
 import carleton.sysc3303.server.ServerBoard;
 import carleton.sysc3303.testing.client.TestConnection;
 import carleton.sysc3303.testing.server.TestGameBoard;
@@ -42,7 +43,7 @@ public class PlayersTouch extends BaseTest {
 
     @Test(timeout = 500)
     public void test() throws InterruptedException
-    {    	
+    {
         server.run();
         clientConnection.run();
         clientConnection2.run();
@@ -53,24 +54,23 @@ public class PlayersTouch extends BaseTest {
 
         bot1.waitForConnection();
         bot2.waitForConnection();
-        
-        //Verify Starting Positions
-        /*Position pos = logic.getPlayerPosition(0);
-        assertEquals(pos, target1);
-        pos = logic.getPlayerPosition(1);
-        assertEquals(pos, target2);*/
-        
         bot1.setCommands(commands1);
         bot2.setCommands(commands2);
-        bot1.start();
-        bot2.start();
+
+        int bot1id = clientConnection.getId();
+        int bot2id = clientConnection2.getId();
+
+        assertEquals(logic.getPlayerPosition(bot1id), target1);
+        assertEquals(logic.getPlayerPosition(bot2id), target2);
+
+        // starting the game causes the bots to start processing commands
+        logic.setGameState(State.STARTED);
+
         bot1.waitForCompletion();
         bot1.waitForCompletion();
 
         //Verify Collision Was Ignored
-        Position pos = logic.getPlayerPosition(0);
-        assertEquals(pos, target1);
-        pos = logic.getPlayerPosition(1);
-        assertEquals(pos, target2);
+        assertEquals(logic.getPlayerPosition(bot1id), target1);
+        assertEquals(logic.getPlayerPosition(bot2id), target2);
     }
 }
