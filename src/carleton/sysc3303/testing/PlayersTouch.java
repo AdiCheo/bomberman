@@ -12,17 +12,20 @@ import carleton.sysc3303.client.BotClient;
 import carleton.sysc3303.common.PlayerTypes;
 import carleton.sysc3303.common.Position;
 import carleton.sysc3303.server.ServerBoard;
+import carleton.sysc3303.testing.client.TestConnection;
 import carleton.sysc3303.testing.server.TestGameBoard;
 
 public class PlayersTouch extends BaseTest {
     private List<String> commands1, commands2;
     private ServerBoard board;
     private Position target1, target2;
+    TestConnection clientConnection2;
 
     @Before
     public void setUp()
     {
         super.setUp();
+        clientConnection2 = new TestConnection(server);
         commands1 = new ArrayList<String>();
         commands2 = new ArrayList<String>();
         board = new ServerBoard(20);

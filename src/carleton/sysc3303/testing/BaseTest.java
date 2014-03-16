@@ -12,7 +12,6 @@ public abstract class BaseTest
 {
     protected TestServer server;
     protected TestConnection clientConnection;
-    protected TestConnection clientConnection2;
     protected int moveSpeed = 300;
 
 
@@ -22,7 +21,6 @@ public abstract class BaseTest
         //initializationBarrier = new CyclicBarrier(2);
         server = new TestServer();
         clientConnection = new TestConnection(server);
-        clientConnection2 = new TestConnection(server);
     }
 
 
