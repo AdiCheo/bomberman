@@ -41,7 +41,7 @@ public class PlayersTouch extends BaseTest {
     }
 
 
-    @Test(timeout = 500)
+    @Test(timeout = 1000)
     public void test() throws InterruptedException
     {
         server.run();
@@ -60,17 +60,17 @@ public class PlayersTouch extends BaseTest {
         int bot1id = clientConnection.getId();
         int bot2id = clientConnection2.getId();
 
-        assertEquals(logic.getPlayerPosition(bot1id), target1);
-        assertEquals(logic.getPlayerPosition(bot2id), target2);
+        assertEquals("Check Starting Position", target1, logic.getPlayerPosition(bot1id));
+        assertEquals("Check Starting Position", target2, logic.getPlayerPosition(bot2id));
 
         // starting the game causes the bots to start processing commands
         logic.setGameState(State.STARTED);
 
         bot1.waitForCompletion();
-        bot1.waitForCompletion();
+        bot2.waitForCompletion();
 
         //Verify Collision Was Ignored
-        assertEquals(logic.getPlayerPosition(bot1id), target1);
-        assertEquals(logic.getPlayerPosition(bot2id), target2);
+        assertEquals("Check Final Position", target1, logic.getPlayerPosition(bot1id));
+        assertEquals("Check Final Position", target2, logic.getPlayerPosition(bot2id));
     }
 }
