@@ -2,6 +2,9 @@ package carleton.sysc3303.testing;
 
 import static org.junit.Assert.*;
 
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -20,23 +23,31 @@ public class SimpleTest
     @Before
     public void setUp()
     {
+        //initializationBarrier = new CyclicBarrier(2);
         server = new TestServer();
         clientConnection = new TestConnection(server);
     }
 
 
     @Test(timeout = 1000)
-    public void test()
+    public void test() throws InterruptedException, BrokenBarrierException
     {
-        //new Thread(server).start();
+        CyclicBarrier barrier = new CyclicBarrier(2);
+
         server.run();
         clientConnection.run();
 
         new GameBoard(server, new ServerBoard(20));
-        DisconnectingClient client = new DisconnectingClient(clientConnection);
+        DisconnectingClient client = new DisconnectingClient(clientConnection, barrier);
+
+        // client disconnected at start
+        assertEquals(false, client.isConnected());
+
+        client.connect();
+        barrier.await(); // wait for response
 
         assertEquals(true, client.isConnected());
-        clientConnection.exit();
+        clientConnection.exit(); // this call blocks
         assertEquals(false, client.isConnected());
     }
 

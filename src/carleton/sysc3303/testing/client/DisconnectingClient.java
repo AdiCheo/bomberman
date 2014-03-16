@@ -1,5 +1,7 @@
 package carleton.sysc3303.testing.client;
 
+import java.util.concurrent.CyclicBarrier;
+
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage;
 
@@ -14,7 +16,7 @@ public class DisconnectingClient
      *
      * @param c
      */
-    public DisconnectingClient(IConnection c)
+    public DisconnectingClient(IConnection c, final CyclicBarrier b)
     {
         this.c = c;
 
@@ -23,6 +25,18 @@ public class DisconnectingClient
             public void statusChanged(State s)
             {
                 connected = s == State.CONNECTED;
+
+                if(isConnected())
+                {
+                    try
+                    {
+                        b.await();
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }

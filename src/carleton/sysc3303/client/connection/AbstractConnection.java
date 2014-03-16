@@ -5,9 +5,14 @@ import java.util.concurrent.*;
 
 import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
 import carleton.sysc3303.common.*;
+import carleton.sysc3303.common.connection.BombMessage;
 import carleton.sysc3303.common.connection.IMessage;
+import carleton.sysc3303.common.connection.IMessageFactory;
+import carleton.sysc3303.common.connection.MapMessage;
 import carleton.sysc3303.common.connection.MetaMessage;
+import carleton.sysc3303.common.connection.PosMessage;
 import carleton.sysc3303.common.connection.StateMessage;
+import carleton.sysc3303.common.connection.MetaMessage.Type;
 
 
 /**
@@ -129,7 +134,6 @@ public abstract class AbstractConnection implements IConnection
                 try
                 {
                     messageQueueNotifier.wait();
-                    System.out.println("Woke up");
                 }
                 catch (InterruptedException e)
                 {
@@ -138,7 +142,77 @@ public abstract class AbstractConnection implements IConnection
             }
         }
 
+        invokeConnectionStatusListeners(State.DISCONNECTED);
+
         run = false;
+    }
+
+
+    /**
+     * Parse a message from the server.
+     *
+     * @param data
+     */
+    protected void parseMessage(byte[] data)
+    {
+        try
+        {
+            processMessage(IMessageFactory.forge(data));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Process message and invoke the relevant events.
+     *
+     * @param m
+     */
+    protected void processMessage(IMessage m)
+    {
+        if(m instanceof MapMessage)
+        {
+            MapMessage mm = (MapMessage)m;
+            invokeMapListeners(mm.getBoard());
+        }
+        else if(m instanceof PosMessage)
+        {
+            PosMessage pm = (PosMessage)m;
+            invokePositionListeners(pm.getPid(), pm.getPosition(), pm.getType());
+        }
+        else if(m instanceof BombMessage)
+        {
+            BombMessage bm = (BombMessage)m;
+            invokeBombListeners(bm.getPosition(), bm.getSize());
+        }
+        else if(m instanceof MetaMessage)
+        {
+            MetaMessage mm = (MetaMessage)m;
+
+            switch(mm.getStatus())
+            {
+            case ACCEPT:
+                this.invokeConnectionStatusListeners(State.CONNECTED);
+                break;
+            case DISCONNECT:
+            case REJECT:
+                this.invokeConnectionStatusListeners(State.DISCONNECTED);
+                break;
+            case PING:
+                this.queueMessage(new MetaMessage(Type.PONG, ""));
+                break;
+            default:
+                // TODO: add more
+            }
+        }
+        else if(m instanceof StateMessage)
+        {
+            StateMessage sm = (StateMessage)m;
+            this.invokeGameStateListeners(sm.getState());
+        }
     }
 
 

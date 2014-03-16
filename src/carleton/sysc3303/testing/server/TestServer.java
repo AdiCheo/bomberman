@@ -1,13 +1,12 @@
 package carleton.sysc3303.testing.server;
 
 import java.net.InetAddress;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 
 import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
 import carleton.sysc3303.server.connection.*;
+import carleton.sysc3303.testing.client.TestConnection;
 
 /**
  * Class used for testing purposes.
@@ -15,6 +14,7 @@ import carleton.sysc3303.server.connection.*;
 public class TestServer extends AbstractServer
 {
     protected int connectionCounter = 0;
+    protected HashMap<Pair<InetAddress, Integer>, TestConnection> connections;
 
 
     /**
@@ -27,6 +27,20 @@ public class TestServer extends AbstractServer
         this.connectionListeners = new LinkedList<ConnectionListener>();
         this.messageListeners = new LinkedList<MessageListener>();
         this.clients = new HashMap<Pair<InetAddress, Integer>, IClient>();
+        this.connections = new HashMap<Pair<InetAddress, Integer>, TestConnection>();
+    }
+
+
+    /**
+     * Registers a new connection with this test server.
+     *
+     * @param address
+     * @param port
+     * @param conn
+     */
+    public void registerConnection(InetAddress address, int port, TestConnection conn)
+    {
+        connections.put(new Pair<InetAddress, Integer>(address, port), conn);
     }
 
     @Override
@@ -38,7 +52,9 @@ public class TestServer extends AbstractServer
     @Override
     public void queueMessage(IMessage m, IClient c)
     {
-        System.out.println("Have a message for client.");
+        byte[] data = IMessageFactory.serialize(m);
+        TestConnection conn = connections.get(new Pair<InetAddress, Integer>(c.getAddress(), c.getPort()));
+        conn.receiveMessage(data);
     }
 
     @Override
@@ -55,7 +71,7 @@ public class TestServer extends AbstractServer
      * @param port
      * @param data
      */
-    public synchronized void receiveMessage(InetAddress address, int port, byte[] data)
+    public void receiveMessage(InetAddress address, int port, byte[] data)
     {
         System.out.println("Received message from client.");
         parseMessage(address, port, data);

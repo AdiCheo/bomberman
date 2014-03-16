@@ -33,22 +33,61 @@ public class TestConnection extends AbstractConnection
         this.positionListeners = new LinkedList<PositionListener>();
         this.stateListeners = new LinkedList<GameStateListener>();
         this.bombListeners = new LinkedList<BombListener>();
+
+        server.registerConnection(getHostname(), getPort(), this);
     }
 
 
-    @Override
-    protected synchronized void sendMessage(IMessage m)
+    /**
+     * Gets the current connection's port.
+     * @return
+     */
+    public int getPort()
     {
-        byte[] data = IMessageFactory.serialize(m);
+        return 1024 + id;
+    }
 
+
+    /**
+     * Gets the current connection's hostname.
+     *
+     * @return
+     */
+    public InetAddress getHostname()
+    {
         try
         {
-            System.out.println("Sending message to server.");
-            server.receiveMessage(InetAddress.getByName("localhost"), 1024 + id, data);
+            return InetAddress.getByName("localhost");
         }
         catch (UnknownHostException e)
         {
             e.printStackTrace();
         }
+
+        return null;
+    }
+
+
+    /**
+     * Receives a message from the server.
+     */
+    public void receiveMessage(byte[] data)
+    {
+        try
+        {
+            processMessage(IMessageFactory.forge(data));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Override
+    protected void sendMessage(IMessage m)
+    {
+        byte[] data = IMessageFactory.serialize(m);
+        server.receiveMessage(getHostname(), getPort(), data);
     }
 }
