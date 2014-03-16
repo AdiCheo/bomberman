@@ -468,7 +468,7 @@ public class GameBoard
     /**
      * Initializes the game.
      */
-    private void startGame()
+    protected void startGame()
     {
         current_state = StateMessage.State.STARTED;
         sendInitialState();

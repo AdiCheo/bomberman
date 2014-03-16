@@ -105,7 +105,7 @@ public class BotClient
                     start();
                     break;
                 case NOTSTARTED:
-                    if(commands.size() > 0 && commands.get(0).equals("START"))
+                    if(commands != null && commands.size() > 0 && commands.get(0).equals("START"))
                     {
                         commands.remove(0); // get rid of the START
                         c.queueMessage(new StateMessage(StateMessage.State.STARTED));

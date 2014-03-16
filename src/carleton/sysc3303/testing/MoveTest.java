@@ -10,6 +10,7 @@ import org.junit.runners.JUnit4;
 
 import carleton.sysc3303.client.*;
 import carleton.sysc3303.common.*;
+import carleton.sysc3303.common.connection.StateMessage.State;
 import carleton.sysc3303.server.*;
 import carleton.sysc3303.testing.server.TestGameBoard;
 
@@ -43,10 +44,9 @@ public class MoveTest extends BaseTest
         TestGameBoard logic = new TestGameBoard(server, board);
         BotClient bot = new BotClient(clientConnection, moveSpeed, PlayerTypes.PLAYER);
 
-        bot.waitForConnection();
-
         bot.setCommands(commands);
-        bot.start();
+        bot.waitForConnection();
+        logic.setGameState(State.STARTED);
         bot.waitForCompletion();
 
         int id = clientConnection.getId();
