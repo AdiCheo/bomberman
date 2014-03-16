@@ -137,7 +137,7 @@ public class GameBoard
      */
     private void addPlayer(IClient c, boolean isMonster)
     {
-    	Position pos = null;
+        Position pos = null;
         if(currentPlayers == MAX_PLAYERS && !isMonster)
         {
             server.queueMessage(new MetaMessage(Type.REJECT, "Server is full"), c);
@@ -149,24 +149,19 @@ public class GameBoard
         if(isMonster)
         {
             p = new Monster(c.getId());
+            // pos = b.getEmptyPosition();
         }
         else
         {
             p = new Player(c.getId());
             currentPlayers++;
+            // pos = b.getNextPosition();
         }
 
         players.put(p.getId(), p);
 
-        // new player position       
-      	pos = b.getStartingPosition();
-        
-        
-        // if all starting positions are taken or isMonster is true
-        if(pos == null || pos.getX() == -1 || pos.getY() == -1)
-        {
-        	pos = b.getEmptyPosition();
-        }
+        // new player position
+        pos = b.getNextPosition();
 
         System.out.printf("Player %d starts at %s\n", c.getId(), pos);
         setPlayerPosition(c.getId(), pos);
