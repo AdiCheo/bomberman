@@ -74,6 +74,14 @@ public class Window extends JFrame
 
         ui.setColors(colors);
         ui.setBombs(bombs);
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run()
+            {
+                c.exit();
+            }
+        });
     }
 
 

@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.IMessage;
+import carleton.sysc3303.common.connection.MetaMessage;
 import carleton.sysc3303.common.connection.StateMessage;
 
 
@@ -22,12 +23,14 @@ public abstract class AbstractConnection implements IConnection
     protected List<ConnectionStatusListener> connectionListeners;
     protected List<GameStateListener> stateListeners;
     protected BlockingQueue<IMessage> messageQueue;
+    protected Object messageQueueNotifier;
     protected boolean run;
 
 
     protected AbstractConnection()
     {
         messageQueue = new LinkedBlockingQueue<IMessage>();
+        messageQueueNotifier = new Object();
         run = false;
     }
 
@@ -86,7 +89,7 @@ public abstract class AbstractConnection implements IConnection
      */
     public void run()
     {
-        new Thread(new Runnable() {
+        new Thread() {
             public void run()
             {
                 while(true)
@@ -94,13 +97,48 @@ public abstract class AbstractConnection implements IConnection
                     try
                     {
                         sendMessage(messageQueue.take());
-                    } catch (InterruptedException e)
+
+                        synchronized(messageQueueNotifier)
+                        {
+                            if(messageQueue.isEmpty())
+                            {
+                                messageQueueNotifier.notifyAll();
+                            }
+                        }
+                    }
+                    catch (InterruptedException e)
                     {
                         e.printStackTrace();
                     }
                 }
             }
-        }).start();
+        }.start();
+    }
+
+
+    @Override
+    public void exit()
+    {
+        queueMessage(new MetaMessage(MetaMessage.Type.DISCONNECT));
+
+        // wait until the message queue is empty before exiting
+        synchronized(messageQueueNotifier)
+        {
+            while(!messageQueue.isEmpty())
+            {
+                try
+                {
+                    messageQueueNotifier.wait();
+                    System.out.println("Woke up");
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        run = false;
     }
 
 

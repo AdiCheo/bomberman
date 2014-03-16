@@ -55,4 +55,11 @@ public interface IConnection extends Runnable
      * @param m
      */
     public void queueMessage(IMessage m);
+
+
+    /**
+     * Tells the connection to do whatever it has to
+     * and then exit. The call should block until it's done.
+     */
+    public void exit();
 }

@@ -151,7 +151,8 @@ public class UDPConnection extends AbstractConnection
         try
         {
             socket.send(packet);
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }
