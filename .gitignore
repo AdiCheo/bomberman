@@ -6,6 +6,7 @@
 *.ear
 
 # eclipse stuff #
+.metadata
 .project
 .classpath
 bin/
