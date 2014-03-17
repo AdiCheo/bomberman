@@ -5,9 +5,9 @@ import java.util.concurrent.*;
 
 import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
 import carleton.sysc3303.common.*;
-import carleton.sysc3303.common.connection.IMessage;
-import carleton.sysc3303.common.connection.MetaMessage;
-import carleton.sysc3303.common.connection.StateMessage;
+import carleton.sysc3303.common.connection.*;
+import carleton.sysc3303.common.connection.PowerupMessage.Action;
+import carleton.sysc3303.common.connection.MetaMessage.Type;
 
 
 /**
@@ -20,11 +20,13 @@ public abstract class AbstractConnection implements IConnection
     protected List<PositionListener> positionListeners;
     protected List<BombListener> bombListeners;
     protected List<MapListener> mapListeners;
+    protected List<PowerupListener> powerupListeners;
     protected List<ConnectionStatusListener> connectionListeners;
     protected List<GameStateListener> stateListeners;
     protected BlockingQueue<IMessage> messageQueue;
     protected Object messageQueueNotifier;
     protected boolean run;
+    protected int id;
 
 
     protected AbstractConnection()
@@ -67,6 +69,13 @@ public abstract class AbstractConnection implements IConnection
     public void addBombListener(BombListener e)
     {
         bombListeners.add(e);
+    }
+
+
+    @Override
+    public void addPowerupListener(PowerupListener e)
+    {
+        powerupListeners.add(e);
     }
 
 
@@ -129,7 +138,6 @@ public abstract class AbstractConnection implements IConnection
                 try
                 {
                     messageQueueNotifier.wait();
-                    System.out.println("Woke up");
                 }
                 catch (InterruptedException e)
                 {
@@ -138,7 +146,83 @@ public abstract class AbstractConnection implements IConnection
             }
         }
 
+        invokeConnectionStatusListeners(State.DISCONNECTED);
+
         run = false;
+    }
+
+
+    /**
+     * Parse a message from the server.
+     *
+     * @param data
+     */
+    protected void parseMessage(byte[] data)
+    {
+        try
+        {
+            processMessage(IMessageFactory.forge(data));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Process message and invoke the relevant events.
+     *
+     * @param m
+     */
+    protected void processMessage(IMessage m)
+    {
+        if(m instanceof MapMessage)
+        {
+            MapMessage mm = (MapMessage)m;
+            invokeMapListeners(mm.getBoard());
+        }
+        else if(m instanceof PosMessage)
+        {
+            PosMessage pm = (PosMessage)m;
+            invokePositionListeners(pm.getPid(), pm.getPosition(), pm.getType());
+        }
+        else if(m instanceof BombMessage)
+        {
+            BombMessage bm = (BombMessage)m;
+            invokeBombListeners(bm.getPosition(), bm.getSize());
+        }
+        else if(m instanceof MetaMessage)
+        {
+            MetaMessage mm = (MetaMessage)m;
+
+            switch(mm.getStatus())
+            {
+            case ACCEPT:
+                this.invokeConnectionStatusListeners(State.CONNECTED);
+                id = Integer.parseInt(mm.getMessage());
+                break;
+            case DISCONNECT:
+            case REJECT:
+                this.invokeConnectionStatusListeners(State.DISCONNECTED);
+                break;
+            case PING:
+                this.queueMessage(new MetaMessage(Type.PONG, ""));
+                break;
+            default:
+                // TODO: add more
+            }
+        }
+        else if(m instanceof StateMessage)
+        {
+            StateMessage sm = (StateMessage)m;
+            this.invokeGameStateListeners(sm.getState());
+        }
+        else if(m instanceof PowerupMessage)
+        {
+            PowerupMessage pm = (PowerupMessage)m;
+            this.invokePowerupListeners(pm.getAction(), pm.getPosition());
+        }
     }
 
 
@@ -217,6 +301,20 @@ public abstract class AbstractConnection implements IConnection
         for(GameStateListener e: stateListeners)
         {
             e.stateChanged(s);
+        }
+    }
+
+
+    /**
+     * Invoke all listeners bound to this event.
+     *
+     * @param s
+     */
+    protected void invokePowerupListeners(Action a, Position p)
+    {
+        for(PowerupListener e: powerupListeners)
+        {
+            e.powerup(a, p);
         }
     }
 }

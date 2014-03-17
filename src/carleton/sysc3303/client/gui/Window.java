@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
+import carleton.sysc3303.common.connection.PowerupMessage.Action;
 
 /**
  * The primary display window.
@@ -23,6 +24,7 @@ public class Window extends JFrame
     private CardLayout layout;
     private JPanel loading_panel;
     private JLabel loading_label;
+    private Set<Position> powerups;
     private IConnection c;
     private Map<Integer, Position> positions;
     private Map<Integer, Color> colors;
@@ -41,6 +43,7 @@ public class Window extends JFrame
         positions = new ConcurrentHashMap<Integer, Position>();
         colors = new ConcurrentHashMap<Integer, Color>();
         bombs = new ConcurrentHashMap<Position, Integer>();
+        powerups = new HashSet<Position>();
 
         init();
         hookEvents();
@@ -74,6 +77,7 @@ public class Window extends JFrame
 
         ui.setColors(colors);
         ui.setBombs(bombs);
+        ui.setPowerups(powerups);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -170,6 +174,26 @@ public class Window extends JFrame
                 {
                     bombs.put(pos, size);
                 }
+
+                ui.repaint();
+            }
+        });
+
+
+        c.addPowerupListener(new PowerupListener() {
+            @Override
+            public void powerup(Action a, Position p)
+            {
+                switch(a)
+                {
+                case ADD:
+                    powerups.add(p);
+                    break;
+                case REMOVE:
+                    powerups.remove(p);
+                }
+
+                System.out.println(">>> " + powerups.size());
 
                 ui.repaint();
             }

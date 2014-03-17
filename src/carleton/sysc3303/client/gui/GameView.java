@@ -3,8 +3,10 @@ package carleton.sysc3303.client.gui;
 import javax.swing.*;
 
 import java.awt.*;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import carleton.sysc3303.common.*;
 
@@ -32,13 +34,14 @@ public class GameView extends JPanel
 
         board = new DisplayBoard();
         add(board, BorderLayout.CENTER);
-        
+
         panel = new PlayerStatusPanel();
         panel.setPreferredSize(new Dimension(50,50));
         panel.setMinimumSize(new Dimension(50,50));
         add(panel, BorderLayout.EAST);
 
         setMap(new Board(0));
+        setPowerups(new HashSet<Position>());
     }
 
 
@@ -76,23 +79,34 @@ public class GameView extends JPanel
     {
         board.setBombs(bombs);
     }
+
+
+    /**
+     * Sets the powerups.
+     *
+     * @param powerups
+     */
+    public void setPowerups(Set<Position> powerups)
+    {
+        board.setPowerups(powerups);
+    }
 }
 /*
 class PlayerStatusPanel extends JPanel
 {
 	private static final long serialVersionUID = -8814546067076341951L;
-	
+
 	public void paint(Graphics _g)
 	{
 		super.paint(_g);
-        int size = 
+        int size =
 
         Graphics2D g = (Graphics2D)_g;
         draw_size = size * (int)(0.9 * Math.min(getWidth(), getHeight() / size));
         offset_x = (getWidth() - draw_size)/2;
         offset_y = (getHeight() - draw_size)/2;
         block_size = draw_size / size;
-        		
+
         }
 	}
 }

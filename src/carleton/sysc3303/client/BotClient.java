@@ -1,22 +1,23 @@
 package carleton.sysc3303.client;
 
 import java.io.*;
+import java.util.*;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
 import carleton.sysc3303.common.connection.MoveMessage.Direction;
-import carleton.sysc3303.common.connection.StateMessage;
 
 
 public class BotClient
 {
-    private File commandList;
     private IConnection c;
     private boolean run;
     private int delay;
     private PlayerTypes t;
+    private List<String> commands;
+    private Boolean isConnected;
 
     /**
      * Constructor.
@@ -24,15 +25,49 @@ public class BotClient
      * @param c
      * @param command
      */
-    public BotClient(IConnection c, File command, int delay, PlayerTypes t)
+    public BotClient(IConnection c, int delay, PlayerTypes t)
     {
-        this.commandList = command;
         this.c = c;
         this.delay = delay;
         this.run = false;
         this.t = t;
+        this.isConnected = false;
 
         init();
+    }
+
+
+    /**
+     * Sets the bot's commands from a file.
+     *
+     * @param f
+     * @throws IOException
+     */
+    public void setCommands(File f) throws IOException
+    {
+        String line;
+        BufferedReader reader;
+        commands = new ArrayList<String>();
+
+        reader = new BufferedReader(new FileReader(f));
+
+        while((line = reader.readLine()) != null)
+        {
+            commands.add(line.trim());
+        }
+
+        reader.close();
+    }
+
+
+    /**
+     * Sets the bot's commands directly.
+     *
+     * @param commands
+     */
+    public void setCommands(List<String> commands)
+    {
+        this.commands = commands;
     }
 
 
@@ -64,67 +99,35 @@ public class BotClient
             @Override
             public void stateChanged(StateMessage.State state)
             {
-                System.out.println(state);
                 switch(state)
                 {
                 case STARTED:
-                    run = true;
                     start();
                     break;
                 case NOTSTARTED:
-                	
-                	BufferedReader reader;
-                	String line;
-                	
-                	//Gets first line from bot to start game
-                	try 
-                	{
-    					reader = new BufferedReader(new FileReader(commandList));
-    				}
-                	catch (FileNotFoundException e) 
-                	{
-    					e.printStackTrace();
-    					return;
-    				}
-                	
-                	try 
-                	{
-    					line = reader.readLine();
-    				} 
-                	catch (IOException e) 
-    				{
-    					e.printStackTrace();
-    					try 
-    					{
-    						reader.close();
-    					}
-    					catch (IOException e1)
-    					{
-    						e1.printStackTrace();
-    					}
-    					return;
-    				}
-                	line.trim();
-                	
-                	//Starts the game
-                	if(line.equals(new String("START")))
-                	{
-                		c.queueMessage(new StateMessage(StateMessage.State.STARTED));
-                		try
-                		{
-                			reader.close();
-                		}
-                		catch (IOException e)
-                		{
-                			e.printStackTrace();
-                		}
-                	}
+                    if(commands != null && commands.size() > 0 && commands.get(0).equals("START"))
+                    {
+                        commands.remove(0); // get rid of the START
+                        c.queueMessage(new StateMessage(StateMessage.State.STARTED));
+                    }
                     break;
                 case END:
                     System.exit(0);
                 }
             }
 
+        });
+
+        c.addConnectionStatusListener(new ConnectionStatusListener() {
+            @Override
+            public void statusChanged(State s)
+            {
+                synchronized(isConnected)
+                {
+                    isConnected.notifyAll();
+                    isConnected = s == State.CONNECTED;
+                }
+            }
         });
 
         c.queueMessage(new MetaMessage(Type.CONNECT, "1," + clientType));
@@ -143,40 +146,76 @@ public class BotClient
 
 
     /**
+     * Blocking call that unblocks once the queue is depleted.
+     *
+     * @throws InterruptedException
+     */
+    public void waitForCompletion() throws InterruptedException
+    {
+        synchronized(commands)
+        {
+            while(commands.size() > 0)
+            {
+                commands.wait();
+            }
+        }
+    }
+
+
+    /**
+     * Blocking call that unblocks once the bot connects to the server.
+     *
+     * @throws InterruptedException
+     */
+    public void waitForConnection() throws InterruptedException
+    {
+        synchronized(isConnected)
+        {
+            while(!isConnected)
+            {
+                isConnected.wait();
+            }
+        }
+    }
+
+
+    /**
+     * Sets the bot's current state.
+     *
+     * @param run
+     */
+    protected synchronized void setRunning(boolean run)
+    {
+        this.run = run;
+        notifyAll();
+    }
+
+
+    /**
      * Start executing moves.
      */
     public void start()
     {
+        setRunning(true);
+
         new Thread(new Runnable() {
             @Override
             public void run()
             {
-                String line;
-                BufferedReader reader;
-                MoveMessage m;
+                IMessage m;
 
-                try
+                synchronized(commands)
                 {
-                    reader = new BufferedReader(new FileReader(commandList));
-                }
-                catch(FileNotFoundException e)
-                {
-                    e.printStackTrace();
-                    return;
-                }
-
-                try
-                {
-                    //Read lines
-                    while(isRunning() && (line = reader.readLine()) != null)
+                    while(commands.size() > 0 && isRunning())
                     {
-                        line = line.trim();
+                        String line = commands.remove(0);
 
                         if (line.equals("BOMB"))
                         {
                             c.queueMessage(new BombPlacedMessage());
                         }
-                        else {
+                        else
+                        {
                             try
                             {
                                 m = new MoveMessage(Direction.valueOf(line));
@@ -188,24 +227,18 @@ public class BotClient
 
                             c.queueMessage(m);
                         }
-                        Thread.sleep(delay);
+
+                        try
+                        {
+                            Thread.sleep(delay);
+                        }
+                        catch (InterruptedException e)
+                        {
+                            e.printStackTrace();
+                        }
                     }
-                }
-                catch (Exception e)
-                {
-                    // TODO: don't do a catch-all
-                    e.printStackTrace();
-                }
-                finally
-                {
-                    try
-                    {
-                        reader.close();
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
+
+                    commands.notifyAll();
                 }
             }
         }).start();

@@ -50,6 +50,14 @@ public interface IConnection extends Runnable
 
 
     /**
+     * Adds a listener that listens for powerups.
+     *
+     * @param e
+     */
+    public void addPowerupListener(PowerupListener e);
+
+
+    /**
      * Sends a message to the server.
      *
      * @param m

@@ -3,7 +3,7 @@ package carleton.sysc3303.client.gui;
 import java.awt.*;
 import javax.swing.JPanel;
 
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import carleton.sysc3303.common.*;
@@ -21,6 +21,7 @@ public class DisplayBoard extends JPanel
     private Board walls;
     private Map<Integer, Color> colors;
     private Map<Position, Integer> bombs;
+    private Set<Position> powerups;
     private int offset_x, offset_y, block_size, draw_size;
 
     /**
@@ -42,6 +43,17 @@ public class DisplayBoard extends JPanel
     public void setColors(Map<Integer, Color> colors)
     {
         this.colors = colors;
+    }
+
+
+    /**
+     * Sets the powerups.
+     *
+     * @param powerups
+     */
+    public void setPowerups(Set<Position> powerups)
+    {
+        this.powerups = powerups;
     }
 
 
@@ -118,6 +130,12 @@ public class DisplayBoard extends JPanel
             drawSquare(g, e.getValue());
         }
 
+        g.setColor(Color.PINK);
+        for(Position p: powerups)
+        {
+            drawCircle(g, p.getX(), p.getY());
+        }
+
         if(bombs != null)
         {
             //draw bombs
@@ -158,6 +176,7 @@ public class DisplayBoard extends JPanel
                 block_size);
     }
 
+
     /**
      * Simplifies drawing squares.
      *
@@ -167,6 +186,23 @@ public class DisplayBoard extends JPanel
     private void drawSquare(Graphics2D g, Position p)
     {
         drawSquare(g, p.getX(), p.getY());
+    }
+
+
+    /**
+     * Draws a circle.
+     *
+     * @param g
+     * @param x
+     * @param y
+     */
+    private void drawCircle(Graphics2D g, int x, int y)
+    {
+        g.fillOval(
+                offset_x + x * block_size,
+                offset_y + draw_size - ((y + 1) * block_size),
+                block_size,
+                block_size);
     }
 
 
@@ -209,11 +245,7 @@ public class DisplayBoard extends JPanel
         }
 
         g.setColor(Color.BLACK);
-        g.fillOval(
-                offset_x + x * block_size,
-                offset_y + draw_size - ((y + 1) * block_size),
-                block_size,
-                block_size);
+        drawCircle(g, x, y);
     }
 
 

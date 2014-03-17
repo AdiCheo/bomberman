@@ -32,6 +32,7 @@ public class UDPConnection extends AbstractConnection
         this.positionListeners = new LinkedList<PositionListener>();
         this.stateListeners = new LinkedList<GameStateListener>();
         this.bombListeners = new LinkedList<BombListener>();
+        this.powerupListeners = new LinkedList<PowerupListener>();
     }
 
 
@@ -66,74 +67,6 @@ public class UDPConnection extends AbstractConnection
             {
                 e.printStackTrace();
             }
-        }
-    }
-
-
-    /**
-     * Parse a message from the server.
-     *
-     * @param data
-     */
-    protected void parseMessage(byte[] data)
-    {
-        try
-        {
-            processMessage(IMessageFactory.forge(data));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
-     * Process message and invoke the relevant events.
-     *
-     * @param m
-     */
-    private void processMessage(IMessage m)
-    {
-        if(m instanceof MapMessage)
-        {
-            MapMessage mm = (MapMessage)m;
-            invokeMapListeners(mm.getBoard());
-        }
-        else if(m instanceof PosMessage)
-        {
-            PosMessage pm = (PosMessage)m;
-            invokePositionListeners(pm.getPid(), pm.getPosition(), pm.getType());
-        }
-        else if(m instanceof BombMessage)
-        {
-            BombMessage bm = (BombMessage)m;
-            invokeBombListeners(bm.getPosition(), bm.getSize());
-        }
-        else if(m instanceof MetaMessage)
-        {
-            MetaMessage mm = (MetaMessage)m;
-
-            switch(mm.getStatus())
-            {
-            case ACCEPT:
-                this.invokeConnectionStatusListeners(State.CONNECTED);
-                break;
-            case DISCONNECT:
-            case REJECT:
-                this.invokeConnectionStatusListeners(State.DISCONNECTED);
-                break;
-            case PING:
-                this.queueMessage(new MetaMessage(Type.PONG, ""));
-                break;
-            default:
-                // TODO: add more
-            }
-        }
-        else if(m instanceof StateMessage)
-        {
-            StateMessage sm = (StateMessage)m;
-            this.invokeGameStateListeners(sm.getState());
         }
     }
 

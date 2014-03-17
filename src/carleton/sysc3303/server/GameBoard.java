@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
+import carleton.sysc3303.common.connection.PowerupMessage.Action;
 import carleton.sysc3303.server.connection.*;
 
 
@@ -17,14 +18,15 @@ public class GameBoard
     public static final int BOMB_EXPLODING = 1000;
     public static final int EXPLODE_SIZE = 10;
 
-    private ServerBoard b;
-    private IServer server;
-    private Map<Integer, Position> player_positions;
-    private Map<Integer, Player> players;
-    private Map<Integer, Position> bombs;
-    private Map<Integer, Position> exploding_bombs;
-    private StateMessage.State current_state;
-    private int currentPlayers;
+    protected ServerBoard b;
+    protected IServer server;
+    protected Map<Integer, Position> player_positions;
+    protected Map<Integer, Player> players;
+    protected Map<Integer, Position> bombs;
+    protected Map<Integer, Position> exploding_bombs;
+    protected StateMessage.State current_state;
+    protected int currentPlayers;
+    protected int explosionCounter = 0;
 
 
     /**
@@ -59,6 +61,9 @@ public class GameBoard
         this.b.setPlayers(player_positions);
         this.b.setBombs(bombs);
 
+        this.b.addStartingPosition(new Position(5, 5));
+        this.b.placePowerup(new Position(10, 10));
+
         hookEvents();
     }
 
@@ -78,7 +83,6 @@ public class GameBoard
                 {
                     return;
                 }
-
 
                 if(connected)
                 {
@@ -137,7 +141,7 @@ public class GameBoard
      */
     private void addPlayer(IClient c, boolean isMonster)
     {
-    	Position pos = null;
+        Position pos = null;
         if(currentPlayers == MAX_PLAYERS && !isMonster)
         {
             server.queueMessage(new MetaMessage(Type.REJECT, "Server is full"), c);
@@ -149,24 +153,19 @@ public class GameBoard
         if(isMonster)
         {
             p = new Monster(c.getId());
+            // pos = b.getEmptyPosition();
         }
         else
         {
             p = new Player(c.getId());
             currentPlayers++;
+            // pos = b.getNextPosition();
         }
 
         players.put(p.getId(), p);
 
-        // new player position       
-      	pos = b.getStartingPosition();
-        
-        
-        // if all starting positions are taken or isMonster is true
-        if(pos == null || pos.getX() == -1 || pos.getY() == -1)
-        {
-        	pos = b.getEmptyPosition();
-        }
+        // new player position
+        pos = b.getNextPosition();
 
         System.out.printf("Player %d starts at %s\n", c.getId(), pos);
         setPlayerPosition(c.getId(), pos);
@@ -207,6 +206,11 @@ public class GameBoard
             server.queueMessage(new PosMessage(e.getKey(), pos, p.getType()), c);
         }
 
+        for(Position p: b.getPowerups())
+        {
+            server.queueMessage(new PowerupMessage(Action.ADD, p), c);
+        }
+
         synchronized(exploding_bombs)
         {
             for(Entry<Integer, Position> e: bombs.entrySet())
@@ -232,6 +236,11 @@ public class GameBoard
 
         // send the map
         server.queueMessage(new MapMessage(b.createSendableBoard()));
+
+        for(Position p: b.getPowerups())
+        {
+            server.queueMessage(new PowerupMessage(Action.ADD, p));
+        }
 
         // send everyone's current positions
         for(Entry<Integer, Position> e: player_positions.entrySet())
@@ -349,6 +358,12 @@ public class GameBoard
 
                 setPlayerPosition(c.getId(), newPosition);
                 server.queueMessage(new PosMessage(c.getId(), x, y, p.getType()));
+
+                if(b.getPowerup(newPosition))
+                {
+                    p.incrementRemainingBombs(); // extra bomb
+                    server.queueMessage(new PowerupMessage(Action.REMOVE, newPosition));
+                }
 
                 // reveal the exit if it's hidden
                 if(b.isExitHidden() && b.isExit(x, y))
@@ -473,7 +488,7 @@ public class GameBoard
     /**
      * Initializes the game.
      */
-    private void startGame()
+    protected void startGame()
     {
         current_state = StateMessage.State.STARTED;
         sendInitialState();
@@ -490,6 +505,8 @@ public class GameBoard
     { synchronized(exploding_bombs) {
         final Position p = bombs.get(bomb);
         int x = p.getX(), y = p.getY();
+
+        explosionCounter++;
 
         // right
         // includes the square with the bomb itself
@@ -567,7 +584,15 @@ public class GameBoard
         // break boxes
         if(b.getTile(x, y) == Tile.DESTRUCTABLE)
         {
-            b.setTile(x, y, Tile.EMPTY);
+            if(b.isExit(x, y))
+            {
+                b.setTile(x, y, Tile.EMPTY);
+                b.setExitHidden(false);
+            }
+            else
+            {
+                b.setTile(x, y, Tile.EMPTY);
+            }
         }
 
 
@@ -615,6 +640,7 @@ public class GameBoard
     {
         Player p = players.get(id);
         p.setDead(true);
+        player_positions.put(id, new Position(-1,-1));
         server.queueMessage(new PosMessage(id, -1, -1, p.getType()));
     }
 

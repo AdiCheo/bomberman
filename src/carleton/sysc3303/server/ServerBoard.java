@@ -1,7 +1,7 @@
 package carleton.sysc3303.server;
 
 import java.io.*;
-import java.util.Random;
+import java.util.*;
 
 import carleton.sysc3303.common.*;
 
@@ -14,6 +14,8 @@ public class ServerBoard extends Board
 {
     private boolean exit_hidden;
     private Position exit;
+    private List<Position> startingPositions;
+    private Set<Position> powerups;
 
 
     /**
@@ -25,6 +27,30 @@ public class ServerBoard extends Board
     {
         super(size);
         this.exit_hidden = true;
+        startingPositions = new ArrayList<Position>();
+        powerups = new HashSet<Position>();
+    }
+
+
+    /**
+     * Adds starting positions from a list.
+     *
+     * @param positions
+     */
+    public void setStartingPositions(List<Position> positions)
+    {
+        startingPositions = new ArrayList<Position>(positions);
+    }
+
+
+    /**
+     * Adds a single starting position.
+     *
+     * @param p
+     */
+    public void addStartingPosition(Position p)
+    {
+        startingPositions.add(p);
     }
 
 
@@ -70,56 +96,89 @@ public class ServerBoard extends Board
         int size = Integer.parseInt(reader.readLine().trim());
         ServerBoard b = new ServerBoard(size);
         String line;
-        String[] splitString = new String[2];
-        Position startingPosition;
         int pX, pY;
         int y = 0;
 
         while((line = reader.readLine()) != null)
         {
-        	if(y < size)
-        	{
-        		for(int x=0; x<line.length(); x+=2)
-        		{
-        			Tile t;
+            if(line.charAt(0) != ':')
+            {
+                for(int x=0; x<line.length(); x+=2)
+                {
+                    Tile t;
 
-        			switch(line.charAt(x))
-        			{
-        			case '#':
-        				t = Tile.WALL;
-        				break;
-        			case '0':
-        				t = Tile.EXIT;
-        				break;
-        			default:
-        				t = Tile.EMPTY;
-        			}
+                    switch(line.charAt(x))
+                    {
+                    case '#':
+                        t = Tile.WALL;
+                        break;
+                    case '0':
+                        t = Tile.EXIT;
+                        break;
+                    default:
+                        t = Tile.EMPTY;
+                    }
 
-        			b.setTile(x/2, size - y - 1, t);
+                    b.setTile(x/2, size - y - 1, t);
 
-        			if(line.charAt(x+1) == '+')
-        			{
-        				b.setTile(x/2, size - y - 1, Tile.DESTRUCTABLE);
-        			}
-        		}
-        	}
-            
-            if(y >= size)
-        	{
-        		splitString = line.split(",");
-        		pX = Integer.parseInt(splitString[0]);
-        		pY = Integer.parseInt(splitString[1]);
-        		startingPosition = new Position(pX,pY);
-        		
-        		if(b.isPositionValid(startingPosition))
-        			b.setStartingPosition(startingPosition);
-        	}
+                    if(line.charAt(x+1) == '+')
+                    {
+                        b.setTile(x/2, size - y - 1, Tile.DESTRUCTABLE);
+                    }
+                }
 
-            y++;
+                y++;
+            }
+            else
+            {
+                String[] split = line.substring(1).split(":");
+
+                for(String s: split)
+                {
+                    String[] split2 = s.split(",");
+                    pX = Integer.parseInt(split2[0]);
+                    pY = Integer.parseInt(split2[1]);
+                    b.addStartingPosition(new Position(pX, pY));
+                }
+            }
         }
 
         reader.close();
         return b;
+    }
+
+
+    /**
+     * Places a powerup on the board.
+     *
+     * @param p
+     */
+    public void placePowerup(Position p)
+    {
+        powerups.add(p);
+    }
+
+
+    /**
+     * Gets list of all powerups.
+     *
+     * @return
+     */
+    public List<Position> getPowerups()
+    {
+        return new ArrayList<Position>(powerups);
+    }
+
+
+    /**
+     * Uses up a powerup at the given position.
+     *
+     * @param p
+     * @return
+     */
+    public boolean getPowerup(Position p)
+    {
+        return powerups.remove(p);
     }
 
 
@@ -234,6 +293,32 @@ public class ServerBoard extends Board
         } while (isOccupied(randomX, randomY) || !isEmpty(randomX, randomY));
 
         return new Position(randomX, randomY);
+    }
+
+
+    /**
+     * Gets the next available position.
+     * If ran out of predefined ones, generate a random position.
+     *
+     * @return
+     */
+    public Position getNextPosition()
+    {
+        if(startingPositions.isEmpty())
+        {
+            return getEmptyPosition();
+        }
+        else
+        {
+            Position p = startingPositions.remove(0);
+
+            if(isOccupied(p) || !isPositionValid(p) || hasBomb(p) || !isEmpty(p))
+            {
+                p = getNextPosition();
+            }
+
+            return p;
+        }
     }
 
 
