@@ -119,7 +119,10 @@ public class GameBoard
         });
     }
 
-
+    public StateMessage.State getState()
+    {
+    	return current_state;
+    }
     /**
      * What to do with new spectator.
      *
