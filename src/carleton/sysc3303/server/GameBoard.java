@@ -25,6 +25,7 @@ public class GameBoard
     protected Map<Integer, Position> exploding_bombs;
     protected StateMessage.State current_state;
     protected int currentPlayers;
+    protected int explosionCounter = 0;
 
 
     /**
@@ -485,6 +486,8 @@ public class GameBoard
     { synchronized(exploding_bombs) {
         final Position p = bombs.get(bomb);
         int x = p.getX(), y = p.getY();
+
+        explosionCounter++;
 
         // right
         // includes the square with the bomb itself

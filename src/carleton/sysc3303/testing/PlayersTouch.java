@@ -9,8 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import carleton.sysc3303.client.BotClient;
-import carleton.sysc3303.common.PlayerTypes;
-import carleton.sysc3303.common.Position;
+import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.StateMessage.State;
 import carleton.sysc3303.server.ServerBoard;
 import carleton.sysc3303.testing.client.TestConnection;

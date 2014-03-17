@@ -56,4 +56,27 @@ public class TestGameBoard extends GameBoard
     {
         return players.size();
     }
+
+
+    /**
+     * Checks if the player with the given id is dead.
+     *
+     * @param id
+     * @return
+     */
+    public synchronized boolean isPlayerDead(int id)
+    {
+        return players.get(id).isDead();
+    }
+
+
+    /**
+     * Gets the total number of explosions that happened.
+     *
+     * @return
+     */
+    public synchronized int getNumExplosions()
+    {
+        return explosionCounter;
+    }
 }
