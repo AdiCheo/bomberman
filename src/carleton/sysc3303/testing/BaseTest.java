@@ -18,7 +18,7 @@ public abstract class BaseTest
     @Before
     public void setUp()
     {
-        //initializationBarrier = new CyclicBarrier(2);
+        System.out.println("XXXXX");
         server = new TestServer();
         clientConnection = new TestConnection(server);
     }

@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
+import carleton.sysc3303.common.connection.PowerupMessage.Action;
 import carleton.sysc3303.server.connection.*;
 
 
@@ -60,6 +61,9 @@ public class GameBoard
         this.b.setPlayers(player_positions);
         this.b.setBombs(bombs);
 
+        this.b.addStartingPosition(new Position(5, 5));
+        this.b.placePowerup(new Position(10, 10));
+
         hookEvents();
     }
 
@@ -79,7 +83,6 @@ public class GameBoard
                 {
                     return;
                 }
-
 
                 if(connected)
                 {
@@ -119,10 +122,7 @@ public class GameBoard
         });
     }
 
-    public StateMessage.State getState()
-    {
-    	return current_state;
-    }
+
     /**
      * What to do with new spectator.
      *
@@ -206,6 +206,11 @@ public class GameBoard
             server.queueMessage(new PosMessage(e.getKey(), pos, p.getType()), c);
         }
 
+        for(Position p: b.getPowerups())
+        {
+            server.queueMessage(new PowerupMessage(Action.ADD, p), c);
+        }
+
         synchronized(exploding_bombs)
         {
             for(Entry<Integer, Position> e: bombs.entrySet())
@@ -231,6 +236,11 @@ public class GameBoard
 
         // send the map
         server.queueMessage(new MapMessage(b.createSendableBoard()));
+
+        for(Position p: b.getPowerups())
+        {
+            server.queueMessage(new PowerupMessage(Action.ADD, p));
+        }
 
         // send everyone's current positions
         for(Entry<Integer, Position> e: player_positions.entrySet())
@@ -348,6 +358,12 @@ public class GameBoard
 
                 setPlayerPosition(c.getId(), newPosition);
                 server.queueMessage(new PosMessage(c.getId(), x, y, p.getType()));
+
+                if(b.getPowerup(newPosition))
+                {
+                    p.incrementRemainingBombs(); // extra bomb
+                    server.queueMessage(new PowerupMessage(Action.REMOVE, newPosition));
+                }
 
                 // reveal the exit if it's hidden
                 if(b.isExitHidden() && b.isExit(x, y))

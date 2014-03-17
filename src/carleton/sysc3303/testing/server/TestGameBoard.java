@@ -1,6 +1,7 @@
 package carleton.sysc3303.testing.server;
 
 import carleton.sysc3303.common.Position;
+import carleton.sysc3303.common.connection.StateMessage;
 import carleton.sysc3303.common.connection.StateMessage.State;
 import carleton.sysc3303.server.*;
 import carleton.sysc3303.server.connection.IServer;
@@ -78,5 +79,16 @@ public class TestGameBoard extends GameBoard
     public synchronized int getNumExplosions()
     {
         return explosionCounter;
+    }
+
+
+    /**
+     * Gets the current game state.
+     *
+     * @return
+     */
+    public synchronized StateMessage.State getState()
+    {
+        return current_state;
     }
 }

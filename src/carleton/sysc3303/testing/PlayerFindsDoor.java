@@ -17,10 +17,11 @@ import carleton.sysc3303.common.connection.StateMessage.State;
 import carleton.sysc3303.server.ServerBoard;
 import carleton.sysc3303.testing.server.TestGameBoard;
 
-public class PlayerFindsDoor extends BaseTest {
+public class PlayerFindsDoor extends BaseTest
+{
     private List<String> commands;
     private ServerBoard board;
-    
+
     @Before
     public void setUp()
     {
@@ -28,7 +29,7 @@ public class PlayerFindsDoor extends BaseTest {
         commands = new ArrayList<String>();
         board = new ServerBoard(20);
         board.setTile(6,7,Tile.EXIT);
-        		
+
         commands.add("UP");
         commands.add("DOWN");
         commands.add("UP");
@@ -52,7 +53,7 @@ public class PlayerFindsDoor extends BaseTest {
         int id = clientConnection.getId();
 
         assertEquals("Check starting position of bot", new Position(6, 6), logic.getPlayerPosition(id));
-        
+
         // starting the game causes the bots to start processing commands
         logic.setGameState(State.STARTED);
 

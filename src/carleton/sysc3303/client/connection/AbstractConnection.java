@@ -5,13 +5,8 @@ import java.util.concurrent.*;
 
 import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
 import carleton.sysc3303.common.*;
-import carleton.sysc3303.common.connection.BombMessage;
-import carleton.sysc3303.common.connection.IMessage;
-import carleton.sysc3303.common.connection.IMessageFactory;
-import carleton.sysc3303.common.connection.MapMessage;
-import carleton.sysc3303.common.connection.MetaMessage;
-import carleton.sysc3303.common.connection.PosMessage;
-import carleton.sysc3303.common.connection.StateMessage;
+import carleton.sysc3303.common.connection.*;
+import carleton.sysc3303.common.connection.PowerupMessage.Action;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
 
 
@@ -25,6 +20,7 @@ public abstract class AbstractConnection implements IConnection
     protected List<PositionListener> positionListeners;
     protected List<BombListener> bombListeners;
     protected List<MapListener> mapListeners;
+    protected List<PowerupListener> powerupListeners;
     protected List<ConnectionStatusListener> connectionListeners;
     protected List<GameStateListener> stateListeners;
     protected BlockingQueue<IMessage> messageQueue;
@@ -73,6 +69,13 @@ public abstract class AbstractConnection implements IConnection
     public void addBombListener(BombListener e)
     {
         bombListeners.add(e);
+    }
+
+
+    @Override
+    public void addPowerupListener(PowerupListener e)
+    {
+        powerupListeners.add(e);
     }
 
 
@@ -215,6 +218,11 @@ public abstract class AbstractConnection implements IConnection
             StateMessage sm = (StateMessage)m;
             this.invokeGameStateListeners(sm.getState());
         }
+        else if(m instanceof PowerupMessage)
+        {
+            PowerupMessage pm = (PowerupMessage)m;
+            this.invokePowerupListeners(pm.getAction(), pm.getPosition());
+        }
     }
 
 
@@ -293,6 +301,20 @@ public abstract class AbstractConnection implements IConnection
         for(GameStateListener e: stateListeners)
         {
             e.stateChanged(s);
+        }
+    }
+
+
+    /**
+     * Invoke all listeners bound to this event.
+     *
+     * @param s
+     */
+    protected void invokePowerupListeners(Action a, Position p)
+    {
+        for(PowerupListener e: powerupListeners)
+        {
+            e.powerup(a, p);
         }
     }
 }

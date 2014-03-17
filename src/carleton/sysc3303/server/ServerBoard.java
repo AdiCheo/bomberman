@@ -15,6 +15,7 @@ public class ServerBoard extends Board
     private boolean exit_hidden;
     private Position exit;
     private List<Position> startingPositions;
+    private Set<Position> powerups;
 
 
     /**
@@ -27,6 +28,7 @@ public class ServerBoard extends Board
         super(size);
         this.exit_hidden = true;
         startingPositions = new ArrayList<Position>();
+        powerups = new HashSet<Position>();
     }
 
 
@@ -143,6 +145,40 @@ public class ServerBoard extends Board
 
         reader.close();
         return b;
+    }
+
+
+    /**
+     * Places a powerup on the board.
+     *
+     * @param p
+     */
+    public void placePowerup(Position p)
+    {
+        powerups.add(p);
+    }
+
+
+    /**
+     * Gets list of all powerups.
+     *
+     * @return
+     */
+    public List<Position> getPowerups()
+    {
+        return new ArrayList<Position>(powerups);
+    }
+
+
+    /**
+     * Uses up a powerup at the given position.
+     *
+     * @param p
+     * @return
+     */
+    public boolean getPowerup(Position p)
+    {
+        return powerups.remove(p);
     }
 
 

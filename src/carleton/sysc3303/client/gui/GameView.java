@@ -2,7 +2,9 @@ package carleton.sysc3303.client.gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import carleton.sysc3303.common.*;
 
@@ -31,6 +33,7 @@ public class GameView extends JPanel
         add(board, BorderLayout.CENTER);
 
         setMap(new Board(0));
+        setPowerups(new HashSet<Position>());
     }
 
 
@@ -66,5 +69,16 @@ public class GameView extends JPanel
     public void setBombs(Map<Position, Integer> bombs)
     {
         board.setBombs(bombs);
+    }
+
+
+    /**
+     * Sets the powerups.
+     *
+     * @param powerups
+     */
+    public void setPowerups(Set<Position> powerups)
+    {
+        board.setPowerups(powerups);
     }
 }
