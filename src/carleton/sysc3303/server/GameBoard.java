@@ -565,7 +565,15 @@ public class GameBoard
         // break boxes
         if(b.getTile(x, y) == Tile.DESTRUCTABLE)
         {
-            b.setTile(x, y, Tile.EMPTY);
+            if(b.isExit(x, y))
+            {
+                b.setTile(x, y, Tile.EMPTY);
+                b.setExitHidden(false);
+            }
+            else
+            {
+                b.setTile(x, y, Tile.EMPTY);
+            }
         }
 
 
