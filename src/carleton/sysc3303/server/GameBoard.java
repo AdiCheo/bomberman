@@ -613,6 +613,7 @@ public class GameBoard
     {
         Player p = players.get(id);
         p.setDead(true);
+        player_positions.put(id, new Position(-1,-1));
         server.queueMessage(new PosMessage(id, -1, -1, p.getType()));
     }
 
