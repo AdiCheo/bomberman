@@ -24,8 +24,8 @@ public class Window extends JFrame implements MessageListener,
     private GameView ui;
     private DisplayBoard board;
     private CardLayout layout;
-    private JPanel loading_panel;
-    private JLabel loading_label;
+    private JPanel loadingPanel;
+    private JLabel loadingLabel;
     private Set<Position> powerups;
     private IConnection c;
     private Set<Player> players;
@@ -68,14 +68,14 @@ public class Window extends JFrame implements MessageListener,
         layout = new CardLayout();
         setLayout(layout);
 
-        loading_panel = new JPanel();
-        loading_label = new JLabel("Loading");
-        loading_panel.add(loading_label);
+        loadingPanel = new JPanel();
+        loadingLabel = new JLabel("Loading");
+        loadingPanel.add(loadingLabel);
 
         JPanel done_panel = new JPanel();
         done_panel.add(new JLabel("Game over"));
 
-        add(loading_panel, States.LOADING.toString());
+        add(loadingPanel, States.LOADING.toString());
         add(ui, States.GAME.toString());
         add(done_panel, States.DONE.toString());
         setDisplay(States.LOADING);
@@ -233,7 +233,7 @@ public class Window extends JFrame implements MessageListener,
             setDisplay(States.GAME);
             break;
         case NOTSTARTED:
-            loading_label.setText("Connected. Game as not started yet.");
+            loadingLabel.setText("Connected. Game as not started yet.");
         }
     }
 

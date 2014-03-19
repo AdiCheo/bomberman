@@ -27,7 +27,7 @@ public class DisplayBoard extends JPanel
     //private Map<Integer, Color> colors;
     private Map<Position, Integer> bombs;
     private Set<Position> powerups;
-    private int offset_x, offset_y, block_size, draw_size;
+    private int offsetX, offsetY, blockSize, drawSize;
 
     private BufferedImage imgmap, transparentPixel;
     private Image tile, destructable, wall, exit, bomb, player, candy,
@@ -146,10 +146,10 @@ public class DisplayBoard extends JPanel
         int size = walls.getSize();
 
         Graphics2D g = (Graphics2D)_g;
-        draw_size = size * (int)(0.9 * Math.min(getWidth(), getHeight() / size));
-        offset_x = (getWidth() - draw_size)/2;
-        offset_y = (getHeight() - draw_size)/2;
-        block_size = draw_size / size;
+        drawSize = size * (int)(0.9 * Math.min(getWidth(), getHeight() / size));
+        offsetX = (getWidth() - drawSize)/2;
+        offsetY = (getHeight() - drawSize)/2;
+        blockSize = drawSize / size;
 
         // draw the blocks
         for(PositionTile p: walls)
@@ -193,7 +193,7 @@ public class DisplayBoard extends JPanel
             drawBomb(g, e.getKey(), e.getValue());
         }
 
-        g.setFont(new Font("Arial", Font.PLAIN, block_size / 2));
+        g.setFont(new Font("Arial", Font.PLAIN, blockSize / 2));
 
         //draw player labels
         for(Player p: players)
@@ -261,12 +261,12 @@ public class DisplayBoard extends JPanel
         int nameWidth = fm.stringWidth(p.getName());
         int padding = 5;
 
-        int x = pos.getX() - ((nameWidth + padding*2) - block_size)/2;
-        int y = (int)(pos.getY() - block_size * 1.1);
+        int x = pos.getX() - ((nameWidth + padding*2) - blockSize)/2;
+        int y = (int)(pos.getY() - blockSize * 1.1);
 
-        g.drawImage(transparentPixel, x, y, nameWidth + padding*2, block_size, null);
+        g.drawImage(transparentPixel, x, y, nameWidth + padding*2, blockSize, null);
         g.setColor(Color.WHITE);
-        g.drawString(p.getName(), x + padding, y + block_size/4*3);
+        g.drawString(p.getName(), x + padding, y + blockSize/4*3);
     }
 
 
@@ -292,8 +292,8 @@ public class DisplayBoard extends JPanel
     private Position convertCoordinates(int x, int y)
     {
         return new Position(
-                offset_x + x * block_size,
-                offset_y + draw_size - ((y + 1) * block_size));
+                offsetX + x * blockSize,
+                offsetY + drawSize - ((y + 1) * blockSize));
     }
 
 
@@ -320,7 +320,7 @@ public class DisplayBoard extends JPanel
     private void drawImage(Graphics2D g, Image im, int x, int y)
     {
         Position p = convertCoordinates(x, y);
-        g.drawImage(im, p.getX(), p.getY(), block_size, block_size, null);
+        g.drawImage(im, p.getX(), p.getY(), blockSize, blockSize, null);
     }
 
 
