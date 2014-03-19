@@ -55,7 +55,6 @@ public class GameBoard
         this.players = new HashMap<Integer, Player>();
         this.currentState = StateMessage.State.NOTSTARTED;
         this.currentPlayers = 0;
-        this.playerNames = new TreeSet<String>();
         this.conf = c;
 
         this.b.setPlayers(playerPositions);
@@ -63,6 +62,17 @@ public class GameBoard
 
         this.b.addStartingPosition(new Position(5, 5));
         this.b.placePowerup(new Position(10, 10));
+
+        this.playerNames = new TreeSet<String>(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2)
+            {
+                String[] split1 = o1.split(" ");
+                String[] split2 = o2.split(" ");
+
+                return Integer.parseInt(split1[1]) - Integer.parseInt(split2[1]);
+            }
+        });
 
         for(int i=0; i<MAX_PLAYERS; i++)
         {
@@ -162,7 +172,9 @@ public class GameBoard
         }
         else
         {
-            p = new Player(c.getId(), playerNames.first());
+            String name = playerNames.first();
+            playerNames.remove(name);
+            p = new Player(c.getId(), name);
             currentPlayers++;
             // pos = b.getNextPosition();
         }
@@ -181,7 +193,7 @@ public class GameBoard
             sendInitialState(c);
 
             // notify everyone of new player
-            server.queueMessage(new PosMessage(c.getId(), pos, p.getType()));
+            server.queueMessage(new PlayerMessage(c.getId(), pos, p.getType(), p.getName()));
         }
         else
         {
@@ -208,7 +220,7 @@ public class GameBoard
         {
             Position pos = e.getValue();
             Player p = players.get(e.getKey());
-            server.queueMessage(new PosMessage(e.getKey(), pos, p.getType()), c);
+            server.queueMessage(new PlayerMessage(e.getKey(), pos, p.getType(), p.getName()), c);
         }
 
         for(Position p: b.getPowerups())
@@ -252,7 +264,7 @@ public class GameBoard
         {
             Position pos = e.getValue();
             Player p = players.get(e.getKey());
-            server.queueMessage(new PosMessage(e.getKey(), pos, p.getType()));
+            server.queueMessage(new PlayerMessage(e.getKey(), pos, p.getType(), p.getName()));
         }
     }
 
@@ -269,7 +281,7 @@ public class GameBoard
             playerPositions.remove(c.getId());
             Player p = players.remove(c.getId());
             playerNames.add(p.getName());
-            server.queueMessage(new PosMessage(c.getId(), -1, -1, p.getType()));
+            server.queueMessage(new PlayerMessage(c.getId(), -1, -1, p.getType(), p.getName()));
             currentPlayers--;
         }
     }
@@ -364,7 +376,7 @@ public class GameBoard
                 }
 
                 setPlayerPosition(c.getId(), newPosition);
-                server.queueMessage(new PosMessage(c.getId(), x, y, p.getType()));
+                server.queueMessage(new PlayerMessage(c.getId(), x, y, p.getType(), p.getName()));
 
                 if(b.getPowerup(newPosition))
                 {
@@ -421,7 +433,7 @@ public class GameBoard
                 catch(RuntimeException e){}
 
                 setPlayerPosition(c.getId(), new Position(x,y));
-                server.queueMessage(new PosMessage(c.getId(), x, y, p.getType()));
+                server.queueMessage(new PlayerMessage(c.getId(), x, y, p.getType(), p.getName()));
             }
             else
             {
@@ -648,7 +660,7 @@ public class GameBoard
         Player p = players.get(id);
         p.setDead(true);
         playerPositions.put(id, new Position(-1,-1));
-        server.queueMessage(new PosMessage(id, -1, -1, p.getType()));
+        server.queueMessage(new PlayerMessage(id, -1, -1, p.getType(), p.getName()));
     }
 
 

@@ -12,3 +12,8 @@ img/
 ##### img_map.png
  * http://opengameart.org/content/bomb-party-the-complete-set
  * CC-BY 3.0
+
+
+##### hole.png
+ * http://opengameart.org/content/lpc-terrain-repack
+ * CC-BY-SA 3.0 / GPL 3

@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
@@ -23,13 +22,13 @@ public class Window extends JFrame implements MessageListener,
 
     private static final long serialVersionUID = 7088369983891361413L;
     private GameView ui;
+    private DisplayBoard board;
     private CardLayout layout;
     private JPanel loading_panel;
     private JLabel loading_label;
     private Set<Position> powerups;
     private IConnection c;
-    private Map<Integer, Position> positions;
-    private Map<Integer, Color> colors;
+    private Set<Player> players;
     private Map<Position, Integer> bombs;
 
 
@@ -43,11 +42,13 @@ public class Window extends JFrame implements MessageListener,
     public Window(IConnection c) throws IOException
     {
         this.c = c;
-        this.ui = new GameView();
-        positions = new ConcurrentHashMap<Integer, Position>();
-        colors = new ConcurrentHashMap<Integer, Color>();
-        bombs = new ConcurrentHashMap<Position, Integer>();
+
+        bombs = new HashMap<Position, Integer>();
         powerups = new HashSet<Position>();
+        players = new HashSet<Player>();
+
+        board = new DisplayBoard();
+        ui = new GameView(board);
 
         init();
         hookEvents();
@@ -79,9 +80,9 @@ public class Window extends JFrame implements MessageListener,
         add(done_panel, States.DONE.toString());
         setDisplay(States.LOADING);
 
-        ui.setColors(colors);
-        ui.setBombs(bombs);
-        ui.setPowerups(powerups);
+        board.setBombs(bombs);
+        board.setPowerups(powerups);
+        board.setPlayers(players);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -124,9 +125,9 @@ public class Window extends JFrame implements MessageListener,
         {
             handleMap((MapMessage)m);
         }
-        else if(m instanceof PosMessage)
+        else if(m instanceof PlayerMessage)
         {
-            handlePosition((PosMessage)m);
+            handlePosition((PlayerMessage)m);
         }
         else if(m instanceof BombMessage)
         {
@@ -155,7 +156,7 @@ public class Window extends JFrame implements MessageListener,
     {
         Board b = m.getBoard();
         ui.setMap(b);
-        b.setPlayers(positions);
+        board.setWalls(b);
         ui.repaint();
     }
 
@@ -165,32 +166,14 @@ public class Window extends JFrame implements MessageListener,
      *
      * @param m
      */
-    private void handlePosition(PosMessage m)
+    private void handlePosition(PlayerMessage m)
     {
-        Position pos = m.getPosition();
-        PlayerTypes type = m.getType();
-        int id = m.getPid();
+        Player p = getPlayer(m);
+        players.remove(p);
 
-        if(pos.getX() < 0 || pos.getY() < 0)
+        if(m.getX() >= 0 && m.getY() > 0)
         {
-            positions.remove(id);
-            colors.remove(id);
-        }
-        else
-        {
-            positions.put(id, pos);
-            Color c;
-
-            switch(type)
-            {
-            case MONSTER:
-                c = Color.CYAN;
-                break;
-            default:
-                c = Color.BLUE;
-            }
-
-            colors.put(id, c);
+            players.add(p);
         }
 
         // force ui update
@@ -252,5 +235,17 @@ public class Window extends JFrame implements MessageListener,
         case NOTSTARTED:
             loading_label.setText("Connected. Game as not started yet.");
         }
+    }
+
+
+    /**
+     * Extracts a player object from a PlayerMessage.
+     *
+     * @param m
+     * @return
+     */
+    private Player getPlayer(PlayerMessage m)
+    {
+        return new Player(m.getPid(), m.getX(), m.getY(), m.getType() == PlayerTypes.MONSTER, m.getName());
     }
 }

@@ -2,10 +2,11 @@ package carleton.sysc3303.common.connection;
 
 import carleton.sysc3303.common.*;
 
-public class PosMessage implements IMessage
+public class PlayerMessage implements IMessage
 {
     private int pid, x, y;
     private PlayerTypes type;
+    private String name;
 
 
     /**
@@ -15,12 +16,13 @@ public class PosMessage implements IMessage
      * @param x		X-coordinate
      * @param y		Y-coordinate
      */
-    public PosMessage(int pid, int x, int y, PlayerTypes type)
+    public PlayerMessage(int pid, int x, int y, PlayerTypes type, String name)
     {
         this.pid = pid;
         this.x = x;
         this.y = y;
         this.type = type;
+        this.name = name;
     }
 
 
@@ -30,9 +32,9 @@ public class PosMessage implements IMessage
      * @param pid
      * @param pos
      */
-    public PosMessage(int pid, Position pos, PlayerTypes type)
+    public PlayerMessage(int pid, Position pos, PlayerTypes type, String name)
     {
-        this(pid, pos.getX(), pos.getY(), type);
+        this(pid, pos.getX(), pos.getY(), type, name);
     }
 
 
@@ -41,7 +43,7 @@ public class PosMessage implements IMessage
      *
      * @param data
      */
-    public PosMessage(String data)
+    public PlayerMessage(String data)
     {
         String[] args = data.split(",");
 
@@ -49,6 +51,7 @@ public class PosMessage implements IMessage
         this.x = Integer.parseInt(args[1]);
         this.y = Integer.parseInt(args[2]);
         this.type = PlayerTypes.valueOf(args[3]);
+        this.name = args[4];
     }
 
 
@@ -97,6 +100,17 @@ public class PosMessage implements IMessage
 
 
     /**
+     * Gets the player's name.
+     *
+     * @return
+     */
+    public String getName()
+    {
+        return name;
+    }
+
+
+    /**
      * Creates an instance of the position.
      *
      * @return
@@ -110,6 +124,6 @@ public class PosMessage implements IMessage
     @Override
     public String serialize()
     {
-        return String.format("%d,%d,%d,%s", pid, x, y, type.toString());
+        return String.format("%d,%d,%d,%s,%s", pid, x, y, type.toString(), name);
     }
 }

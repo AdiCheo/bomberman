@@ -23,13 +23,14 @@ public class DisplayBoard extends JPanel
 {
     private static final long serialVersionUID = 8372907299046333935L;
     private Board walls;
+    private Set<Player> players;
     //private Map<Integer, Color> colors;
     private Map<Position, Integer> bombs;
     private Set<Position> powerups;
     private int offset_x, offset_y, block_size, draw_size;
 
-    private BufferedImage imgmap;
-    private Image tile, destructable, wall, bomb, player, candy,
+    private BufferedImage imgmap, transparentPixel;
+    private Image tile, destructable, wall, exit, bomb, player, candy,
                 exp_b, exp_v, exp_h, exp_vt, exp_vb, exp_hl, exp_hr;
     private int imgUnit;
 
@@ -49,6 +50,7 @@ public class DisplayBoard extends JPanel
         imgUnit = 16;
 
         candy = ImageIO.read(new File("resources/img/candy.png"));
+        exit = ImageIO.read(new File("resources/img/hole.png"));
 
         init();
     }
@@ -72,6 +74,9 @@ public class DisplayBoard extends JPanel
         exp_vb = cropImgMap(15, 2);
         exp_hl = cropImgMap(0, 5);
         exp_hr = cropImgMap(3, 5);
+
+        transparentPixel = new BufferedImage(1, 1, BufferedImage.TYPE_4BYTE_ABGR);
+        transparentPixel.setRGB(0, 0, 0x99000000);
     }
 
 
@@ -83,6 +88,17 @@ public class DisplayBoard extends JPanel
     public void setWalls(Board walls)
     {
         this.walls = walls;
+    }
+
+
+    /**
+     * Sets players.
+     *
+     * @param players
+     */
+    public void setPlayers(Set<Player> players)
+    {
+        this.players = players;
     }
 
 
@@ -149,6 +165,9 @@ public class DisplayBoard extends JPanel
                 img = tile;
                 break;
             case EXIT:
+                drawImage(g, tile, p);
+                img = exit;
+                break;
             default:
                 img = wall;
             }
@@ -163,18 +182,23 @@ public class DisplayBoard extends JPanel
         }
 
         //draw players
-        for(Entry<Integer, Position> e: walls.getPlayers().entrySet())
+        for(Position p: players)
         {
-            drawImage(g, player, e.getValue());
+            drawImage(g, player, p);
         }
 
-        if(bombs != null)
+        //draw bombs
+        for(Entry<Position, Integer> e: bombs.entrySet())
         {
-            //draw bombs
-            for(Entry<Position, Integer> e: bombs.entrySet())
-            {
-                drawBomb(g, e.getKey(), e.getValue());
-            }
+            drawBomb(g, e.getKey(), e.getValue());
+        }
+
+        g.setFont(new Font("Arial", Font.PLAIN, block_size / 2));
+
+        //draw player labels
+        for(Player p: players)
+        {
+            drawPlayerLabel(g, p);
         }
     }
 
@@ -224,12 +248,34 @@ public class DisplayBoard extends JPanel
 
 
     /**
+     * Draw a player.
+     *
+     * @param g
+     * @param p
+     */
+    private void drawPlayerLabel(Graphics2D g, Player p)
+    {
+        Position pos = convertCoordinates(p);
+
+        FontMetrics fm = getFontMetrics(g.getFont());
+        int nameWidth = fm.stringWidth(p.getName());
+        int padding = 5;
+
+        int x = pos.getX() - ((nameWidth + padding*2) - block_size)/2;
+        int y = (int)(pos.getY() - block_size * 1.1);
+
+        g.drawImage(transparentPixel, x, y, nameWidth + padding*2, block_size, null);
+        g.setColor(Color.WHITE);
+        g.drawString(p.getName(), x + padding, y + block_size/4*3);
+    }
+
+
+    /**
      * Converts logical board position to starting position in java.
      *
      * @param p
      * @return
      */
-    @SuppressWarnings("unused")
     private Position convertCoordinates(Position p)
     {
         return convertCoordinates(p.getX(), p.getY());
