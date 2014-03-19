@@ -3,10 +3,12 @@ package carleton.sysc3303.server;
 import java.util.*;
 import java.util.Map.Entry;
 
+import carleton.sysc3303.client.gui.Window.States;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
 import carleton.sysc3303.common.connection.PowerupMessage.Action;
+import carleton.sysc3303.common.connection.StateMessage.State;
 import carleton.sysc3303.server.connection.*;
 
 
@@ -145,7 +147,14 @@ public class GameBoard
      */
     private void newSpectator(IClient c)
     {
-        sendInitialState(c);
+        if(currentState == State.STARTED)
+        {
+            sendInitialState(c);
+        }
+        else
+        {
+            server.queueMessage(new StateMessage(currentState), c);
+        }
     }
 
 
