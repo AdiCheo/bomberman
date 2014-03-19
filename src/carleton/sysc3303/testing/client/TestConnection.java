@@ -2,7 +2,6 @@ package carleton.sysc3303.testing.client;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.LinkedList;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.connection.IMessage;
@@ -27,13 +26,6 @@ public class TestConnection extends AbstractConnection
         super();
         this.server = server;
         this.id = counter++;
-
-        this.mapListeners = new LinkedList<MapListener>();
-        this.connectionListeners = new LinkedList<ConnectionStatusListener>();
-        this.positionListeners = new LinkedList<PositionListener>();
-        this.stateListeners = new LinkedList<GameStateListener>();
-        this.bombListeners = new LinkedList<BombListener>();
-        this.powerupListeners = new LinkedList<PowerupListener>();
 
         server.registerConnection(getHostname(), getPort(), this);
     }

@@ -9,14 +9,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
-import carleton.sysc3303.common.connection.PowerupMessage.Action;
 
 /**
  * The primary display window.
  *
  * @author Kirill Stepanov
  */
-public class Window extends JFrame
+public class Window extends JFrame implements MessageListener,
+                                              ConnectionStatusListener,
+                                              GameStateListener
 {
     public enum States { LOADING, GAME, DONE };
 
@@ -97,112 +98,11 @@ public class Window extends JFrame
      */
     private void hookEvents()
     {
-        c.addConnectionStatusListener(new ConnectionStatusListener() {
-            @Override
-            public void statusChanged(State s)
-            {
-                // TODO Auto-generated method stub
-            }
-        });
+        c.addConnectionStatusListener(this);
+        c.addMessageListener(this);
+        c.addGameStateListener(this);
 
-        c.addMapListener(new MapListener() {
-            @Override
-            public void newMap(Board b)
-            {
-                ui.setMap(b);
-                b.setPlayers(positions);
-                ui.repaint();
-            }
-        });
-
-        c.addPositionListener(new PositionListener() {
-            @Override
-            public void move(int id, Position pos, PlayerTypes type)
-            {
-                if(pos.getX() < 0 || pos.getY() < 0)
-                {
-                    positions.remove(id);
-                    colors.remove(id);
-                }
-                else
-                {
-                    positions.put(id, pos);
-                    Color c;
-
-                    switch(type)
-                    {
-                    case MONSTER:
-                        c = Color.CYAN;
-                        break;
-                    default:
-                        c = Color.BLUE;
-                    }
-
-                    colors.put(id, c);
-                }
-
-                // force ui update
-                ui.repaint();
-            }
-        });
-
-        c.addGameStateListener(new GameStateListener() {
-            @Override
-            public void stateChanged(StateMessage.State state)
-            {
-                switch(state)
-                {
-                case END:
-                    setDisplay(States.DONE);
-                    break;
-                case STARTED:
-                    setDisplay(States.GAME);
-                    break;
-                case NOTSTARTED:
-                    loading_label.setText("Connected. Game as not started yet.");
-                }
-            }
-        });
-
-
-        c.addBombListener(new BombListener() {
-            @Override
-            public void bomb(Position pos, int size)
-            {
-                if(size < 0)
-                {
-                    bombs.remove(pos);
-                }
-                else
-                {
-                    bombs.put(pos, size);
-                }
-
-                ui.repaint();
-            }
-        });
-
-
-        c.addPowerupListener(new PowerupListener() {
-            @Override
-            public void powerup(Action a, Position p)
-            {
-                switch(a)
-                {
-                case ADD:
-                    powerups.add(p);
-                    break;
-                case REMOVE:
-                    powerups.remove(p);
-                }
-
-                System.out.println(">>> " + powerups.size());
-
-                ui.repaint();
-            }
-        });
-
-        c.queueMessage(new MetaMessage(MetaMessage.Type.CONNECT, "0"));
+        c.queueMessage(MetaMessage.connectSpectator());
     }
 
 
@@ -214,5 +114,143 @@ public class Window extends JFrame
     public void setDisplay(States state)
     {
         layout.show(getContentPane(), state.toString());
+    }
+
+
+    @Override
+    public void newMessage(IMessage m)
+    {
+        if(m instanceof MapMessage)
+        {
+            handleMap((MapMessage)m);
+        }
+        else if(m instanceof PosMessage)
+        {
+            handlePosition((PosMessage)m);
+        }
+        else if(m instanceof BombMessage)
+        {
+            handleBomb((BombMessage)m);
+        }
+        else if(m instanceof PowerupMessage)
+        {
+            handlePowerup((PowerupMessage)m);
+        }
+    }
+
+
+    @Override
+    public void statusChanged(State s)
+    {
+        // TODO Auto-generated method stub
+    }
+
+
+    /**
+     * Handles a map change.
+     *
+     * @param m
+     */
+    private void handleMap(MapMessage m)
+    {
+        Board b = m.getBoard();
+        ui.setMap(b);
+        b.setPlayers(positions);
+        ui.repaint();
+    }
+
+
+    /**
+     * Handles a position message.
+     *
+     * @param m
+     */
+    private void handlePosition(PosMessage m)
+    {
+        Position pos = m.getPosition();
+        PlayerTypes type = m.getType();
+        int id = m.getPid();
+
+        if(pos.getX() < 0 || pos.getY() < 0)
+        {
+            positions.remove(id);
+            colors.remove(id);
+        }
+        else
+        {
+            positions.put(id, pos);
+            Color c;
+
+            switch(type)
+            {
+            case MONSTER:
+                c = Color.CYAN;
+                break;
+            default:
+                c = Color.BLUE;
+            }
+
+            colors.put(id, c);
+        }
+
+        // force ui update
+        ui.repaint();
+    }
+
+
+    /**
+     * Handles messages related to bombs.
+     *
+     * @param m
+     */
+    private void handleBomb(BombMessage m)
+    {
+        if(m.getSize() < 0)
+        {
+            bombs.remove(m.getPosition());
+        }
+        else
+        {
+            bombs.put(m.getPosition(), m.getSize());
+        }
+
+        ui.repaint();
+    }
+
+
+    /**
+     * Handles powerups.
+     *
+     * @param m
+     */
+    private void handlePowerup(PowerupMessage m)
+    {
+        switch(m.getAction())
+        {
+        case ADD:
+            powerups.add(m.getPosition());
+            break;
+        case REMOVE:
+            powerups.remove(m.getPosition());
+        }
+
+        ui.repaint();
+    }
+
+
+    @Override
+    public void stateChanged(StateMessage.State state)
+    {
+        switch(state)
+        {
+        case END:
+            setDisplay(States.DONE);
+            break;
+        case STARTED:
+            setDisplay(States.GAME);
+            break;
+        case NOTSTARTED:
+            loading_label.setText("Connected. Game as not started yet.");
+        }
     }
 }

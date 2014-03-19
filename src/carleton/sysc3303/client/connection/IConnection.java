@@ -10,19 +10,11 @@ import carleton.sysc3303.common.connection.IMessage;
 public interface IConnection extends Runnable
 {
     /**
-     * Adds a listener for character/enemy positions.
+     * A generic message handler.
      *
      * @param e
      */
-    public void addPositionListener(PositionListener e);
-
-
-    /**
-     * Adds a listener that listens for map changes.
-     *
-     * @param e
-     */
-    public void addMapListener(MapListener e);
+    public void addMessageListener(MessageListener e);
 
 
     /**
@@ -39,22 +31,6 @@ public interface IConnection extends Runnable
      * @param e
      */
     public void addGameStateListener(GameStateListener e);
-
-
-    /**
-     * Adds a listener that listens for placed bombs.
-     *
-     * @param e
-     */
-    public void addBombListener(BombListener e);
-
-
-    /**
-     * Adds a listener that listens for powerups.
-     *
-     * @param e
-     */
-    public void addPowerupListener(PowerupListener e);
 
 
     /**

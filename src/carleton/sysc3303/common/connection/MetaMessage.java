@@ -34,6 +34,7 @@ public class MetaMessage implements IMessage
         this(type, "");
     }
 
+
     /**
      * Constructor.
      *
@@ -44,6 +45,18 @@ public class MetaMessage implements IMessage
     {
         this.type = type;
         this.message = message;
+    }
+
+
+    /**
+     * Creates a message that indicates you want to connect
+     * as a spectator only.
+     *
+     * @return
+     */
+    public static MetaMessage connectSpectator()
+    {
+        return new MetaMessage(Type.CONNECT, "0");
     }
 
 

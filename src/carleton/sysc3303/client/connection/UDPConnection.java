@@ -2,7 +2,6 @@ package carleton.sysc3303.client.connection;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.LinkedList;
 
 import carleton.sysc3303.common.connection.*;
 
@@ -25,12 +24,6 @@ public class UDPConnection extends AbstractConnection
 
         this.address = address;
         this.ip = ip;
-        this.mapListeners = new LinkedList<MapListener>();
-        this.connectionListeners = new LinkedList<ConnectionStatusListener>();
-        this.positionListeners = new LinkedList<PositionListener>();
-        this.stateListeners = new LinkedList<GameStateListener>();
-        this.bombListeners = new LinkedList<BombListener>();
-        this.powerupListeners = new LinkedList<PowerupListener>();
     }
 
 

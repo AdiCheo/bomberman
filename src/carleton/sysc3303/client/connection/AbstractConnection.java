@@ -4,9 +4,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
-import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
-import carleton.sysc3303.common.connection.PowerupMessage.Action;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
 
 
@@ -17,37 +15,37 @@ import carleton.sysc3303.common.connection.MetaMessage.Type;
  */
 public abstract class AbstractConnection implements IConnection
 {
-    protected List<PositionListener> positionListeners;
-    protected List<BombListener> bombListeners;
-    protected List<MapListener> mapListeners;
-    protected List<PowerupListener> powerupListeners;
     protected List<ConnectionStatusListener> connectionListeners;
     protected List<GameStateListener> stateListeners;
+    protected List<MessageListener> messageListeners;
+
     protected BlockingQueue<IMessage> messageQueue;
     protected Object messageQueueNotifier;
     protected boolean run;
     protected int id;
 
 
+    /**
+     * Constructor.
+     */
     protected AbstractConnection()
     {
         messageQueue = new LinkedBlockingQueue<IMessage>();
         messageQueueNotifier = new Object();
         run = false;
+
+        initializeListenerLists();
     }
 
 
-    @Override
-    public void addPositionListener(PositionListener e)
+    /**
+     * Initializes the default listener list objects.
+     */
+    protected void initializeListenerLists()
     {
-        positionListeners.add(e);
-    }
-
-
-    @Override
-    public void addMapListener(MapListener e)
-    {
-        mapListeners.add(e);
+        connectionListeners = new LinkedList<ConnectionStatusListener>();
+        stateListeners = new LinkedList<GameStateListener>();
+        messageListeners = new LinkedList<MessageListener>();
     }
 
 
@@ -66,16 +64,9 @@ public abstract class AbstractConnection implements IConnection
 
 
     @Override
-    public void addBombListener(BombListener e)
+    public void addMessageListener(MessageListener e)
     {
-        bombListeners.add(e);
-    }
-
-
-    @Override
-    public void addPowerupListener(PowerupListener e)
-    {
-        powerupListeners.add(e);
+        messageListeners.add(e);
     }
 
 
@@ -177,37 +168,22 @@ public abstract class AbstractConnection implements IConnection
      */
     protected void processMessage(IMessage m)
     {
-        if(m instanceof MapMessage)
-        {
-            MapMessage mm = (MapMessage)m;
-            invokeMapListeners(mm.getBoard());
-        }
-        else if(m instanceof PosMessage)
-        {
-            PosMessage pm = (PosMessage)m;
-            invokePositionListeners(pm.getPid(), pm.getPosition(), pm.getType());
-        }
-        else if(m instanceof BombMessage)
-        {
-            BombMessage bm = (BombMessage)m;
-            invokeBombListeners(bm.getPosition(), bm.getSize());
-        }
-        else if(m instanceof MetaMessage)
+        if(m instanceof MetaMessage)
         {
             MetaMessage mm = (MetaMessage)m;
 
             switch(mm.getStatus())
             {
             case ACCEPT:
-                this.invokeConnectionStatusListeners(State.CONNECTED);
+                invokeConnectionStatusListeners(State.CONNECTED);
                 id = Integer.parseInt(mm.getMessage());
                 break;
             case DISCONNECT:
             case REJECT:
-                this.invokeConnectionStatusListeners(State.DISCONNECTED);
+                invokeConnectionStatusListeners(State.DISCONNECTED);
                 break;
             case PING:
-                this.queueMessage(new MetaMessage(Type.PONG, ""));
+                queueMessage(new MetaMessage(Type.PONG, ""));
                 break;
             default:
                 // TODO: add more
@@ -216,12 +192,11 @@ public abstract class AbstractConnection implements IConnection
         else if(m instanceof StateMessage)
         {
             StateMessage sm = (StateMessage)m;
-            this.invokeGameStateListeners(sm.getState());
+            invokeGameStateListeners(sm.getState());
         }
-        else if(m instanceof PowerupMessage)
+        else
         {
-            PowerupMessage pm = (PowerupMessage)m;
-            this.invokePowerupListeners(pm.getAction(), pm.getPosition());
+            invokeMessageListeners(m);
         }
     }
 
@@ -230,51 +205,6 @@ public abstract class AbstractConnection implements IConnection
      * Send a message to the server.
      */
     protected abstract void sendMessage(IMessage m);
-
-
-    /**
-     * Invoke all listeners bound to this event.
-     *
-     * @param obj
-     * @param old
-     * @param new_
-     */
-    protected void invokePositionListeners(int obj, Position pos, PlayerTypes type)
-    {
-        for(PositionListener e: positionListeners)
-        {
-            e.move(obj, pos, type);
-        }
-    }
-
-
-    /**
-     * Invoke all listeners bound to this event.
-     *
-     * @param old
-     * @param new_
-     */
-    protected void invokeBombListeners(Position pos, int size)
-    {
-        for(BombListener e: bombListeners)
-        {
-            e.bomb(pos, size);
-        }
-    }
-
-
-    /**
-     * Invoke all listeners bound to this event.
-     *
-     * @param blocks
-     */
-    protected void invokeMapListeners(Board b)
-    {
-        for(MapListener e: mapListeners)
-        {
-            e.newMap(b);
-        }
-    }
 
 
     /**
@@ -310,11 +240,11 @@ public abstract class AbstractConnection implements IConnection
      *
      * @param s
      */
-    protected void invokePowerupListeners(Action a, Position p)
+    protected void invokeMessageListeners(IMessage m)
     {
-        for(PowerupListener e: powerupListeners)
+        for(MessageListener e: messageListeners)
         {
-            e.powerup(a, p);
+            e.newMessage(m);
         }
     }
 }
