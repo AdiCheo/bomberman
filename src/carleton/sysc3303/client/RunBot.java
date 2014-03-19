@@ -13,12 +13,18 @@ public class RunBot
      *
      * @param args
      * @throws IOException
+     * @throws InterruptedException
      */
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws IOException, InterruptedException
     {
         IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
 
-        new BotClient(c, 300, PlayerTypes.PLAYER).setCommands(new File(args[0]));
+        BotClient b = new BotClient(c, 300, PlayerTypes.PLAYER);
+        b.setCommands(new File(args[0]));
         new Thread(c).start();
+
+        b.waitForConnection();
+        b.waitForCompletion();
+        System.exit(0);
     }
 }

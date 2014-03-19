@@ -1,6 +1,10 @@
 package carleton.sysc3303.client.gui;
 
 import java.awt.*;
+import java.awt.image.*;
+import java.io.*;
+
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import java.util.*;
@@ -19,10 +23,57 @@ public class DisplayBoard extends JPanel
 {
     private static final long serialVersionUID = 8372907299046333935L;
     private Board walls;
-    private Map<Integer, Color> colors;
+    //private Map<Integer, Color> colors;
     private Map<Position, Integer> bombs;
     private Set<Position> powerups;
     private int offset_x, offset_y, block_size, draw_size;
+
+    private BufferedImage imgmap;
+    private Image tile, destructable, wall, bomb, player, candy,
+                exp_b, exp_v, exp_h, exp_vt, exp_vb, exp_hl, exp_hr;
+    private int imgUnit;
+
+
+    /**
+     * Constructor.
+     *
+     * @throws IOException
+     */
+    public DisplayBoard() throws IOException
+    {
+        // https://stackoverflow.com/a/14097632
+        Image rawImgmap = ImageIO.read(new File("resources/img/img_map.png"));
+        ImageFilter filter = new TransparencyFilter(new Color(255, 0, 255));
+        ImageProducer filtered = new FilteredImageSource(rawImgmap.getSource(), filter);
+        imgmap = toBufferedImage(Toolkit.getDefaultToolkit().createImage(filtered));
+        imgUnit = 16;
+
+        candy = ImageIO.read(new File("resources/img/candy.png"));
+
+        init();
+    }
+
+
+    /**
+     * Initializes the images.
+     */
+    private void init()
+    {
+        tile = cropImgMap(1, 0);
+        destructable = cropImgMap(10, 5);
+        wall = cropImgMap(11, 4);
+        bomb = cropImgMap(12, 2);
+        player = cropImgMap(1, 4);
+
+        exp_b = cropImgMap(2, 5);
+        exp_v = cropImgMap(15, 1);
+        exp_h = cropImgMap(1, 5);
+        exp_vt = cropImgMap(15, 0);
+        exp_vb = cropImgMap(15, 2);
+        exp_hl = cropImgMap(0, 5);
+        exp_hr = cropImgMap(3, 5);
+    }
+
 
     /**
      * Set the walls using a boolean matrix.
@@ -42,7 +93,7 @@ public class DisplayBoard extends JPanel
      */
     public void setColors(Map<Integer, Color> colors)
     {
-        this.colors = colors;
+        //this.colors = colors;
     }
 
 
@@ -84,56 +135,37 @@ public class DisplayBoard extends JPanel
         offset_y = (getHeight() - draw_size)/2;
         block_size = draw_size / size;
 
-        // board background color
-        g.setColor(Color.WHITE);
-        g.fillRect(offset_x, offset_y, draw_size, draw_size);
-
         // draw the blocks
         for(PositionTile p: walls)
         {
-            if(p.getTile() != Tile.EMPTY)
+            Image img;
+
+            switch(p.getTile())
             {
-                Color c;
-
-                switch(p.getTile())
-                {
-                case DESTRUCTABLE:
-                    c = Color.YELLOW;
-                    break;
-                case EXIT:
-                    c = Color.BLUE;
-                    break;
-                default:
-                    c = Color.BLACK;
-                }
-
-                g.setColor(c);
-                drawSquare(g, p);
+            case DESTRUCTABLE:
+                img = destructable;
+                break;
+            case EMPTY:
+                img = tile;
+                break;
+            case EXIT:
+            default:
+                img = wall;
             }
+
+            drawImage(g, img, p);
         }
 
-        Color c;
+        // draw powerups
+        for(Position p: powerups)
+        {
+            drawImage(g, candy, p);
+        }
 
         //draw players
         for(Entry<Integer, Position> e: walls.getPlayers().entrySet())
         {
-            if(colors != null && colors.containsKey(e.getKey()))
-            {
-                c = colors.get(e.getKey());
-            }
-            else
-            {
-                c = Color.RED;
-            }
-
-            g.setColor(c);
-            drawSquare(g, e.getValue());
-        }
-
-        g.setColor(Color.PINK);
-        for(Position p: powerups)
-        {
-            drawCircle(g, p.getX(), p.getY());
+            drawImage(g, player, e.getValue());
         }
 
         if(bombs != null)
@@ -144,65 +176,6 @@ public class DisplayBoard extends JPanel
                 drawBomb(g, e.getKey(), e.getValue());
             }
         }
-
-        // draw the lines
-        g.setColor(Color.GRAY);
-        for(int i=0; i<=size; i++)
-        {
-            g.drawLine(
-                offset_x + i * block_size, offset_y,
-                offset_x + i * block_size, offset_y + draw_size);
-
-            g.drawLine(
-                offset_x, offset_y + i * block_size,
-                offset_x + draw_size, offset_y + i * block_size);
-        }
-    }
-
-
-    /**
-     * Simplifies drawing squares.
-     *
-     * @param g
-     * @param x
-     * @param y
-     */
-    private void drawSquare(Graphics2D g, int x, int y)
-    {
-        g.fillRect(
-                offset_x + x * block_size,
-                offset_y + draw_size - ((y + 1) * block_size),
-                block_size,
-                block_size);
-    }
-
-
-    /**
-     * Simplifies drawing squares.
-     *
-     * @param g
-     * @param p
-     */
-    private void drawSquare(Graphics2D g, Position p)
-    {
-        drawSquare(g, p.getX(), p.getY());
-    }
-
-
-    /**
-     * Draws a circle.
-     *
-     * @param g
-     * @param x
-     * @param y
-     */
-    private void drawCircle(Graphics2D g, int x, int y)
-    {
-        g.fillOval(
-                offset_x + x * block_size,
-                offset_y + draw_size - ((y + 1) * block_size),
-                block_size,
-                block_size);
     }
 
 
@@ -217,35 +190,91 @@ public class DisplayBoard extends JPanel
     {
         if(size > 0)
         {
-            g.setColor(Color.ORANGE);
-
             // right
-            for(int i=0; i<size && walls.isPositionValid(x+i, y) && walls.isEmpty(x+i, y); i++)
+            for(int i=1; i<size && walls.isPositionValid(x+i, y) && walls.isEmpty(x+i, y); i++)
             {
-                drawSquare(g, x+i, y);
+                drawImage(g, exp_h, x+i-1, y);
+                drawImage(g, exp_hr, x+i, y);
             }
 
             // left
             for(int i=1; i<size && walls.isPositionValid(x-i, y) && walls.isEmpty(x-i, y); i++)
             {
-                drawSquare(g, x-i, y);
+                drawImage(g, exp_h, x-i+1, y);
+                drawImage(g, exp_hl, x-i, y);
             }
 
             // up
             for(int i=1; i<size && walls.isPositionValid(x, y+i) && walls.isEmpty(x, y+i); i++)
             {
-                drawSquare(g, x, y+i);
+                drawImage(g, exp_v, x, y+i-1);
+                drawImage(g, exp_vt, x, y+i);
             }
 
             // down
             for(int i=1; i<size && walls.isPositionValid(x, y-i) && walls.isEmpty(x, y-i); i++)
             {
-                drawSquare(g, x, y-i);
+                drawImage(g, exp_v, x, y-i+1);
+                drawImage(g, exp_vb, x, y-i);
             }
         }
 
-        g.setColor(Color.BLACK);
-        drawCircle(g, x, y);
+        drawImage(g, size > 0 ? exp_b : bomb, x, y);
+    }
+
+
+    /**
+     * Converts logical board position to starting position in java.
+     *
+     * @param p
+     * @return
+     */
+    @SuppressWarnings("unused")
+    private Position convertCoordinates(Position p)
+    {
+        return convertCoordinates(p.getX(), p.getY());
+    }
+
+
+    /**
+     * Converts logical board position to starting position in java.
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    private Position convertCoordinates(int x, int y)
+    {
+        return new Position(
+                offset_x + x * block_size,
+                offset_y + draw_size - ((y + 1) * block_size));
+    }
+
+
+    /**
+     * Draws an image at a given points.
+     *
+     * @param g
+     * @param im
+     * @param p
+     */
+    private void drawImage(Graphics2D g, Image im, Position p)
+    {
+        drawImage(g, im, p.getX(), p.getY());
+    }
+
+
+    /**
+     * Draws an image at a given points.
+     *
+     * @param g
+     * @param im
+     * @param p
+     */
+    private void drawImage(Graphics2D g, Image im, int x, int y)
+    {
+        Position p = convertCoordinates(x, y);
+        g.drawImage(im, p.getX(), p.getY(), block_size, block_size, null);
     }
 
 
@@ -258,5 +287,46 @@ public class DisplayBoard extends JPanel
     private void drawBomb(Graphics2D g, Position p, int size)
     {
         drawBomb(g, p.getX(), p.getY(), size);
+    }
+
+
+    /**
+     * Crops the image map and gets one square slice.
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    private Image cropImgMap(int x, int y)
+    {
+        return imgmap.getSubimage(x * imgUnit, y * imgUnit, imgUnit, imgUnit);
+    }
+
+
+    /**
+     * Converts a given Image into a BufferedImage
+     *
+     * https://stackoverflow.com/a/13605411
+     *
+     * @param img The Image to be converted
+     * @return The converted BufferedImage
+     */
+    private static BufferedImage toBufferedImage(Image img)
+    {
+        if (img instanceof BufferedImage)
+        {
+            return (BufferedImage) img;
+        }
+
+        // Create a buffered image with transparency
+        BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+
+        // Draw the image on to the buffered image
+        Graphics2D bGr = bimage.createGraphics();
+        bGr.drawImage(img, 0, 0, null);
+        bGr.dispose();
+
+        // Return the buffered image
+        return bimage;
     }
 }

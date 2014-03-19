@@ -264,6 +264,7 @@ public class GameBoard
             player_positions.remove(c.getId());
             Player p = players.remove(c.getId());
             server.queueMessage(new PosMessage(c.getId(), -1, -1, p.getType()));
+            currentPlayers--;
         }
     }
 

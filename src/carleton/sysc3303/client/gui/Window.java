@@ -2,6 +2,7 @@ package carleton.sysc3303.client.gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,8 +36,10 @@ public class Window extends JFrame
      * Constructor
      *
      * @param ui
+     *
+     * @throws IOException
      */
-    public Window(IConnection c)
+    public Window(IConnection c) throws IOException
     {
         this.c = c;
         this.ui = new GameView();
@@ -56,7 +59,7 @@ public class Window extends JFrame
     private void init()
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 600);
+        setSize(400, 400);
         setMinimumSize(getSize());
         setTitle("Bomberman");
 

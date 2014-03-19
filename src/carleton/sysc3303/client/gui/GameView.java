@@ -3,6 +3,7 @@ package carleton.sysc3303.client.gui;
 import javax.swing.*;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,8 +19,10 @@ public class GameView extends JPanel
 
     /**
      * Constructor.
+     *
+     * @throws IOException
      */
-    public GameView()
+    public GameView() throws IOException
     {
         init();
     }
@@ -27,8 +30,10 @@ public class GameView extends JPanel
 
     /**
      * UI initialization.
+     *
+     * @throws IOException
      */
-    private void init()
+    private void init() throws IOException
     {
         this.setLayout(new BorderLayout());
 
@@ -94,11 +99,11 @@ public class GameView extends JPanel
 /*
 class PlayerStatusPanel extends JPanel
 {
-	private static final long serialVersionUID = -8814546067076341951L;
+    private static final long serialVersionUID = -8814546067076341951L;
 
-	public void paint(Graphics _g)
-	{
-		super.paint(_g);
+    public void paint(Graphics _g)
+    {
+        super.paint(_g);
         int size =
 
         Graphics2D g = (Graphics2D)_g;
@@ -108,6 +113,6 @@ class PlayerStatusPanel extends JPanel
         block_size = draw_size / size;
 
         }
-	}
+    }
 }
 */
