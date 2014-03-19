@@ -11,7 +11,7 @@ public class Monster extends Player
      */
     public Monster(int id)
     {
-        super(id);
+        super(id, "Monster");
     }
 
 

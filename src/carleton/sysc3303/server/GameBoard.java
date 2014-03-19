@@ -25,6 +25,7 @@ public class GameBoard
     protected Map<Integer, Position> bombs;
     protected Map<Integer, Position> explodingBombs;
     protected StateMessage.State currentState;
+    protected SortedSet<String> playerNames;
     protected int currentPlayers;
     protected int explosionCounter = 0;
 
@@ -57,12 +58,18 @@ public class GameBoard
         this.players = new HashMap<Integer, Player>();
         this.currentState = StateMessage.State.NOTSTARTED;
         this.currentPlayers = 0;
+        this.playerNames = new TreeSet<String>();
 
         this.b.setPlayers(playerPositions);
         this.b.setBombs(bombs);
 
         this.b.addStartingPosition(new Position(5, 5));
         this.b.placePowerup(new Position(10, 10));
+
+        for(int i=0; i<MAX_PLAYERS; i++)
+        {
+            playerNames.add(String.format("Player %d", i+1));
+        }
 
         hookEvents();
     }
@@ -157,7 +164,7 @@ public class GameBoard
         }
         else
         {
-            p = new Player(c.getId());
+            p = new Player(c.getId(), playerNames.first());
             currentPlayers++;
             // pos = b.getNextPosition();
         }
@@ -263,6 +270,7 @@ public class GameBoard
         {
             playerPositions.remove(c.getId());
             Player p = players.remove(c.getId());
+            playerNames.add(p.getName());
             server.queueMessage(new PosMessage(c.getId(), -1, -1, p.getType()));
             currentPlayers--;
         }

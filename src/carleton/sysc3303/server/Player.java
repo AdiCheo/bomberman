@@ -15,6 +15,7 @@ public class Player
     private Date lastMoveTime;
     private int remainingBombs;
     private boolean dead;
+    private String name;
 
 
     /**
@@ -22,12 +23,24 @@ public class Player
      *
      * @param id
      */
-    public Player(int id)
+    public Player(int id, String name)
     {
         this.id = id;
         this.lastMoveTime = new Date(0);
         this.remainingBombs = 1; // hardcoded limit
         this.dead = false;
+        this.name = name;
+    }
+
+
+    /**
+     * Gets the player's name.
+     *
+     * @return
+     */
+    public String getName()
+    {
+        return name;
     }
 
 
@@ -172,30 +185,5 @@ public class Player
         }
 
         return ((Player)o).id == this.id;
-    }
-}
-
-class BombFactory implements Runnable
-{
-    int delay;
-    Player p;
-
-    public BombFactory(int d, Player p)
-    {
-        delay = d;
-        this.p = p;
-    }
-
-    public void run()
-    {
-        try
-        {
-            Thread.sleep(delay);
-        }catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-
-        p.incrementRemainingBombs();
     }
 }
