@@ -13,7 +13,7 @@ import carleton.sysc3303.server.connection.*;
 
 public class GameBoard
 {
-    public static final int MAX_PLAYERS = 4;
+    public static final int MAX_PLAYERS = 32;
     public static final int BOMB_TIMEOUT = 3000;
     public static final int BOMB_EXPLODING = 1000;
     public static final int EXPLODE_SIZE = 10;
@@ -141,8 +141,8 @@ public class GameBoard
      */
     private void addPlayer(IClient c, boolean isMonster)
     {
-        Position pos = null;
-        if(currentPlayers == MAX_PLAYERS && !isMonster)
+        Position pos;
+        if(currentPlayers == Math.min(MAX_PLAYERS, b.maxSupportedPlayers()) && !isMonster)
         {
             server.queueMessage(new MetaMessage(Type.REJECT, "Server is full"), c);
             return;
@@ -644,43 +644,6 @@ public class GameBoard
         player_positions.put(id, new Position(-1,-1));
         server.queueMessage(new PosMessage(id, -1, -1, p.getType()));
     }
-
-
-    //Returns all adjacent square to a tile, including itself
-    protected Position[] getAdjacentTile(int x, int y)
-    {
-        Position p[] = new Position[5];
-        int i = 1;
-
-        p[0] = new Position(x,y);
-
-        if(b.isPositionValid(x+1, y))
-        {
-            p[i] = new Position(x+1,y);
-            i++;
-        }
-
-            if(b.isPositionValid(x-1, y))
-            {
-                p[i] = new Position(x-1, y);
-                i++;
-            }
-
-                if(b.isPositionValid(x, y+1))
-                {
-                    p[i] = new Position(x, y+1);
-                    i++;
-                }
-
-                    if(b.isPositionValid(x, y-1))
-                    {
-                        p[i] = new Position(x, y-1);
-                        i++;
-                    }
-
-        return p;
-    }
-
 
 
     /**

@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.net.*;
 import java.util.LinkedList;
 
-import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
 import carleton.sysc3303.common.connection.*;
-import carleton.sysc3303.common.connection.MetaMessage.Type;
 
 public class UDPConnection extends AbstractConnection
 {

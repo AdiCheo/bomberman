@@ -129,14 +129,15 @@ public class Board implements Iterable<PositionTile>
         this.players = players;
     }
 
+
+    /**
+     * Sets the bombs.
+     *
+     * @param bombs
+     */
     public void setBombs(Map<Integer, Position> bombs)
     {
         this.bombs = bombs;
-    }
-
-    public void setExplosion(Map<Integer, Position> explosion)
-    {
-        this.explosions = explosions;
     }
 
     /**
@@ -149,15 +150,18 @@ public class Board implements Iterable<PositionTile>
         return players;
     }
 
+
+    /**
+     * Gets the bombs.
+     *
+     * @return
+     */
     public Map<Integer, Position> getBombs()
     {
         return bombs;
     }
 
-    public Map<Integer, Position> getExplosion()
-    {
-        return explosions;
-    }
+
     /**
      * Checks is position is empty.
      *

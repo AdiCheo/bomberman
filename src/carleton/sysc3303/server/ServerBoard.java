@@ -149,6 +149,17 @@ public class ServerBoard extends Board
 
 
     /**
+     * Gets the number of players that this board supports.
+     *
+     * @return
+     */
+    public int maxSupportedPlayers()
+    {
+        return (int)Math.floor(size * (Math.log(size) / Math.log(15)));
+    }
+
+
+    /**
      * Places a powerup on the board.
      *
      * @param p
