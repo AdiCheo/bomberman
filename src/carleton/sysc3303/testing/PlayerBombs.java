@@ -93,7 +93,7 @@ public class PlayerBombs extends BaseTest{
         bot2.waitForCompletion();
 
         // bomb should explode by this point
-        Thread.sleep(GameBoard.BOMB_TIMEOUT);
+        Thread.sleep(logic.getConfig().bombTimer);
 
         //Verify if the player and monster are dead or not
         assertEquals("Check that bot1 is dead", true, logic.isPlayerDead(bot1id));

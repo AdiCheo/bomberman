@@ -62,7 +62,7 @@ public class BombDodge extends BaseTest
         bot.waitForCompletion();
 
         // bomb should explode by this point
-        Thread.sleep(GameBoard.BOMB_TIMEOUT);
+        Thread.sleep(logic.getConfig().bombTimer);
 
         assertEquals("Bot is dead", false, logic.isPlayerDead(id));
         assertEquals("Bot is in the right place", target, logic.getPlayerPosition(id));

@@ -11,6 +11,7 @@ import org.junit.runners.JUnit4;
 
 import carleton.sysc3303.server.*;
 import carleton.sysc3303.testing.client.*;
+import carleton.sysc3303.testing.server.TestGameBoard;
 
 @RunWith(JUnit4.class)
 public class SimpleTest extends BaseTest
@@ -23,7 +24,7 @@ public class SimpleTest extends BaseTest
         server.run();
         clientConnection.run();
 
-        new GameBoard(server, new ServerBoard(20));
+        new TestGameBoard(server, new ServerBoard(20));
         DisconnectingClient client = new DisconnectingClient(clientConnection, barrier);
 
         // client disconnected at start

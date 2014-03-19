@@ -1,6 +1,5 @@
 package carleton.sysc3303.server;
 
-
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -14,10 +13,8 @@ import carleton.sysc3303.server.connection.*;
 public class GameBoard
 {
     public static final int MAX_PLAYERS = 32;
-    public static final int BOMB_TIMEOUT = 3000;
-    public static final int BOMB_EXPLODING = 1000;
-    public static final int EXPLODE_SIZE = 10;
 
+    protected Config conf;
     protected ServerBoard b;
     protected IServer server;
     protected Map<Integer, Position> playerPositions;
@@ -36,9 +33,9 @@ public class GameBoard
      * @param server
      * @param size		Board size, always a square
      */
-    public GameBoard(IServer server, ServerBoard b)
+    public GameBoard(IServer server, ServerBoard b, Config c)
     {
-        init(server, b);
+        init(server, b, c);
     }
 
 
@@ -48,7 +45,7 @@ public class GameBoard
      * @param server
      * @param tiles
      */
-    private void init(IServer server, ServerBoard b)
+    private void init(IServer server, ServerBoard b, Config c)
     {
         this.server = server;
         this.b = b;
@@ -59,6 +56,7 @@ public class GameBoard
         this.currentState = StateMessage.State.NOTSTARTED;
         this.currentPlayers = 0;
         this.playerNames = new TreeSet<String>();
+        this.conf = c;
 
         this.b.setPlayers(playerPositions);
         this.b.setBombs(bombs);
@@ -227,7 +225,7 @@ public class GameBoard
 
             for(Entry<Integer, Position> e: explodingBombs.entrySet())
             {
-                server.queueMessage(new BombMessage(e.getValue(), EXPLODE_SIZE), c);
+                server.queueMessage(new BombMessage(e.getValue(), conf.defaultExplosionSize), c);
             }
         }
     }
@@ -455,7 +453,7 @@ public class GameBoard
         System.out.printf("Player %d placed a bomb as %s\n", p.getId(), pos);
 
         final Object that = this;
-        Bomb b = new Bomb(c.getId(), BOMB_TIMEOUT);
+        Bomb b = new Bomb(c.getId(), conf.bombTimer);
         b.setListener(new BombExplodedListener() {
             @Override
             public void bombExploded(int owner, int bomb)
@@ -519,16 +517,16 @@ public class GameBoard
 
         // right
         // includes the square with the bomb itself
-        for(int i=0; i<EXPLODE_SIZE && handleBombExplodeTile(x + i, y); i++);
+        for(int i=0; i<conf.defaultExplosionSize && handleBombExplodeTile(x + i, y); i++);
 
         // left
-        for(int i=1; i<EXPLODE_SIZE && handleBombExplodeTile(x - i, y); i++);
+        for(int i=1; i<conf.defaultExplosionSize && handleBombExplodeTile(x - i, y); i++);
 
         // up
-        for(int i=1; i<EXPLODE_SIZE && handleBombExplodeTile(x, y + i); i++);
+        for(int i=1; i<conf.defaultExplosionSize && handleBombExplodeTile(x, y + i); i++);
 
         // down
-        for(int i=1; i<EXPLODE_SIZE && handleBombExplodeTile(x, y - i); i++);
+        for(int i=1; i<conf.defaultExplosionSize && handleBombExplodeTile(x, y - i); i++);
 
         bombs.remove(bomb);
 
@@ -547,7 +545,7 @@ public class GameBoard
         // in case some blocks were destroyed
         // FIXME: should check if anything changed first
         server.queueMessage(new MapMessage(b.createSendableBoard()));
-        server.queueMessage(new BombMessage(p, EXPLODE_SIZE));
+        server.queueMessage(new BombMessage(p, conf.defaultExplosionSize));
 
         new Thread() {
             @Override
@@ -555,7 +553,7 @@ public class GameBoard
             {
                 try
                 {
-                    Thread.sleep(BOMB_EXPLODING);
+                    Thread.sleep(conf.explosionDuration);
                 }
                 catch (InterruptedException e)
                 {
@@ -629,8 +627,8 @@ public class GameBoard
 
         for(Position bomb: explodingBombs.values())
         {
-            if((bomb.getX() == p.getX() && Math.abs(p.getY() - bomb.getY()) < EXPLODE_SIZE) ||
-               (bomb.getY() == p.getY() && Math.abs(p.getX() - bomb.getX()) < EXPLODE_SIZE))
+            if((bomb.getX() == p.getX() && Math.abs(p.getY() - bomb.getY()) < conf.defaultExplosionSize) ||
+               (bomb.getY() == p.getY() && Math.abs(p.getX() - bomb.getX()) < conf.defaultExplosionSize))
             {
                 return true;
             }

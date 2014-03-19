@@ -24,7 +24,7 @@ public class Run
             b = new ServerBoard(20);
         }
 
-        new GameBoard(s, b);
+        new GameBoard(s, b, Config.defaultConfig());
         new Thread(s).start(); // background the server
 
         System.out.println("Started");

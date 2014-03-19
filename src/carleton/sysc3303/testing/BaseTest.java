@@ -18,7 +18,6 @@ public abstract class BaseTest
     @Before
     public void setUp()
     {
-        System.out.println("XXXXX");
         server = new TestServer();
         clientConnection = new TestConnection(server);
     }

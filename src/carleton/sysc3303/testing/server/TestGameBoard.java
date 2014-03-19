@@ -16,7 +16,7 @@ public class TestGameBoard extends GameBoard
      */
     public TestGameBoard(IServer server, ServerBoard b)
     {
-        super(server, b);
+        super(server, b, Config.defaultConfig());
     }
 
 
@@ -90,5 +90,16 @@ public class TestGameBoard extends GameBoard
     public synchronized StateMessage.State getState()
     {
         return currentState;
+    }
+
+
+    /**
+     * Gets the server configuration.
+     *
+     * @return
+     */
+    public Config getConfig()
+    {
+        return conf;
     }
 }
