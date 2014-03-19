@@ -27,7 +27,7 @@ public class TestGameBoard extends GameBoard
      */
     public synchronized Position getPlayerPosition(int p)
     {
-        return player_positions.get(p);
+        return playerPositions.get(p);
     }
 
 
@@ -38,9 +38,9 @@ public class TestGameBoard extends GameBoard
      */
     public synchronized void setGameState(State s)
     {
-        current_state = s;
+        currentState = s;
 
-        if(current_state == State.STARTED)
+        if(currentState == State.STARTED)
         {
             startGame();
         }
@@ -89,6 +89,6 @@ public class TestGameBoard extends GameBoard
      */
     public synchronized StateMessage.State getState()
     {
-        return current_state;
+        return currentState;
     }
 }

@@ -12,7 +12,7 @@ import carleton.sysc3303.common.*;
  */
 public class ServerBoard extends Board
 {
-    private boolean exit_hidden;
+    private boolean exitHidden;
     private Position exit;
     private List<Position> startingPositions;
     private Set<Position> powerups;
@@ -26,7 +26,7 @@ public class ServerBoard extends Board
     public ServerBoard(int size)
     {
         super(size);
-        this.exit_hidden = true;
+        this.exitHidden = true;
         startingPositions = new ArrayList<Position>();
         powerups = new HashSet<Position>();
     }
@@ -74,7 +74,7 @@ public class ServerBoard extends Board
     {
         Board b = new Board(serialize());
 
-        if(exit != null && exit_hidden)
+        if(exit != null && exitHidden)
         {
             boolean destructable = b.getTile(exit) == Tile.DESTRUCTABLE;
             b.setTile(exit, destructable ? Tile.DESTRUCTABLE : Tile.EMPTY);
@@ -200,7 +200,7 @@ public class ServerBoard extends Board
      */
     public boolean isExitHidden()
     {
-        return exit_hidden;
+        return exitHidden;
     }
 
 
@@ -211,7 +211,7 @@ public class ServerBoard extends Board
      */
     public void setExitHidden(boolean b)
     {
-        exit_hidden = b;
+        exitHidden = b;
     }
 
 
@@ -343,7 +343,7 @@ public class ServerBoard extends Board
     {
         Tile t = super.getWall(x, y);
 
-        if(exit_hidden && t == Tile.EXIT)
+        if(exitHidden && t == Tile.EXIT)
         {
             return Tile.EMPTY;
         }

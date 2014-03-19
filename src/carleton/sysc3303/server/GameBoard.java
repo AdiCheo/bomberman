@@ -20,11 +20,11 @@ public class GameBoard
 
     protected ServerBoard b;
     protected IServer server;
-    protected Map<Integer, Position> player_positions;
+    protected Map<Integer, Position> playerPositions;
     protected Map<Integer, Player> players;
     protected Map<Integer, Position> bombs;
-    protected Map<Integer, Position> exploding_bombs;
-    protected StateMessage.State current_state;
+    protected Map<Integer, Position> explodingBombs;
+    protected StateMessage.State currentState;
     protected int currentPlayers;
     protected int explosionCounter = 0;
 
@@ -51,14 +51,14 @@ public class GameBoard
     {
         this.server = server;
         this.b = b;
-        this.player_positions = new HashMap<Integer, Position>();
+        this.playerPositions = new HashMap<Integer, Position>();
         this.bombs = new HashMap<Integer, Position>();
-        this.exploding_bombs = new HashMap<Integer, Position>();
+        this.explodingBombs = new HashMap<Integer, Position>();
         this.players = new HashMap<Integer, Player>();
-        this.current_state = StateMessage.State.NOTSTARTED;
+        this.currentState = StateMessage.State.NOTSTARTED;
         this.currentPlayers = 0;
 
-        this.b.setPlayers(player_positions);
+        this.b.setPlayers(playerPositions);
         this.b.setBombs(bombs);
 
         this.b.addStartingPosition(new Position(5, 5));
@@ -79,7 +79,7 @@ public class GameBoard
             @Override
             public void connectionChanged(IClient c, boolean connected, String args)
             { synchronized(that) {
-                if(current_state == StateMessage.State.END)
+                if(currentState == StateMessage.State.END)
                 {
                     return;
                 }
@@ -112,7 +112,7 @@ public class GameBoard
             @Override
             public void newMessage(IClient c, IMessage m)
             { synchronized(that) {
-                if(current_state == StateMessage.State.END)
+                if(currentState == StateMessage.State.END)
                 {
                     return;
                 }
@@ -170,7 +170,7 @@ public class GameBoard
         System.out.printf("Player %d starts at %s\n", c.getId(), pos);
         setPlayerPosition(c.getId(), pos);
 
-        if(current_state == StateMessage.State.STARTED)
+        if(currentState == StateMessage.State.STARTED)
         {
             // send player the initial state
             sendInitialState(c);
@@ -180,7 +180,7 @@ public class GameBoard
         }
         else
         {
-            server.queueMessage(new StateMessage(current_state), c);
+            server.queueMessage(new StateMessage(currentState), c);
         }
     }
 
@@ -193,13 +193,13 @@ public class GameBoard
     private void sendInitialState(IClient c)
     {
         // send the current state
-        server.queueMessage(new StateMessage(current_state), c);
+        server.queueMessage(new StateMessage(currentState), c);
 
         // send the map
         server.queueMessage(new MapMessage(b.createSendableBoard()), c);
 
         // send everyone's current positions
-        for(Entry<Integer, Position> e: player_positions.entrySet())
+        for(Entry<Integer, Position> e: playerPositions.entrySet())
         {
             Position pos = e.getValue();
             Player p = players.get(e.getKey());
@@ -211,14 +211,14 @@ public class GameBoard
             server.queueMessage(new PowerupMessage(Action.ADD, p), c);
         }
 
-        synchronized(exploding_bombs)
+        synchronized(explodingBombs)
         {
             for(Entry<Integer, Position> e: bombs.entrySet())
             {
                 server.queueMessage(new BombMessage(e.getValue(), 0), c);
             }
 
-            for(Entry<Integer, Position> e: exploding_bombs.entrySet())
+            for(Entry<Integer, Position> e: explodingBombs.entrySet())
             {
                 server.queueMessage(new BombMessage(e.getValue(), EXPLODE_SIZE), c);
             }
@@ -232,7 +232,7 @@ public class GameBoard
     private void sendInitialState()
     {
         // send the current state
-        server.queueMessage(new StateMessage(current_state));
+        server.queueMessage(new StateMessage(currentState));
 
         // send the map
         server.queueMessage(new MapMessage(b.createSendableBoard()));
@@ -243,7 +243,7 @@ public class GameBoard
         }
 
         // send everyone's current positions
-        for(Entry<Integer, Position> e: player_positions.entrySet())
+        for(Entry<Integer, Position> e: playerPositions.entrySet())
         {
             Position pos = e.getValue();
             Player p = players.get(e.getKey());
@@ -259,9 +259,9 @@ public class GameBoard
      */
     private void removePlayer(IClient c)
     {
-        if(player_positions.containsKey(c.getId()))
+        if(playerPositions.containsKey(c.getId()))
         {
-            player_positions.remove(c.getId());
+            playerPositions.remove(c.getId());
             Player p = players.remove(c.getId());
             server.queueMessage(new PosMessage(c.getId(), -1, -1, p.getType()));
             currentPlayers--;
@@ -320,7 +320,7 @@ public class GameBoard
             p.setLastMoveTime(new Date());
         }
 
-        Position pos = player_positions.get(c.getId());
+        Position pos = playerPositions.get(c.getId());
         int x = pos.getX(), y = pos.getY();
 
         switch(m.getDirection())
@@ -377,8 +377,8 @@ public class GameBoard
                 else if(!b.isExitHidden() && b.isExit(x, y))
                 {
                     System.out.println("Game over");
-                    current_state = StateMessage.State.END;
-                    server.queueMessage(new StateMessage(current_state));
+                    currentState = StateMessage.State.END;
+                    server.queueMessage(new StateMessage(currentState));
                 }
             }
             else
@@ -435,7 +435,7 @@ public class GameBoard
      */
     private void handleBomb(IClient c)
     {
-        Position pos = player_positions.get(c.getId());
+        Position pos = playerPositions.get(c.getId());
         Player p = players.get(c.getId());
 
         if(!p.decrementRemainingBombs())
@@ -473,13 +473,13 @@ public class GameBoard
     private void handleStateMessage(IClient c, StateMessage m)
     {
         // clients can't change state when game not started
-        if(current_state != StateMessage.State.NOTSTARTED)
+        if(currentState != StateMessage.State.NOTSTARTED)
         {
             return;
         }
 
         if(m.getState() == StateMessage.State.STARTED &&
-           current_state == StateMessage.State.NOTSTARTED)
+           currentState == StateMessage.State.NOTSTARTED)
         {
             startGame();
         }
@@ -491,7 +491,7 @@ public class GameBoard
      */
     protected void startGame()
     {
-        current_state = StateMessage.State.STARTED;
+        currentState = StateMessage.State.STARTED;
         sendInitialState();
     }
 
@@ -503,7 +503,7 @@ public class GameBoard
      * @param bomb
      */
     private void handleBombExplode(int owner, final int bomb)
-    { synchronized(exploding_bombs) {
+    { synchronized(explodingBombs) {
         final Position p = bombs.get(bomb);
         int x = p.getX(), y = p.getY();
 
@@ -534,7 +534,7 @@ public class GameBoard
 
         System.out.printf("Player %d's bomb exploded at %s\n", owner, p);
 
-        exploding_bombs.put(bomb, p);
+        explodingBombs.put(bomb, p);
 
         // in case some blocks were destroyed
         // FIXME: should check if anything changed first
@@ -558,9 +558,9 @@ public class GameBoard
                 // delete the bomb after a timeout
                 server.queueMessage(new BombMessage(p, -1));
 
-                synchronized(exploding_bombs)
+                synchronized(explodingBombs)
                 {
-                    exploding_bombs.remove(bomb);
+                    explodingBombs.remove(bomb);
                 }
             }
         }.start();
@@ -617,9 +617,9 @@ public class GameBoard
      * @return
      */
     private boolean withinExplosionRange(Position p)
-    { synchronized(exploding_bombs) {
+    { synchronized(explodingBombs) {
 
-        for(Position bomb: exploding_bombs.values())
+        for(Position bomb: explodingBombs.values())
         {
             if((bomb.getX() == p.getX() && Math.abs(p.getY() - bomb.getY()) < EXPLODE_SIZE) ||
                (bomb.getY() == p.getY() && Math.abs(p.getX() - bomb.getX()) < EXPLODE_SIZE))
@@ -641,7 +641,7 @@ public class GameBoard
     {
         Player p = players.get(id);
         p.setDead(true);
-        player_positions.put(id, new Position(-1,-1));
+        playerPositions.put(id, new Position(-1,-1));
         server.queueMessage(new PosMessage(id, -1, -1, p.getType()));
     }
 
@@ -654,6 +654,6 @@ public class GameBoard
      */
     private void setPlayerPosition(int id, Position pos)
     {
-        player_positions.put(id, pos);
+        playerPositions.put(id, pos);
     }
 }
