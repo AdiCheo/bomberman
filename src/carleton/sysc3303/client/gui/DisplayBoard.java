@@ -143,6 +143,12 @@ public class DisplayBoard extends JPanel
     public void paint(Graphics _g)
     {
         super.paint(_g);
+
+        if(walls == null)
+        {
+            return;
+        }
+
         int size = walls.getSize();
 
         Graphics2D g = (Graphics2D)_g;
