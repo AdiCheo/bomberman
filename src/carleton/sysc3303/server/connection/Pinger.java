@@ -41,23 +41,25 @@ public class Pinger implements Runnable
     {
         server.addConnectionListener(new ConnectionListener() {
             @Override
-            public void connectionChanged(IClient c, boolean connected, String args)
+            public void connected(IClient c, String args)
             {
-                if(connected)
+                try
                 {
-                    try
-                    {
-                        connections.put(c);
-                    }
-                    catch (InterruptedException e)
-                    {
-                        e.printStackTrace();
-                    }
+                    connections.put(c);
                 }
-                else
+                catch (InterruptedException e)
                 {
-                    connections.remove(c);
+                    e.printStackTrace();
                 }
+            }
+        });
+
+
+        server.addDisconnectionListener(new DisconnectionListener() {
+            @Override
+            public void disconnected(IClient c)
+            {
+                connections.remove(c);
             }
         });
     }

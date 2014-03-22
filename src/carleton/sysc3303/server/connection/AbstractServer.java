@@ -13,7 +13,31 @@ public abstract class AbstractServer implements IServer
     protected static Logger logger = Logger.getLogger("carleton.sysc3303.server.connection.AbstractServer");
     protected Map<Pair<InetAddress, Integer>, IClient> clients;
     protected List<ConnectionListener> connectionListeners;
+    protected List<DisconnectionListener> disconnectionListeners;
     protected List<MessageListener> messageListeners;
+
+
+    /**
+     * Constructor.
+     */
+    protected AbstractServer()
+    {
+        initializeListenerLists();
+    }
+
+
+    /**
+     * Initializes the data structures for storing listeners.
+     * Override this if you want to use a different implementation.
+     */
+    protected void initializeListenerLists()
+    {
+        connectionListeners = new LinkedList<ConnectionListener>();
+        disconnectionListeners = new LinkedList<DisconnectionListener>();
+        messageListeners = new LinkedList<MessageListener>();
+        clients = new HashMap<Pair<InetAddress, Integer>, IClient>();
+    }
+
 
     @Override
     public void queueMessage(IMessage m)
@@ -33,6 +57,13 @@ public abstract class AbstractServer implements IServer
 
 
     @Override
+    public void addDisconnectionListener(DisconnectionListener cl)
+    {
+        disconnectionListeners.add(cl);
+    }
+
+
+    @Override
     public void addMessageListener(MessageListener ml)
     {
         messageListeners.add(ml);
@@ -43,14 +74,26 @@ public abstract class AbstractServer implements IServer
      * Emits the new connection event.
      *
      * @param c
-     * @param connected
-     * @param isSpectator
+     * @param args	String args from the client, if any
      */
-    protected void invokeConnectionListeners(IClient c, boolean connected, String args)
+    protected void invokeConnectionListeners(IClient c, String args)
     {
         for(ConnectionListener cl: connectionListeners)
         {
-            cl.connectionChanged(c, connected, args);
+            cl.connected(c, args);
+        }
+    }
+
+
+    /**
+     * Emits the new disconnection event.
+     *
+     */
+    protected void invokeDisconnectionListeners(IClient c)
+    {
+        for(DisconnectionListener cl: disconnectionListeners)
+        {
+            cl.disconnected(c);
         }
     }
 
@@ -164,7 +207,7 @@ public abstract class AbstractServer implements IServer
     {
         Pair<InetAddress, Integer> tmp = new Pair<InetAddress, Integer>(cl.getAddress(), cl.getPort());
         clients.remove(tmp);
-        invokeConnectionListeners(cl, false, null); // FIXME
+        invokeDisconnectionListeners(cl);
         logger.log(Level.INFO, "Client disconnected.");
     }
 

@@ -95,34 +95,36 @@ public class GameBoard
 
         server.addConnectionListener(new ConnectionListener() {
             @Override
-            public void connectionChanged(IClient c, boolean connected, String args)
+            public void connected(IClient c, String args)
             { synchronized(that) {
                 if(currentState == StateMessage.State.END)
                 {
+                    server.queueMessage(new MetaMessage(Type.REJECT, "Game is over"), c);
                     return;
                 }
 
-                if(connected)
-                {
-                    String[] split = args.split(",");
+                String[] split = args.split(",");
 
-                    if(split[0].equals("0"))
-                    {
-                        newSpectator(c);
-                    }
-                    else if(split.length == 2)
-                    {
-                        addPlayer(c, split[1].equals("m"));
-                    }
-                    else
-                    {
-                        logger.log(Level.WARNING, "Invalid connection message: " + args);
-                    }
+                if(split[0].equals("0"))
+                {
+                    newSpectator(c);
+                }
+                else if(split.length == 2)
+                {
+                    addPlayer(c, split[1].equals("m"));
                 }
                 else
                 {
-                    removePlayer(c);
+                    logger.log(Level.WARNING, "Invalid connection message: " + args);
                 }
+            }}
+        });
+
+        server.addDisconnectionListener(new DisconnectionListener() {
+            @Override
+            public void disconnected(IClient c)
+            { synchronized(that) {
+                removePlayer(c);
             }}
         });
 

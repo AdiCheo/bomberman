@@ -36,6 +36,14 @@ public interface IServer extends Runnable
 
 
     /**
+     * Adds a new listener that listens for disconnections.
+     *
+     * @param cl
+     */
+    public void addDisconnectionListener(DisconnectionListener cl);
+
+
+    /**
      * Removes a client from the current list.
      *
      * @param c

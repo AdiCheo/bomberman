@@ -8,8 +8,7 @@ public interface ConnectionListener extends EventListener
      * Listens to new connections.
      *
      * @param c
-     * @param connected
-     * @param isSpectator
+     * @param args
      */
-    public abstract void connectionChanged(IClient c, boolean connected, String args);
+    public abstract void connected(IClient c, String args);
 }

@@ -38,12 +38,11 @@ public class UDPServer extends AbstractServer
      */
     public UDPServer(int port, int bufferSize, int sendFrequency)
     {
+        super();
+
         this.port = port;
         this.bufferSize = bufferSize;
         this.sendFrequency = sendFrequency;
-        this.connectionListeners = new LinkedList<ConnectionListener>();
-        this.messageListeners = new LinkedList<MessageListener>();
-        this.clients = new HashMap<Pair<InetAddress, Integer>, IClient>();
         this.connection_counter = 0;
         this.incoming = new LinkedBlockingQueue<DatagramPacket>();
         this.outgoing = new LinkedBlockingQueue<DatagramPacket>();
@@ -194,6 +193,6 @@ public class UDPServer extends AbstractServer
 
         clients.put(key, c);
         queueMessage(new MetaMessage(Type.ACCEPT, "" + c.getId()), c);
-        invokeConnectionListeners(c, true, args);
+        invokeConnectionListeners(c, args);
     }
 }
