@@ -152,7 +152,7 @@ public class DisplayBoard extends JPanel
         int size = walls.getSize();
 
         Graphics2D g = (Graphics2D)_g;
-        drawSize = size * (int)(0.9 * Math.min(getWidth(), getHeight() / size));
+        drawSize = size * (int)(0.9 * Math.min(getWidth(), getHeight()) / size);
         offsetX = (getWidth() - drawSize)/2;
         offsetY = (getHeight() - drawSize)/2;
         blockSize = drawSize / size;
