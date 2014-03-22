@@ -2,6 +2,7 @@ package carleton.sysc3303.client.connection;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.*;
 
 import carleton.sysc3303.client.connection.ConnectionStatusListener.State;
 import carleton.sysc3303.common.connection.*;
@@ -15,6 +16,8 @@ import carleton.sysc3303.common.connection.MetaMessage.Type;
  */
 public abstract class AbstractConnection implements IConnection
 {
+    protected static Logger logger = Logger.getLogger("carleton.sysc3303.client.connection.AbstractConnection");
+
     protected List<ConnectionStatusListener> connectionListeners;
     protected List<GameStateListener> stateListeners;
     protected List<MessageListener> messageListeners;
@@ -76,7 +79,7 @@ public abstract class AbstractConnection implements IConnection
         try
         {
             messageQueue.put(m);
-            System.out.println("Added message to queue");
+            logger.log(Level.FINER, "Added message to queue");
         } catch (InterruptedException e)
         {
             e.printStackTrace();

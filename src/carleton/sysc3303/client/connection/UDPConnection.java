@@ -2,6 +2,7 @@ package carleton.sysc3303.client.connection;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.logging.*;
 
 import carleton.sysc3303.common.connection.*;
 
@@ -51,7 +52,7 @@ public class UDPConnection extends AbstractConnection
             try
             {
                 socket.receive(receivePacket);
-                System.out.println(new String(receivePacket.getData()));
+                logger.log(Level.FINEST, new String(receivePacket.getData()));
                 parseMessage(receivePacket.getData());
             }
             catch (IOException e)
@@ -66,10 +67,7 @@ public class UDPConnection extends AbstractConnection
     protected void sendMessage(IMessage m)
     {
         byte[] buffer = IMessageFactory.serialize(m);
-
-        System.out.print("Sending data (raw): ");
-        System.out.println(new String(buffer));
-
+        logger.log(Level.FINEST, "Sending data (raw): " + buffer);
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, ip);
 
         try

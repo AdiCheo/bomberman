@@ -2,11 +2,14 @@ package carleton.sysc3303.server.connection;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.*;
 
 import carleton.sysc3303.common.connection.MetaMessage;
 
 public class Pinger implements Runnable
 {
+    protected static Logger logger = Logger.getLogger("carleton.sysc3303.server.connection.Pinger");
+
     private BlockingQueue<IClient> connections, timingOut;
     private IServer server;
     private long wait, timeout;
@@ -107,7 +110,7 @@ public class Pinger implements Runnable
                         }
                         else
                         {
-                            System.out.println("Client should be removed: " + c.getId());
+                            logger.log(Level.INFO, "Client should be removed: " + c.getId());
                             server.removeClient(c);
                         }
                     }

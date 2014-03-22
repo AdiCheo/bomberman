@@ -1,9 +1,9 @@
 package carleton.sysc3303.server;
 
 import java.util.*;
+import java.util.logging.*;
 import java.util.Map.Entry;
 
-import carleton.sysc3303.client.gui.Window.States;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
@@ -15,6 +15,7 @@ import carleton.sysc3303.server.connection.*;
 public class GameBoard
 {
     public static final int MAX_PLAYERS = 32;
+    protected static Logger logger = Logger.getLogger("carleton.sysc3303.server.GameBoard");
 
     protected Config conf;
     protected ServerBoard b;
@@ -115,7 +116,7 @@ public class GameBoard
                     }
                     else
                     {
-                        System.out.println("Invalid connection message: " + args);
+                        logger.log(Level.WARNING, "Invalid connection message: " + args);
                     }
                 }
                 else
@@ -193,7 +194,7 @@ public class GameBoard
         // new player position
         pos = b.getNextPosition();
 
-        System.out.printf("Player %d starts at %s\n", c.getId(), pos);
+        logger.log(Level.INFO, String.format("%s starts at %s", p.getName(), pos));
         setPlayerPosition(c.getId(), pos);
 
         if(currentState == StateMessage.State.STARTED)
@@ -308,7 +309,7 @@ public class GameBoard
 
         if(p.isDead())
         {
-            System.out.printf("Player %d tried to do something, but they are dead.\n", c.getId());
+            logger.log(Level.INFO, String.format("%s tried to do something, but they are dead.", p.getName()));
             return;
         }
 
@@ -339,7 +340,7 @@ public class GameBoard
 
         if(!p.canMove())
         {
-            System.out.printf("Player %d tried to move too early\n", c.getId());
+            logger.log(Level.INFO, String.format("%s tried to move too early", c.getId()));
             return;
         }
         else
@@ -379,7 +380,7 @@ public class GameBoard
                 // player was dumb
                 if(withinExplosionRange(newPosition))
                 {
-                    System.out.printf("Player %d walked into an explosion.\n", c.getId());
+                    logger.log(Level.INFO, String.format("%s walked into an explosion.", p.getName()));
                     killPlayer(c.getId());
                     return;
                 }
@@ -396,23 +397,23 @@ public class GameBoard
                 // reveal the exit if it's hidden
                 if(b.isExitHidden() && b.isExit(x, y))
                 {
-                    System.out.println("Found exit");
+                    logger.log(Level.INFO, "Found exit");
                     b.setExitHidden(false);
                     server.queueMessage(new MapMessage(b.createSendableBoard()));
                 }
                 // end the game if they stepped onto a visible exit
                 else if(!b.isExitHidden() && b.isExit(x, y))
                 {
-                    System.out.println("Game over");
+                    logger.log(Level.INFO, "Game over");
                     currentState = StateMessage.State.END;
                     server.queueMessage(new StateMessage(currentState));
                 }
             }
             else
             {
-                System.out.printf(
-                        "Player %d tried to move from %s to (%d,%d), but failed\n",
-                        c.getId(), pos, x, y);
+                logger.log(Level.INFO, String.format(
+                        "%s tried to move from %s to (%d,%d), but failed\n",
+                        p.getName(), pos, x, y));
             }
         }
         else
@@ -429,14 +430,13 @@ public class GameBoard
 
                     if(target instanceof Monster)
                     {
-                        System.out.println("A monster tried to step on another monster.");
+                        logger.log(Level.INFO, "A monster tried to step on another monster.");
                         return;
                     }
                     else
                     {
-                        System.out.printf("Player %d got killed by a monster.\n", target_id);
+                        logger.log(Level.INFO, String.format("%s got killed by a monster.", target.getName()));
                         killPlayer(target_id);
-                        System.out.printf("Player %d should be dead.\n", target_id);
                     }
                 }
                 catch(RuntimeException e){}
@@ -446,9 +446,9 @@ public class GameBoard
             }
             else
             {
-                System.out.printf(
-                        "Monster %d tried to move from %s to (%d,%d), but failed\n",
-                        c.getId(),pos, x, y);
+                logger.log(Level.INFO, String.format(
+                        "Monster %d tried to move from %s to (%d,%d), but failed",
+                        c.getId(),pos, x, y));
             }
 
         }
@@ -467,11 +467,13 @@ public class GameBoard
 
         if(!p.decrementRemainingBombs())
         {
-            System.out.printf("Player %d tried to place a bomb, but they can't\n", p.getId());
+            logger.log(Level.INFO, String.format(
+                    "%s tried to place a bomb, but they can't", p.getName()));
             return;
         }
 
-        System.out.printf("Player %d placed a bomb as %s\n", p.getId(), pos);
+        logger.log(Level.INFO, String.format(
+                "%s placed a bomb at %s", p.getName(), pos));
 
         final Object that = this;
         Bomb b = new Bomb(c.getId(), conf.bombTimer);
@@ -559,7 +561,16 @@ public class GameBoard
             player.incrementRemainingBombs();
         }
 
-        System.out.printf("Player %d's bomb exploded at %s\n", owner, p);
+        if(player == null)
+        {
+            logger.log(Level.INFO, String.format(
+                    "Disconnected player's bomb exploded at %s", p));
+        }
+        else
+        {
+            logger.log(Level.INFO, String.format(
+                    "%s's bomb exploded at %s", player.getName(), p));
+        }
 
         explodingBombs.put(bomb, p);
 
@@ -628,7 +639,8 @@ public class GameBoard
         {
             int id = b.playerAt(x, y);
             killPlayer(id);
-            System.out.printf("Player %d should be dead.\n", id);
+            // FIXME
+            logger.log(Level.INFO, String.format("Player #%d killed by bomb", id));
         }
         // no player at the given tile
         catch(RuntimeException e) {}

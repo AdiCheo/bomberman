@@ -293,8 +293,6 @@ public class ServerBoard extends Board
         int randomY;
         Random randomGenerator = new Random();
 
-        System.out.println("Getting new player pos");
-
         // Find available start location
         do
         {

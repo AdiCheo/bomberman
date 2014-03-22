@@ -2,6 +2,7 @@ package carleton.sysc3303.testing.server;
 
 import java.net.InetAddress;
 import java.util.*;
+import java.util.logging.*;
 
 import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MetaMessage.Type;
@@ -73,7 +74,7 @@ public class TestServer extends AbstractServer
      */
     public void receiveMessage(InetAddress address, int port, byte[] data)
     {
-        System.out.println("Received message from client.");
+        logger.log(Level.FINE, "Received message from client: " + data);
         parseMessage(address, port, data);
     }
 

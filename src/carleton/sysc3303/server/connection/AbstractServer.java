@@ -2,11 +2,15 @@ package carleton.sysc3303.server.connection;
 
 import java.net.InetAddress;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import carleton.sysc3303.common.connection.*;
 
 
 public abstract class AbstractServer implements IServer
 {
+    protected static Logger logger = Logger.getLogger("carleton.sysc3303.server.connection.AbstractServer");
     protected Map<Pair<InetAddress, Integer>, IClient> clients;
     protected List<ConnectionListener> connectionListeners;
     protected List<MessageListener> messageListeners;
@@ -90,12 +94,12 @@ public abstract class AbstractServer implements IServer
         try
         {
             cl = getClient(a, port);
-            //System.out.println("Message from known client: " + cl.getId());
+            //logger.log(Level.INFO, "Message from known client: " + cl.getId());
             cl.setLastActive(new Date());
         }
         catch(Exception e)
         {
-            System.out.println("Message from new client");
+            logger.log(Level.FINE, "Message from new client.");
         }
 
 
@@ -135,7 +139,8 @@ public abstract class AbstractServer implements IServer
             removeClient(cl);
             break;
         default:
-            System.out.println("Client " + cl.getId() + " sent: " + m.getStatus());
+            logger.log(Level.WARNING, String.format(
+                    "Client %d sent: %s", cl.getId(), m.getStatus()));
         }
     }
 
@@ -160,7 +165,7 @@ public abstract class AbstractServer implements IServer
         Pair<InetAddress, Integer> tmp = new Pair<InetAddress, Integer>(cl.getAddress(), cl.getPort());
         clients.remove(tmp);
         invokeConnectionListeners(cl, false, null); // FIXME
-        System.out.println("Client disconnected");
+        logger.log(Level.INFO, "Client disconnected.");
     }
 
 

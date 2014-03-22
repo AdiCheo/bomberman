@@ -1,6 +1,7 @@
 package carleton.sysc3303.server;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.*;
 
 import carleton.sysc3303.server.connection.*;
 
@@ -27,6 +28,6 @@ public class Run
         new GameBoard(s, b, Config.defaultConfig());
         new Thread(s).start(); // background the server
 
-        System.out.println("Started");
+        Logger.getLogger("carleton.sysc3303.server.Run").log(Level.INFO, "Started");
     }
 }
