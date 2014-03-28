@@ -21,7 +21,7 @@ public class Config
 
         c.defaultMoveTime = 300;
         c.defaultMoveTime = 200;
-        c.defaultExplosionSize = 1;
+        c.defaultExplosionSize = 2;
         c.bombTimer = 2000;
         c.explosionDuration = 1000;
 
