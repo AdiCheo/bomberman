@@ -11,6 +11,7 @@ public class UDPConnection extends AbstractConnection
     private InetAddress address;
     private int ip;
     DatagramSocket socket;
+    int receivedPackets = 0, sentPackets = 0;
 
 
     /**
@@ -52,6 +53,7 @@ public class UDPConnection extends AbstractConnection
             try
             {
                 socket.receive(receivePacket);
+                receivedPackets++;
                 logger.log(Level.FINEST, new String(receivePacket.getData()));
                 parseMessage(receivePacket.getData());
             }
@@ -73,10 +75,33 @@ public class UDPConnection extends AbstractConnection
         try
         {
             socket.send(packet);
+            sentPackets++;
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
+    }
+
+
+    /**
+     * Gets number of packets that have been sent.
+     *
+     * @return
+     */
+    public int getSentPackets()
+    {
+        return sentPackets;
+    }
+
+
+    /**
+     * Gets number of packets that have been received.
+     *
+     * @return
+     */
+    public int getReceivedPackets()
+    {
+        return receivedPackets;
     }
 }

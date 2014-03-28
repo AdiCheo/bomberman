@@ -18,6 +18,8 @@ public class UDPServer extends AbstractServer
     private BlockingQueue<DatagramPacket> outgoing;
     private BlockingQueue<DatagramPacket> incoming;
 
+    protected int packetsSent, packetsReceived;
+
 
     /**
      * Constructor.
@@ -46,6 +48,9 @@ public class UDPServer extends AbstractServer
         this.connection_counter = 0;
         this.incoming = new LinkedBlockingQueue<DatagramPacket>();
         this.outgoing = new LinkedBlockingQueue<DatagramPacket>();
+
+        this.packetsSent = 0;
+        this.packetsReceived = 0;
 
         new Thread(new Pinger(this, 30000, 5000)).start();
     }
@@ -106,6 +111,7 @@ public class UDPServer extends AbstractServer
                         for(DatagramPacket p: tmp)
                         {
                             serverSocket.send(p);
+                            packetsSent++;
                         }
 
                         Thread.sleep(sendFrequency);
@@ -138,6 +144,7 @@ public class UDPServer extends AbstractServer
             try
             {
                 incoming.put(receivePacket);
+                packetsReceived++;
             }
             catch (InterruptedException e)
             {
@@ -170,6 +177,45 @@ public class UDPServer extends AbstractServer
     public synchronized void exit()
     {
         run = false;
+    }
+
+
+    /**
+     * Gets the number of packets that were queued and
+     * sent to the clients.
+     *
+     * @return
+     */
+    public int getPacketsSent()
+    {
+        return packetsSent;
+    }
+
+
+    /**
+     * Gets the number of packets that were successfully recevied
+     * and queued by the system.
+     *
+     * @return
+     */
+    public int getPacketsReceived()
+    {
+        return packetsReceived;
+    }
+
+
+    /**
+     * Waits until all packets have been sent.
+     *
+     * @throws InterruptedException
+     */
+    public void waitForEmptyBuffer() throws InterruptedException
+    {
+        // polling isn't great, but it works
+        while(!outgoing.isEmpty())
+        {
+            Thread.sleep(25);
+        }
     }
 
 

@@ -1,5 +1,7 @@
 package carleton.sysc3303.common.connection;
 
+import carleton.sysc3303.common.PlayerTypes;
+
 
 /**
  * Meta communication between client and server.
@@ -57,6 +59,30 @@ public class MetaMessage implements IMessage
     public static MetaMessage connectSpectator()
     {
         return new MetaMessage(Type.CONNECT, "0");
+    }
+
+
+    /**
+     * Creates a message that indicates you want to connect
+     * as a regular player.
+     *
+     * @param type
+     * @return
+     */
+    public static MetaMessage connectPlayer(PlayerTypes type)
+    {
+        String clientType;
+
+        if(type == PlayerTypes.PLAYER)
+        {
+            clientType = "p";
+        }
+        else
+        {
+            clientType = "m";
+        }
+
+        return new MetaMessage(Type.CONNECT, "1," + clientType);
     }
 
 

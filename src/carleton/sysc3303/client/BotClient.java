@@ -6,7 +6,6 @@ import java.util.*;
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
-import carleton.sysc3303.common.connection.MetaMessage.Type;
 import carleton.sysc3303.common.connection.MoveMessage.Direction;
 
 
@@ -76,17 +75,6 @@ public class BotClient
      */
     private void init()
     {
-        String clientType;
-
-        if(t == PlayerTypes.PLAYER)
-        {
-            clientType = "p";
-        }
-        else
-        {
-            clientType = "m";
-        }
-
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run()
@@ -130,7 +118,7 @@ public class BotClient
             }
         });
 
-        c.queueMessage(new MetaMessage(Type.CONNECT, "1," + clientType));
+        initConnection();
     }
 
 
@@ -188,6 +176,37 @@ public class BotClient
     {
         this.run = run;
         notifyAll();
+    }
+
+
+    /**
+     * Sends a message to server requesting to join.
+     */
+    private void initConnection()
+    {
+        c.queueMessage(MetaMessage.connectPlayer(t));
+
+        new Thread() {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                    return;
+                }
+
+                if(!isConnected)
+                {
+                    System.out.println("Timed out, trying again.");
+                    initConnection();
+                }
+            }
+        }.start();
     }
 
 
