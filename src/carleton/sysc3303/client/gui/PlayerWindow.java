@@ -1,14 +1,12 @@
 package carleton.sysc3303.client.gui;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
-import carleton.sysc3303.common.connection.MoveMessage;
-import carleton.sysc3303.common.connection.BombPlacedMessage;
 import carleton.sysc3303.common.connection.MoveMessage.Direction;
 
 
@@ -18,6 +16,7 @@ import carleton.sysc3303.common.connection.MoveMessage.Direction;
 public class PlayerWindow extends Window implements KeyListener
 {
     private static final long serialVersionUID = 2809394224013498599L;
+    private KeyPanel keys;
 
 
     /**
@@ -38,6 +37,21 @@ public class PlayerWindow extends Window implements KeyListener
     protected void init()
     {
         super.init();
+
+        setSize(400, 550);
+        setMinimumSize(getSize());
+
+        try
+        {
+            keys = new KeyPanel();
+        }
+        catch (IOException e)
+        {
+            logger.severe(e.getMessage());
+            return;
+        }
+
+        ui.add(keys, BorderLayout.SOUTH);
     }
 
 
@@ -47,6 +61,7 @@ public class PlayerWindow extends Window implements KeyListener
     protected void hookEvents()
     {
         super.hookEvents();
+        addKeyListener(keys);
         addKeyListener(this);
     }
 
@@ -68,7 +83,7 @@ public class PlayerWindow extends Window implements KeyListener
     {
         IMessage m;
 
-        logger.info("User pressed: " + e.getKeyCode());
+        logger.info("User pressed: " + KeyEvent.getKeyText(e.getKeyCode()));
 
         switch(e.getKeyCode())
         {

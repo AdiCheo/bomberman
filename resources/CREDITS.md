@@ -17,3 +17,8 @@ img/
 ##### hole.png
  * http://opengameart.org/content/lpc-terrain-repack
  * CC-BY-SA 3.0 / GPL 3
+
+
+##### keys.svg and related bitmaps
+ * http://opengameart.org/content/keyboard-keys
+ * CC-BY 3.0

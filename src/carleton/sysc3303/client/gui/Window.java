@@ -132,7 +132,7 @@ public class Window extends JFrame implements MessageListener,
 
 
     @Override
-    public void newMessage(IMessage m)
+    public synchronized void newMessage(IMessage m)
     {
         if(m instanceof MapMessage)
         {
