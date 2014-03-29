@@ -315,11 +315,11 @@ public class GameBoard
             return;
         }
 
-        if(m instanceof MoveMessage)
+        if(m instanceof MoveMessage && currentState == State.STARTED)
         {
             handleMove(c, (MoveMessage)m);
         }
-        else if(m instanceof BombPlacedMessage)
+        else if(m instanceof BombPlacedMessage && currentState == State.STARTED)
         {
             handleBomb(c);
         }

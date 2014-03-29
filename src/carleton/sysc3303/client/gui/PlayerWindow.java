@@ -99,8 +99,11 @@ public class PlayerWindow extends Window implements KeyListener
         case KeyEvent.VK_RIGHT:
             m = new MoveMessage(Direction.RIGHT);
             break;
-        case KeyEvent.VK_B:
+        case KeyEvent.VK_SPACE:
             m = new BombPlacedMessage();
+            break;
+        case KeyEvent.VK_ENTER:
+            m = new StateMessage(StateMessage.State.STARTED);
             break;
         default:
             return;
