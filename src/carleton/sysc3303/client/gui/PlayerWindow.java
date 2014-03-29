@@ -1,12 +1,8 @@
 package carleton.sysc3303.client.gui;
 
-import javax.swing.*;
-
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.util.*;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
@@ -14,29 +10,14 @@ import carleton.sysc3303.common.connection.*;
 import carleton.sysc3303.common.connection.MoveMessage;
 import carleton.sysc3303.common.connection.BombPlacedMessage;
 import carleton.sysc3303.common.connection.MoveMessage.Direction;
-/**
- * The primary display window.
- *
- * @author Kirill Stepanov
- */
-public class PlayerWindow extends JFrame implements MessageListener,
-                                              ConnectionStatusListener,
-                                              GameStateListener,
-                                              KeyListener
-{
-    public enum States { LOADING, GAME, DONE };
 
-    private static final long serialVersionUID = 7088369983891361413L;
-    private GameView ui;
-    private DisplayBoard board;
-    private CardLayout layout;
-    private JPanel loadingPanel;
-    private JLabel loadingLabel;
-    private Set<Position> powerups;
-    private IConnection c;
-    private Set<Player> players;
-    private Map<Position, Integer> bombs;
-    private String clientType;
+
+/**
+ * Windows through which players can play.
+ */
+public class PlayerWindow extends Window implements KeyListener
+{
+    private static final long serialVersionUID = 2809394224013498599L;
 
 
     /**
@@ -46,257 +27,71 @@ public class PlayerWindow extends JFrame implements MessageListener,
      *
      * @throws IOException
      */
-    public PlayerWindow(IConnection c, String clientType) throws IOException
+    public PlayerWindow(IConnection c) throws IOException
     {
-        this.c = c;
-        this.clientType = clientType;
-
-        bombs = new HashMap<Position, Integer>();
-        powerups = new HashSet<Position>();
-        players = new HashSet<Player>();
-
-        board = new DisplayBoard();
-        ui = new GameView(board);
-
-        init();
-        hookEvents();
+        super(c);
     }
 
 
-    /**
-     * Initialize the GUI.
-     */
-    private void init()
+
+    @Override
+    protected void init()
     {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 400);
-        setMinimumSize(getSize());
-        setTitle("Bomberman");
-
-        layout = new CardLayout();
-        setLayout(layout);
-
-        loadingPanel = new JPanel();
-        loadingLabel = new JLabel("Loading");
-        loadingPanel.add(loadingLabel);
-
-        JPanel done_panel = new JPanel();
-        done_panel.add(new JLabel("Game over"));
-
-        add(loadingPanel, States.LOADING.toString());
-        add(ui, States.GAME.toString());
-        add(done_panel, States.DONE.toString());
-        setDisplay(States.LOADING);
-
-        board.setBombs(bombs);
-        board.setPowerups(powerups);
-        board.setPlayers(players);
-
-        this.addKeyListener(this);
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run()
-            {
-                c.exit();
-            }
-        });
+        super.init();
     }
 
 
     /**
      * Hook into the connection events.
      */
-    private void hookEvents()
+    protected void hookEvents()
     {
-        c.addConnectionStatusListener(this);
-        c.addMessageListener(this);
-        c.addGameStateListener(this);
-
-        if(clientType == "SPECTATOR")
-            c.queueMessage(MetaMessage.connectSpectator());
-    }
-
-
-    /**
-     * Switch the currently displayed card.
-     *
-     * @param state
-     */
-    public void setDisplay(States state)
-    {
-        layout.show(getContentPane(), state.toString());
+        super.hookEvents();
+        addKeyListener(this);
     }
 
 
     @Override
-    public void newMessage(IMessage m)
+    protected void connect()
     {
-        if(m instanceof MapMessage)
-        {
-            handleMap((MapMessage)m);
-        }
-        else if(m instanceof PlayerMessage)
-        {
-            handlePosition((PlayerMessage)m);
-        }
-        else if(m instanceof BombMessage)
-        {
-            handleBomb((BombMessage)m);
-        }
-        else if(m instanceof PowerupMessage)
-        {
-            handlePowerup((PowerupMessage)m);
-        }
-    }
-
-
-    @Override
-    public void statusChanged(State s)
-    {
-        // TODO Auto-generated method stub
+        c.queueMessage(MetaMessage.connectPlayer(PlayerTypes.PLAYER));
     }
 
 
     /**
-     * Handles a map change.
+     * Key pressed event handler.
      *
-     * @param m
-     */
-    private void handleMap(MapMessage m)
-    {
-        Board b = m.getBoard();
-        ui.setMap(b);
-        board.setWalls(b);
-        ui.repaint();
-    }
-
-
-    /**
-     * Handles a position message.
-     *
-     * @param m
-     */
-    private void handlePosition(PlayerMessage m)
-    {
-        Player p = getPlayer(m);
-        players.remove(p);
-
-        if(m.getX() >= 0 && m.getY() > 0)
-        {
-            players.add(p);
-        }
-
-        // force ui update
-        ui.repaint();
-    }
-
-
-    /**
-     * Handles messages related to bombs.
-     *
-     * @param m
-     */
-    private void handleBomb(BombMessage m)
-    {
-        if(m.getSize() < 0)
-        {
-            bombs.remove(m.getPosition());
-        }
-        else
-        {
-            bombs.put(m.getPosition(), m.getSize());
-        }
-
-        ui.repaint();
-    }
-
-
-    /**
-     * Handles powerups.
-     *
-     * @param m
-     */
-    private void handlePowerup(PowerupMessage m)
-    {
-        switch(m.getAction())
-        {
-        case ADD:
-            powerups.add(m.getPosition());
-            break;
-        case REMOVE:
-            powerups.remove(m.getPosition());
-        }
-
-        ui.repaint();
-    }
-
-
-    @Override
-    public void stateChanged(StateMessage.State state)
-    {
-        switch(state)
-        {
-        case END:
-            setDisplay(States.DONE);
-            break;
-        case STARTED:
-            setDisplay(States.GAME);
-            break;
-        case NOTSTARTED:
-            loadingLabel.setText("Connected. Game as not started yet.");
-        }
-    }
-
-
-    /**
-     * Extracts a player object from a PlayerMessage.
-     *
-     * @param m
-     * @return
-     */
-    private Player getPlayer(PlayerMessage m)
-    {
-        return new Player(m.getPid(), m.getX(), m.getY(), m.getType() == PlayerTypes.MONSTER, m.getName());
-    }
-
-
-    /**
-     * Key pressed event handler
-     * Change so the
+     * @param e
      */
     @Override
     public void keyPressed(KeyEvent e)
     {
         IMessage m;
 
-        if(e.getKeyCode() == KeyEvent.VK_UP)
+        logger.info("User pressed: " + e.getKeyCode());
+
+        switch(e.getKeyCode())
         {
-            m = new MoveMessage(Direction.valueOf("UP"));
-            c.queueMessage(m);
-        }
-        if(e.getKeyCode() == KeyEvent.VK_DOWN)
-        {
-            m = new MoveMessage(Direction.valueOf("DOWN"));
-            c.queueMessage(m);
-        }
-        if(e.getKeyCode() == KeyEvent.VK_LEFT)
-        {
-            m = new MoveMessage(Direction.valueOf("LEFT"));
-            c.queueMessage(m);
-        }
-        if(e.getKeyCode() == KeyEvent.VK_RIGHT)
-        {
-            m = new MoveMessage(Direction.valueOf("RIGHT"));
-            c.queueMessage(m);
-        }
-        if(e.getKeyCode() == KeyEvent.VK_B)
-        {
-            System.out.println("B WAS PRESSED");
+        case KeyEvent.VK_UP:
+            m = new MoveMessage(Direction.UP);
+            break;
+        case KeyEvent.VK_DOWN:
+            m = new MoveMessage(Direction.DOWN);
+            break;
+        case KeyEvent.VK_LEFT:
+            m = new MoveMessage(Direction.LEFT);
+            break;
+        case KeyEvent.VK_RIGHT:
+            m = new MoveMessage(Direction.RIGHT);
+            break;
+        case KeyEvent.VK_B:
             m = new BombPlacedMessage();
-            c.queueMessage(m);
+            break;
+        default:
+            return;
         }
 
+        c.queueMessage(m);
     }
 
 

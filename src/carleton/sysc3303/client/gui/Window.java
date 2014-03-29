@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
@@ -22,15 +23,18 @@ public class Window extends JFrame implements MessageListener,
     public enum States { LOADING, GAME, DONE };
 
     private static final long serialVersionUID = 7088369983891361413L;
-    private GameView ui;
-    private DisplayBoard board;
-    private CardLayout layout;
-    private JPanel loadingPanel;
-    private JLabel loadingLabel;
-    private Set<Position> powerups;
-    private IConnection c;
-    private Set<Player> players;
-    private Map<Position, Integer> bombs;
+
+    protected static Logger logger = Logger.getLogger("carleton.sysc3303.client.gui.Window");
+
+    protected GameView ui;
+    protected DisplayBoard board;
+    protected CardLayout layout;
+    protected JPanel loadingPanel;
+    protected JLabel loadingLabel;
+    protected Set<Position> powerups;
+    protected IConnection c;
+    protected Set<Player> players;
+    protected Map<Position, Integer> bombs;
 
 
     /**
@@ -60,7 +64,7 @@ public class Window extends JFrame implements MessageListener,
     /**
      * Initialize the GUI.
      */
-    private void init()
+    protected void init()
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(400, 400);
@@ -99,7 +103,7 @@ public class Window extends JFrame implements MessageListener,
     /**
      * Hook into the connection events.
      */
-    private void hookEvents()
+    protected void hookEvents()
     {
         c.addConnectionStatusListener(this);
         c.addMessageListener(this);

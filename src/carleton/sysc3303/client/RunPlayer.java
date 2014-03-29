@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.*;
 
 import carleton.sysc3303.client.connection.*;
+import carleton.sysc3303.client.gui.PlayerWindow;
 import carleton.sysc3303.client.gui.Window;
 
 public class RunPlayer
@@ -21,12 +22,11 @@ public class RunPlayer
         IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
         Window w;
 
-        PlayerClient p = new PlayerClient(c,300);
-        //w = new Window(c,"PLAYER");
+        //PlayerClient p = new PlayerClient(c, 300);
+        w = new PlayerWindow(c);
 
         new Thread(c).start();
 
-
-        //w.setVisible(true);
+        w.setVisible(true);
     }
 }
