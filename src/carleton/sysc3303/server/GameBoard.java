@@ -670,7 +670,7 @@ public class GameBoard
         {
             if(b.isExit(x, y))
             {
-                b.setTile(x, y, Tile.EMPTY);
+                b.setTile(x, y, Tile.EXIT);
                 b.setExitHidden(false);
             }
             else
@@ -678,7 +678,6 @@ public class GameBoard
                 b.setTile(x, y, Tile.EMPTY);
             }
         }
-
 
         try
         {
