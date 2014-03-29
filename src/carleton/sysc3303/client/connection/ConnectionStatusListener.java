@@ -12,5 +12,5 @@ public interface ConnectionStatusListener extends EventListener
      *
      * @param s
      */
-    public abstract void statusChanged(State s);
+    public void statusChanged(State s);
 }

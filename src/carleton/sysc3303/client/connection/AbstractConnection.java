@@ -21,6 +21,7 @@ public abstract class AbstractConnection implements IConnection
     protected List<ConnectionStatusListener> connectionListeners;
     protected List<GameStateListener> stateListeners;
     protected List<MessageListener> messageListeners;
+    protected List<UserMessageListener> userMessageListeners;
 
     protected BlockingQueue<IMessage> messageQueue;
     protected Object messageQueueNotifier;
@@ -49,6 +50,7 @@ public abstract class AbstractConnection implements IConnection
         connectionListeners = new LinkedList<ConnectionStatusListener>();
         stateListeners = new LinkedList<GameStateListener>();
         messageListeners = new LinkedList<MessageListener>();
+        userMessageListeners = new LinkedList<UserMessageListener>();
     }
 
 
@@ -70,6 +72,13 @@ public abstract class AbstractConnection implements IConnection
     public void addMessageListener(MessageListener e)
     {
         messageListeners.add(e);
+    }
+
+
+    @Override
+    public void addUserMessageListener(UserMessageListener e)
+    {
+        userMessageListeners.add(e);
     }
 
 
@@ -188,6 +197,9 @@ public abstract class AbstractConnection implements IConnection
             case PING:
                 queueMessage(new MetaMessage(Type.PONG, ""));
                 break;
+            case USER_NOTICE:
+                this.invokeUserMessageListeners(mm.getMessage());
+                break;
             default:
                 // TODO: add more
             }
@@ -248,6 +260,20 @@ public abstract class AbstractConnection implements IConnection
         for(MessageListener e: messageListeners)
         {
             e.newMessage(m);
+        }
+    }
+
+
+    /**
+     * Invoke all listeners bound to this event.
+     *
+     * @param s
+     */
+    protected void invokeUserMessageListeners(String s)
+    {
+        for(UserMessageListener e: userMessageListeners)
+        {
+            e.newMessage(s);
         }
     }
 }

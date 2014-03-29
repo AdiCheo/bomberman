@@ -191,7 +191,7 @@ public class GameBoard
             // new player position
             Position pos = b.getNextPosition();
 
-            logger.log(Level.INFO, String.format("%s starts at %s", p.getName(), pos));
+            logger.info(String.format("%s starts at %s", p.getName(), pos));
             setPlayerPosition(c.getId(), pos);
 
             // send player the initial state
@@ -400,6 +400,9 @@ public class GameBoard
                 else if(!b.isExitHidden() && b.isExit(x, y))
                 {
                     endGame();
+                    server.queueMessage(new MetaMessage(
+                            Type.USER_NOTICE,
+                            p.getName() + " won the game."));
                 }
             }
             else
@@ -516,6 +519,7 @@ public class GameBoard
         for(Player p: players.values())
         {
             setPlayerPosition(p.getId(), b.getNextPosition());
+            p.setDead(false);
         }
 
         generatePowerups();
@@ -726,6 +730,17 @@ public class GameBoard
         p.setDead(true);
         playerPositions.put(id, new Position(-1,-1));
         server.queueMessage(new PlayerMessage(id, -1, -1, p.getType(), p.getName()));
+
+        for(Player player: players.values())
+        {
+            if(!player.isDead() && player.getType() != PlayerTypes.MONSTER)
+            {
+                return;
+            }
+        }
+
+        endGame();
+        server.queueMessage(new MetaMessage(Type.USER_NOTICE, "All players died."));
     }
 
 

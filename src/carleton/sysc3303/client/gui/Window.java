@@ -18,7 +18,8 @@ import carleton.sysc3303.common.connection.*;
  */
 public class Window extends JFrame implements MessageListener,
                                               ConnectionStatusListener,
-                                              GameStateListener
+                                              GameStateListener,
+                                              UserMessageListener
 {
     public enum States { LOADING, GAME, DONE };
 
@@ -29,6 +30,8 @@ public class Window extends JFrame implements MessageListener,
     protected GameView ui;
     protected DisplayBoard board;
     protected CardLayout layout;
+    protected StatusBar statusbar;
+    protected JPanel center;
     protected JPanel loadingPanel;
     protected JLabel loadingLabel;
     protected Set<Position> powerups;
@@ -67,12 +70,20 @@ public class Window extends JFrame implements MessageListener,
     protected void init()
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 400);
+        setSize(400, 420);
         setMinimumSize(getSize());
         setTitle("Bomberman");
 
+        setLayout(new BorderLayout());
+
+        center = new JPanel();
+        add(center, BorderLayout.CENTER);
+
+        statusbar = new StatusBar();
+        add(statusbar, BorderLayout.SOUTH);
+
         layout = new CardLayout();
-        setLayout(layout);
+        center.setLayout(layout);
 
         loadingPanel = new JPanel();
         loadingLabel = new JLabel("Loading");
@@ -81,9 +92,9 @@ public class Window extends JFrame implements MessageListener,
         JPanel done_panel = new JPanel();
         done_panel.add(new JLabel("Game over"));
 
-        add(loadingPanel, States.LOADING.toString());
-        add(ui, States.GAME.toString());
-        add(done_panel, States.DONE.toString());
+        center.add(loadingPanel, States.LOADING.toString());
+        center.add(ui, States.GAME.toString());
+        center.add(done_panel, States.DONE.toString());
         setDisplay(States.LOADING);
 
         board.setBombs(bombs);
@@ -108,6 +119,7 @@ public class Window extends JFrame implements MessageListener,
         c.addConnectionStatusListener(this);
         c.addMessageListener(this);
         c.addGameStateListener(this);
+        c.addUserMessageListener(this);
     }
 
 
@@ -127,7 +139,7 @@ public class Window extends JFrame implements MessageListener,
      */
     public void setDisplay(States state)
     {
-        layout.show(getContentPane(), state.toString());
+        layout.show(center, state.toString());
     }
 
 
@@ -261,5 +273,65 @@ public class Window extends JFrame implements MessageListener,
     private Player getPlayer(PlayerMessage m)
     {
         return new Player(m.getPid(), m.getX(), m.getY(), m.getType() == PlayerTypes.MONSTER, m.getName());
+    }
+
+
+    @Override
+    public void newMessage(String s)
+    {
+        statusbar.setText(s);
+    }
+
+
+    @SuppressWarnings("serial")
+    private class StatusBar extends JPanel
+    {
+        private JLabel text;
+
+        public StatusBar()
+        {
+            super();
+
+            text = new JLabel(" ");
+            text.setHorizontalAlignment(SwingConstants.LEFT);
+            Font f = new Font("Arial", 0, 12);
+            text.setFont(f);
+
+            setMinimumSize(new Dimension(100, 20));
+            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
+            add(text);
+        }
+
+
+        public synchronized void setText(final String s)
+        {
+            text.setText(s);
+
+            final Object that = this;
+
+            new Thread() {
+                @Override
+                public void run()
+                {
+                    try
+                    {
+                        Thread.sleep(5000);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        return;
+                    }
+
+                    synchronized(that)
+                    {
+                        if(text.getText().equals(s))
+                        {
+                            text.setText(" ");
+                        }
+                    }
+                }
+            }.start();
+        }
     }
 }

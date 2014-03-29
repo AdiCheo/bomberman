@@ -26,6 +26,14 @@ public interface IConnection extends Runnable
 
 
     /**
+     * Adds a listener that listens for messages directly to the user.
+     *
+     * @param e
+     */
+    public void addUserMessageListener(UserMessageListener e);
+
+
+    /**
      * Adds a listener that listens for changes in the game state.
      *
      * @param e
