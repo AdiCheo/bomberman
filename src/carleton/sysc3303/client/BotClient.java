@@ -229,7 +229,7 @@ public class BotClient
                     {
                         String line = commands.remove(0);
 
-                        if (line.equals("BOMB"))
+                        if (line.equals("BOMB") && t != PlayerTypes.MONSTER)
                         {
                             c.queueMessage(new BombPlacedMessage());
                         }
