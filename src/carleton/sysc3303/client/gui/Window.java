@@ -184,7 +184,7 @@ public class Window extends JFrame implements MessageListener,
         Player p = getPlayer(m);
         players.remove(p);
 
-        if(m.getX() >= 0 && m.getY() > 0)
+        if(m.getX() >= 0 && m.getY() >= 0)
         {
             players.add(p);
         }

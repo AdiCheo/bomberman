@@ -83,7 +83,7 @@ public class PlayerWindow extends Window implements KeyListener
     {
         IMessage m;
 
-        logger.info("User pressed: " + KeyEvent.getKeyText(e.getKeyCode()));
+        logger.fine("User pressed: " + KeyEvent.getKeyText(e.getKeyCode()));
 
         switch(e.getKeyCode())
         {
