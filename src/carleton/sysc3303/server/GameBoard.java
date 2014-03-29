@@ -18,7 +18,7 @@ public class GameBoard
     protected static Logger logger = Logger.getLogger("carleton.sysc3303.server.GameBoard");
 
     protected Config conf;
-    protected ServerBoard b;
+    protected ServerBoard b, backupBoard;
     protected IServer server;
     protected Map<Integer, Position> playerPositions;
     protected Map<Integer, Player> players;
@@ -63,8 +63,7 @@ public class GameBoard
         this.b.setPlayers(playerPositions);
         this.b.setBombs(bombs);
 
-        this.b.addStartingPosition(new Position(5, 5));
-        this.b.placePowerup(new Position(10, 10));
+        backupBoard = b.clone();
 
         this.playerNames = new TreeSet<String>(new Comparator<String>() {
             @Override
@@ -132,11 +131,6 @@ public class GameBoard
             @Override
             public void newMessage(IClient c, IMessage m)
             { synchronized(that) {
-                if(currentState == StateMessage.State.END)
-                {
-                    return;
-                }
-
                 handleMessage(c, m);
             }}
         });
@@ -168,7 +162,6 @@ public class GameBoard
      */
     private void addPlayer(IClient c, boolean isMonster)
     {
-        Position pos;
         if(currentPlayers == Math.min(MAX_PLAYERS, b.maxSupportedPlayers()) && !isMonster)
         {
             server.queueMessage(new MetaMessage(Type.REJECT, "Server is full"), c);
@@ -193,14 +186,14 @@ public class GameBoard
 
         players.put(p.getId(), p);
 
-        // new player position
-        pos = b.getNextPosition();
-
-        logger.log(Level.INFO, String.format("%s starts at %s", p.getName(), pos));
-        setPlayerPosition(c.getId(), pos);
-
         if(currentState == StateMessage.State.STARTED)
         {
+            // new player position
+            Position pos = b.getNextPosition();
+
+            logger.log(Level.INFO, String.format("%s starts at %s", p.getName(), pos));
+            setPlayerPosition(c.getId(), pos);
+
             // send player the initial state
             sendInitialState(c);
 
@@ -406,9 +399,7 @@ public class GameBoard
                 // end the game if they stepped onto a visible exit
                 else if(!b.isExitHidden() && b.isExit(x, y))
                 {
-                    logger.log(Level.INFO, "Game over");
-                    currentState = StateMessage.State.END;
-                    server.queueMessage(new StateMessage(currentState));
+                    endGame();
                 }
             }
             else
@@ -522,8 +513,60 @@ public class GameBoard
      */
     protected void startGame()
     {
+        for(Player p: players.values())
+        {
+            setPlayerPosition(p.getId(), b.getNextPosition());
+        }
+
+        generatePowerups();
+
         currentState = StateMessage.State.STARTED;
         sendInitialState();
+    }
+
+
+    /**
+     * Called at the end of the game.
+     */
+    protected void endGame()
+    {
+        logger.log(Level.INFO, "Game over");
+        currentState = StateMessage.State.END;
+        server.queueMessage(new StateMessage(currentState));
+
+        final Object that = this;
+
+        new Thread() {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    Thread.sleep(5000);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                    return;
+                }
+
+                synchronized(that)
+                {
+                    b = backupBoard.clone();
+                    b.setPlayers(playerPositions);
+                    b.setBombs(bombs);
+
+                    if(currentPlayers > 0)
+                    {
+                        startGame();
+                    }
+                    else
+                    {
+                        currentState = StateMessage.State.NOTSTARTED;
+                    }
+                }
+            }
+        }.start();
     }
 
 
@@ -684,6 +727,18 @@ public class GameBoard
         p.setDead(true);
         playerPositions.put(id, new Position(-1,-1));
         server.queueMessage(new PlayerMessage(id, -1, -1, p.getType(), p.getName()));
+    }
+
+
+    /**
+     * Generates an apropriate number of powerups for the current board.
+     */
+    private void generatePowerups()
+    {
+        for(int i=0; i<Math.ceil(b.maxSupportedPlayers()/10.0); i++)
+        {
+            b.placePowerup(b.getEmptyPosition());
+        }
     }
 
 

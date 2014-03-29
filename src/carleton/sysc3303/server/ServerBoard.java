@@ -148,6 +148,26 @@ public class ServerBoard extends Board
     }
 
 
+    @Override
+    public ServerBoard clone()
+    {
+        ServerBoard board = new ServerBoard(size);
+
+        for(int i=0; i<size; i++)
+        {
+            for(int j=0; j<size; j++)
+            {
+                board.walls[i][j] = walls[i][j];
+                board.breakableWalls[i][j] = breakableWalls[i][j];
+            }
+        }
+
+        board.exit = exit;
+
+        return board;
+    }
+
+
     /**
      * Gets the number of players that this board supports.
      *

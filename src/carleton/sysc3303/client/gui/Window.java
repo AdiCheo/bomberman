@@ -241,6 +241,7 @@ public class Window extends JFrame implements MessageListener,
         {
         case END:
             setDisplay(States.DONE);
+            powerups.clear();
             break;
         case STARTED:
             setDisplay(States.GAME);
