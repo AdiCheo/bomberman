@@ -17,7 +17,7 @@ public class RunSpectator
     public static void main(String[] args) throws IOException
     {
         IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
-        Window w = new Window(c,"SPECTATOR");
+        Window w = new Window(c);
 
         new Thread(c).start();
 

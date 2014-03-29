@@ -3,17 +3,13 @@ package carleton.sysc3303.client.gui;
 import javax.swing.*;
 
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.*;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
 import carleton.sysc3303.common.connection.*;
-import carleton.sysc3303.common.connection.MoveMessage;
-import carleton.sysc3303.common.connection.BombPlacedMessage;
-import carleton.sysc3303.common.connection.MoveMessage.Direction;
+
 /**
  * The primary display window.
  *
@@ -21,8 +17,7 @@ import carleton.sysc3303.common.connection.MoveMessage.Direction;
  */
 public class Window extends JFrame implements MessageListener,
                                               ConnectionStatusListener,
-                                              GameStateListener,
-                                              KeyListener
+                                              GameStateListener
 {
     public enum States { LOADING, GAME, DONE };
 
@@ -36,7 +31,6 @@ public class Window extends JFrame implements MessageListener,
     private IConnection c;
     private Set<Player> players;
     private Map<Position, Integer> bombs;
-    private String clientType;
 
 
     /**
@@ -46,11 +40,10 @@ public class Window extends JFrame implements MessageListener,
      *
      * @throws IOException
      */
-    public Window(IConnection c, String clientType) throws IOException
+    public Window(IConnection c) throws IOException
     {
         this.c = c;
-        this.clientType = clientType;
-        
+
         bombs = new HashMap<Position, Integer>();
         powerups = new HashSet<Position>();
         players = new HashSet<Player>();
@@ -60,6 +53,7 @@ public class Window extends JFrame implements MessageListener,
 
         init();
         hookEvents();
+        connect();
     }
 
 
@@ -72,7 +66,7 @@ public class Window extends JFrame implements MessageListener,
         setSize(400, 400);
         setMinimumSize(getSize());
         setTitle("Bomberman");
-                
+
         layout = new CardLayout();
         setLayout(layout);
 
@@ -92,8 +86,6 @@ public class Window extends JFrame implements MessageListener,
         board.setPowerups(powerups);
         board.setPlayers(players);
 
-        this.addKeyListener(this);
-                
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run()
@@ -112,9 +104,15 @@ public class Window extends JFrame implements MessageListener,
         c.addConnectionStatusListener(this);
         c.addMessageListener(this);
         c.addGameStateListener(this);
+    }
 
-        if(clientType == "SPECTATOR")
-        	c.queueMessage(MetaMessage.connectSpectator());
+
+    /**
+     * Initializes connection to the server.
+     */
+    protected void connect()
+    {
+        c.queueMessage(MetaMessage.connectSpectator());
     }
 
 
@@ -259,51 +257,4 @@ public class Window extends JFrame implements MessageListener,
     {
         return new Player(m.getPid(), m.getX(), m.getY(), m.getType() == PlayerTypes.MONSTER, m.getName());
     }
-
-
-    /**
-     * Key pressed event handler
-     * Change so the
-     */
-	@Override
-	public void keyPressed(KeyEvent e) 
-	{
-		IMessage m;
-		
-		if(e.getKeyCode() == KeyEvent.VK_UP)
-		{
-			m = new MoveMessage(Direction.valueOf("UP"));
-			c.queueMessage(m);
-		}
-		if(e.getKeyCode() == KeyEvent.VK_DOWN)
-		{
-			m = new MoveMessage(Direction.valueOf("DOWN"));
-			c.queueMessage(m);
-		}
-		if(e.getKeyCode() == KeyEvent.VK_LEFT)
-		{
-			m = new MoveMessage(Direction.valueOf("LEFT"));
-			c.queueMessage(m);
-		}
-		if(e.getKeyCode() == KeyEvent.VK_RIGHT)
-		{
-			m = new MoveMessage(Direction.valueOf("RIGHT"));
-			c.queueMessage(m);
-		}
-		if(e.getKeyCode() == KeyEvent.VK_B)
-		{
-			System.out.println("B WAS PRESSED");
-			m = new BombPlacedMessage();
-			c.queueMessage(m);
-		}
-		
-	}
-
-
-	@Override
-	public void keyReleased(KeyEvent e){}
-
-
-	@Override
-	public void keyTyped(KeyEvent e){}
 }

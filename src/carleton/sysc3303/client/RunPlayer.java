@@ -14,7 +14,7 @@ public class RunPlayer
      * @param args
      * @throws IOException
      * @throws InterruptedException
-     * @throws UnknownHostException 
+     * @throws UnknownHostException
      */
     public static void main(String[] args) throws IOException
     {
@@ -22,11 +22,11 @@ public class RunPlayer
         Window w;
 
         PlayerClient p = new PlayerClient(c,300);
-        w = new Window(c,"PLAYER");
-        
-        new Thread(c).start();
-        
+        //w = new Window(c,"PLAYER");
 
-        w.setVisible(true);
+        new Thread(c).start();
+
+
+        //w.setVisible(true);
     }
 }
