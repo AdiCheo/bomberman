@@ -19,6 +19,7 @@ public class GameBoard
 
     protected Config conf;
     protected ServerBoard b, backupBoard;
+    protected List<ServerBoard> boards;
     protected IServer server;
     protected Map<Integer, Position> playerPositions;
     protected Map<Integer, Player> players;
@@ -60,6 +61,8 @@ public class GameBoard
         this.currentPlayers = 0;
         this.conf = c;
 
+        this.boards = new ArrayList<ServerBoard>();
+
         this.b.setPlayers(playerPositions);
         this.b.setBombs(bombs);
 
@@ -82,6 +85,17 @@ public class GameBoard
         }
 
         hookEvents();
+    }
+
+
+    /**
+     * Adds another board to the queue.
+     *
+     * @param newBoard
+     */
+    public void addBoard(ServerBoard newBoard)
+    {
+        boards.add(newBoard);
     }
 
 
@@ -556,6 +570,8 @@ public class GameBoard
 
                 synchronized(that)
                 {
+                    boards.add(backupBoard);
+                    backupBoard = boards.remove(0);
                     b = backupBoard.clone();
                     b.setPlayers(playerPositions);
                     b.setBombs(bombs);
