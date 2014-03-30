@@ -6,6 +6,10 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
@@ -49,10 +53,27 @@ public class Window extends JFrame implements MessageListener,
      *
      * @throws IOException
      */
-    public Window(IConnection c) throws IOException
+    public Window(IConnection c) throws IOException, IllegalMonitorStateException
     {
         this.c = c;
-
+        Future<IConnection> ic = null;
+        
+        if(c == null)
+        {
+        	ExecutorService executor = Executors.newFixedThreadPool(1); 
+        	ic = executor.submit(new ConnectPanel());
+        }
+        
+        try 
+        {
+			c = ic.get();
+		} 
+        catch (InterruptedException | ExecutionException e) 
+		{
+			e.printStackTrace();
+		}
+        
+        setClient(c);
         bombs = new HashMap<Position, Integer>();
         powerups = new HashSet<Position>();
         players = new HashSet<Player>();
@@ -60,11 +81,13 @@ public class Window extends JFrame implements MessageListener,
         board = new DisplayBoard();
         ui = new GameView(board);
 
-        init();
-        hookEvents();
-        connect();
+        new Thread(c).start();                   
+        
+       	init();
+       	hookEvents();
+       	connect();
     }
-
+    
 
     /**
      * Initialize the GUI.
@@ -87,7 +110,6 @@ public class Window extends JFrame implements MessageListener,
         layout = new CardLayout();
         center.setLayout(layout);
 
-        //FIX player hitting start having to change windows and change back before moving
         setupPanel = new SetupPanel(c);
 
         loadingPanel = new JPanel();
@@ -105,7 +127,7 @@ public class Window extends JFrame implements MessageListener,
 
         board.setBombs(bombs);
         board.setPowerups(powerups);
-        board.setPlayers(players);
+        board.setPlayers(players);        
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -115,7 +137,6 @@ public class Window extends JFrame implements MessageListener,
             }
         });
     }
-
 
     /**
      * Hook into the connection events.
@@ -267,6 +288,7 @@ public class Window extends JFrame implements MessageListener,
             break;
         case NOTSTARTED:
             setDisplay(States.CONFIGURE);
+            break;
         }
     }
 
@@ -282,6 +304,16 @@ public class Window extends JFrame implements MessageListener,
         return new Player(m.getPid(), m.getX(), m.getY(), m.getType() == PlayerTypes.MONSTER, m.getName());
     }
 
+    public IConnection getClient()
+    {
+    	System.out.println("Is c null in getClient() " + (c == null));
+    	return c;
+    }
+    
+    public void setClient(IConnection c)
+    {
+    	this.c = c;
+    }
 
     @Override
     public void newMessage(String s)

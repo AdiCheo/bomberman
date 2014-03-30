@@ -2,8 +2,11 @@ package carleton.sysc3303.client.gui;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.BorderLayout;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.concurrent.Callable;
 
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -12,21 +15,22 @@ import javax.swing.JLabel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
+import javax.swing.JFrame;
 
 import carleton.sysc3303.common.connection.IMessage;
 import carleton.sysc3303.common.connection.MetaMessage;
-import carleton.sysc3303.common.connection.MetaMessage.Type;
 import carleton.sysc3303.client.connection.IConnection;
 import carleton.sysc3303.client.connection.UDPConnection;
 
-public class ConnectPanel extends JPanel implements ActionListener
+public class ConnectPanel extends JFrame implements ActionListener, Callable<IConnection>
 {
     private static final long serialVersionUID = 1L;
-    IConnection c = null;
-    int field1, field2,field3,field4;
-    JTextField IP1, IP2, IP3, IP4;
-    JLabel IPLabel , dotLabel;
-    JButton connectButton;
+    private JPanel panel;
+    private IConnection c = null;
+    private int field1, field2,field3,field4;
+    private JTextField IP1, IP2, IP3, IP4;
+    private JLabel IPLabel , dotLabel;
+    private JButton connectButton;
 
     public ConnectPanel()
     {
@@ -36,7 +40,15 @@ public class ConnectPanel extends JPanel implements ActionListener
     }
 
     public void initComponents()
-    {
+    {    	
+    	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(400,420);
+		setMinimumSize(getSize());
+		setLayout(new BorderLayout());
+				    
+    	panel = new JPanel();
+    	add(panel, BorderLayout.CENTER);    
+    	
         //Initialize new JTextFields
         IP1 = new JTextField(3);
         IP1.setText("192");
@@ -73,22 +85,22 @@ public class ConnectPanel extends JPanel implements ActionListener
         connectButton.addActionListener(this);
 
         //Adding Components to GUI
-        add(IPLabel);
+        panel.add(IPLabel);
 
-        add(IP1);
-        add(dotLabel);
+        panel.add(IP1);
+        panel.add(dotLabel);
 
-        add(IP2);
-        add(dotLabel);
+        panel.add(IP2);
+        panel.add(dotLabel);
 
-        add(IP3);
-        add(dotLabel);
+        panel.add(IP3);
+        panel.add(dotLabel);
 
-        add(IP4);
-        add(dotLabel);
+        panel.add(IP4);
+        panel.add(dotLabel);
 
         //Adding buttons to GUI
-        add(connectButton);
+        panel.add(connectButton);
     }
 
     //Action when start button is pressed
@@ -97,7 +109,7 @@ public class ConnectPanel extends JPanel implements ActionListener
         IMessage m;
         String IPAddress;
         String dot = ".";
-
+        
         if(a.getActionCommand() == "CONNECT")
         {
             field1 = Integer.parseInt(IP1.getText());
@@ -110,23 +122,31 @@ public class ConnectPanel extends JPanel implements ActionListener
         IPAddress = new String(Integer.toString(field1)) + dot + new String(Integer.toString(field2))
                   + dot +  new String(Integer.toString(field3)) + dot + new String(Integer.toString(field4));
 
-
-        try {
-            c = new UDPConnection(InetAddress.getByName(IPAddress), 9999);
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
+        if(field1 == 127 && field2 == 0 && field3 == 0 && field4 == 1)
+        	IPAddress = "localhost";
+        
+        try 
+        {
+            c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
+        } 
+        catch (UnknownHostException e) 
+        {
             e.printStackTrace();
-        }
-
-        m = new MetaMessage(Type.CONNECT, "1," + "p");
-        c.queueMessage(m);
-        //Wait for reply
+        }       
     }
 
-    public IConnection getClient()
-    {
-        return c;
-    }
+	@Override
+	public IConnection call() throws Exception 
+	{
+		setVisible(true);
+		
+		while(c == null)
+		{
+			Thread.sleep(1000);
+		}	
+		
+		return c;
+	}
 }
 
 //Class to force maximum # of characters in JTextField objects

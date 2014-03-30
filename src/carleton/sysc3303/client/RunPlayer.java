@@ -19,13 +19,11 @@ public class RunPlayer
      */
     public static void main(String[] args) throws IOException
     {
-        IConnection c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
+        IConnection c = null;//new UDPConnection(InetAddress.getByName("localhost"), 9999);
         Window w;
 
         //PlayerClient p = new PlayerClient(c, 300);
         w = new PlayerWindow(c);
-
-        new Thread(c).start();
 
         w.setVisible(true);
     }

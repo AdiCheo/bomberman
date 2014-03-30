@@ -3,6 +3,7 @@ package carleton.sysc3303.client.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.net.*;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
@@ -32,12 +33,20 @@ public class PlayerWindow extends Window implements KeyListener
     }
 
 
-
     @Override
     protected void init()
     {
         super.init();
 
+        try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        
+      //  c = super.getClient();
+        
         setSize(400, 600);
         setMinimumSize(getSize());
 
@@ -71,7 +80,6 @@ public class PlayerWindow extends Window implements KeyListener
     {
         c.queueMessage(MetaMessage.connectPlayer(PlayerTypes.PLAYER));
     }
-
 
     /**
      * Key pressed event handler.
