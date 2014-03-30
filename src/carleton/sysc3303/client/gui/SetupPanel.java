@@ -120,6 +120,21 @@ public class SetupPanel extends JPanel implements ActionListener
 			r = Integer.parseInt(bombRange.getText().trim());
 			d = Integer.parseInt(delay.getText().trim());
 			u = Integer.parseInt(updateRate.getText().trim());
+			
+			m = new ConfigureMessage(b,r,d,u);
+			c.queueMessage(m);
+			
+			try 
+			{
+				Thread.sleep(1000);
+			}
+			catch (InterruptedException e) 
+			{
+				e.printStackTrace();
+			}
+			
+			m = new StateMessage(StateMessage.State.STARTED);
+			c.queueMessage(m);
 		}
 		
 		if(a.getActionCommand() == "DEFAULT")
@@ -128,21 +143,6 @@ public class SetupPanel extends JPanel implements ActionListener
 			bombRange.setText("2");
 			delay.setText("250");
 			updateRate.setText("50");
-		}	
-		
-		m = new ConfigureMessage(b,r,d,u);
-		c.queueMessage(m);
-		
-		try 
-		{
-			Thread.sleep(1000);
-		}
-		catch (InterruptedException e) 
-		{
-			e.printStackTrace();
-		}
-		
-		m = new StateMessage(StateMessage.State.STARTED);
-		c.queueMessage(m);
+		}			
 	}
 }
