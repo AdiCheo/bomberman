@@ -90,4 +90,11 @@ public class TestServer extends AbstractServer
         invokeConnectionListeners(c, args);
         queueMessage(new MetaMessage(Type.ACCEPT, "" + c.getId()), c);
     }
+
+
+	@Override
+	public void setFrequency(int f) {
+		// TODO Auto-generated method stub
+		
+	}
 }

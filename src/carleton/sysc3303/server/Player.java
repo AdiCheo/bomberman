@@ -9,9 +9,8 @@ import carleton.sysc3303.common.PlayerTypes;
  */
 public class Player
 {
-    private static final int TIME_BETWEEN_MOVES = 250;
-
     private int id;
+    private int timeBetweenMoves = 250;
     private Date lastMoveTime;
     private int remainingBombs;
     private boolean dead;
@@ -93,7 +92,7 @@ public class Player
      */
     public boolean canMove()
     {
-        return !isDead() && (new Date().getTime() - lastMoveTime.getTime()) >= TIME_BETWEEN_MOVES;
+        return !isDead() && (new Date().getTime() - lastMoveTime.getTime()) >= timeBetweenMoves;
     }
 
 
@@ -164,6 +163,21 @@ public class Player
     public void setDead(boolean dead)
     {
         this.dead = dead;
+    }
+    
+    public void setTimeBetweenMoves(int t)
+    {
+    	timeBetweenMoves = t;
+    }
+    
+    public void setBomb(int b)
+    {
+    	remainingBombs = b;
+    }
+    
+    public int getTimeBetweenMoves()
+    {
+    	return timeBetweenMoves;
     }
 
 

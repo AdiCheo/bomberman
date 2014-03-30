@@ -334,6 +334,10 @@ public class GameBoard
         {
             handleStateMessage(c, (StateMessage)m);
         }
+        else if(m instanceof ConfigureMessage)
+        {
+        	handleConfigureMessage(c, (ConfigureMessage)m);
+        }
     }
 
 
@@ -522,6 +526,27 @@ public class GameBoard
         {
             startGame();
         }
+    }
+    
+    private void handleConfigureMessage(IClient c, ConfigureMessage m)
+    {
+    	int b,r,d,u;
+    	
+    	b = m.getNumOfBombs();
+    	r = m.getBombRange();
+    	d = m.getDelay();
+    	u = m.getUpdateRate();
+    	
+    	conf.setDefaultExplosionSize(r);
+    	
+    	//Changes send frequency
+    	server.setFrequency(u);
+    	
+    	for(Entry<Integer, Player> e : players.entrySet())
+    	{
+    		e.getValue().setBomb(b);
+    		e.getValue().setTimeBetweenMoves(d);
+    	}  	
     }
 
 

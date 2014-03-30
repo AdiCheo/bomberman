@@ -6,7 +6,7 @@ package carleton.sysc3303.server;
 public class Config
 {
     public int
-        defaultMoveTime, fastMoveTime,
+        defaultMoveTime, fastMoveTime, defaultBomb,
         defaultExplosionSize, bombTimer, explosionDuration;
 
 
@@ -19,11 +19,29 @@ public class Config
     {
         Config c = new Config();
 
-        c.defaultMoveTime = 100;
+        c.defaultMoveTime = 300;
+        c.fastMoveTime = 200;
+        c.defaultBomb = 1;
         c.defaultExplosionSize = 2;
         c.bombTimer = 2000;
         c.explosionDuration = 1000;
 
         return c;
+    }
+    
+    public void setMoveTime(int t)
+    {
+    	defaultMoveTime = t;
+    	fastMoveTime = t - t/3;
+    }
+    
+    public void setBomb(int b)
+    {
+    	defaultBomb = b;
+    }
+    
+    public void setDefaultExplosionSize(int s)
+    {
+    	defaultExplosionSize = s;
     }
 }
