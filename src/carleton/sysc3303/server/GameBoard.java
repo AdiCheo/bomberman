@@ -415,7 +415,7 @@ public class GameBoard
                     server.queueMessage(new MapMessage(b.createSendableBoard()));
                 }
                 // end the game if they stepped onto a visible exit
-                else if(!b.isExitHidden() && b.isExit(x, y))
+                else if(!b.isExitHidden() && b.isExit(x, y) && allMonstersDead())
                 {
                     endGame();
                     server.queueMessage(new MetaMessage(
@@ -782,6 +782,25 @@ public class GameBoard
 
         endGame();
         server.queueMessage(new MetaMessage(Type.USER_NOTICE, "All players died."));
+    }
+
+
+    /**
+     * Checks that all monsters are dead.
+     *
+     * @return
+     */
+    private boolean allMonstersDead()
+    {
+        for(Player p: players.values())
+        {
+            if(p.getType() == PlayerTypes.MONSTER && !p.isDead())
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
