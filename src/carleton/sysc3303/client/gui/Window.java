@@ -21,7 +21,7 @@ public class Window extends JFrame implements MessageListener,
                                               GameStateListener,
                                               UserMessageListener
 {
-    public enum States { CONNECTING, CONFIGURE, GAME, DONE };
+    public enum States { CONNECTING, CONFIGURE, LOADING, GAME, DONE };
 
     private static final long serialVersionUID = 7088369983891361413L;
 
@@ -89,7 +89,7 @@ public class Window extends JFrame implements MessageListener,
 
         //FIX player hitting start having to change windows and change back before moving
         setupPanel = new SetupPanel(c);
-        
+
         loadingPanel = new JPanel();
         loadingLabel = new JLabel("Loading");
         loadingPanel.add(loadingLabel);
@@ -97,11 +97,11 @@ public class Window extends JFrame implements MessageListener,
         JPanel done_panel = new JPanel();
         done_panel.add(new JLabel("Game over"));
 
-        //center.add(loadingPanel, States.LOADING.toString());
+        center.add(loadingPanel, States.LOADING.toString());
         center.add(setupPanel, States.CONFIGURE.toString());
         center.add(ui, States.GAME.toString());
         center.add(done_panel, States.DONE.toString());
-        setDisplay(States.CONFIGURE);
+        setDisplay(States.LOADING);
 
         board.setBombs(bombs);
         board.setPowerups(powerups);
@@ -263,9 +263,10 @@ public class Window extends JFrame implements MessageListener,
             break;
         case STARTED:
             setDisplay(States.GAME);
+            requestFocus();
             break;
         case NOTSTARTED:
-            setDisplay(States.CONNECTING);
+            setDisplay(States.CONFIGURE);
         }
     }
 
