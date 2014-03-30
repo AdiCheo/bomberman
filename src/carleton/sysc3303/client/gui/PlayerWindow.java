@@ -38,7 +38,7 @@ public class PlayerWindow extends Window implements KeyListener
     {
         super.init();
 
-        setSize(400, 550);
+        setSize(400, 600);
         setMinimumSize(getSize());
 
         try

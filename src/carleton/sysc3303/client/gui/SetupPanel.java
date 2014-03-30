@@ -119,8 +119,6 @@ public class SetupPanel extends JPanel implements ActionListener
     //Action when start button is pressed
     public void actionPerformed(ActionEvent a)
     {
-        IMessage m;
-
         if(a.getActionCommand().equals("START"))
         {
             b = Integer.parseInt(numOfBombs.getText().trim());
@@ -128,21 +126,8 @@ public class SetupPanel extends JPanel implements ActionListener
             d = Integer.parseInt(delay.getText().trim());
             u = Integer.parseInt(updateRate.getText().trim());
 
-            m = new ConfigureMessage(b, r, d, u);
-            c.queueMessage(m);
-
-            try
-            {
-                Thread.sleep(1000);
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-                return;
-            }
-
-            m = new StateMessage(StateMessage.State.STARTED);
-            c.queueMessage(m);
+            c.queueMessage(new ConfigureMessage(b, r, d, u));
+            c.queueMessage(new StateMessage(StateMessage.State.STARTED));
         }
         else if(a.getActionCommand().equals("DEFAULT"))
         {
