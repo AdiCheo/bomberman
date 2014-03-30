@@ -182,8 +182,7 @@ public abstract class AbstractServer implements IServer
             removeClient(cl);
             break;
         default:
-            logger.log(Level.WARNING, String.format(
-                    "Client %d sent: %s", cl.getId(), m.getStatus()));
+            invokeMessageListener(cl, m);
         }
     }
 

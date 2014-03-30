@@ -56,6 +56,17 @@ public class UDPServer extends AbstractServer
     }
 
 
+    /**
+     * Gets list of all currently connected clients.
+     *
+     * @return
+     */
+    public List<IClient> getClients()
+    {
+        return new ArrayList<IClient>(clients.values());
+    }
+
+
     @Override
     public void run()
     {
@@ -241,9 +252,9 @@ public class UDPServer extends AbstractServer
         queueMessage(new MetaMessage(Type.ACCEPT, "" + c.getId()), c);
         invokeConnectionListeners(c, args);
     }
-    
+
     public void setFrequency(int f)
     {
-    	sendFrequency = f;
+        sendFrequency = f;
     }
 }
