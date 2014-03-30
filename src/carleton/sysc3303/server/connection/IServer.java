@@ -57,4 +57,6 @@ public interface IServer extends Runnable
      * @param ml
      */
     public void addMessageListener(MessageListener ml);
+    
+    public void setFrequency(int f);
 }

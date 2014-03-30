@@ -241,4 +241,9 @@ public class UDPServer extends AbstractServer
         queueMessage(new MetaMessage(Type.ACCEPT, "" + c.getId()), c);
         invokeConnectionListeners(c, args);
     }
+    
+    public void setFrequency(int f)
+    {
+    	sendFrequency = f;
+    }
 }
