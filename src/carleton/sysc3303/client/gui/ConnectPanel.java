@@ -122,12 +122,16 @@ public class ConnectPanel extends JFrame implements ActionListener, Callable<ICo
         IPAddress = new String(Integer.toString(field1)) + dot + new String(Integer.toString(field2))
                   + dot +  new String(Integer.toString(field3)) + dot + new String(Integer.toString(field4));
 
+        System.out.println("This is field1" + field1);
+        System.out.println("IF test " + (field1 == 127 && field2 == 0 && field3 == 0 && field4 == 1));
+        System.out.println("This is the IP Address " + IPAddress);
+        
         if(field1 == 127 && field2 == 0 && field3 == 0 && field4 == 1)
         	IPAddress = "localhost";
         
         try 
         {
-            c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
+            c = new UDPConnection(InetAddress.getByName(IPAddress), 9999);
         } 
         catch (UnknownHostException e) 
         {
@@ -145,6 +149,7 @@ public class ConnectPanel extends JFrame implements ActionListener, Callable<ICo
 			Thread.sleep(1000);
 		}	
 		
+		setVisible(false);
 		return c;
 	}
 }
