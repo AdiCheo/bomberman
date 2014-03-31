@@ -3,6 +3,7 @@ package carleton.sysc3303.client.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.util.*;
 
 import carleton.sysc3303.client.connection.*;
 import carleton.sysc3303.common.*;
@@ -17,6 +18,9 @@ public class PlayerWindow extends Window implements KeyListener
 {
     private static final long serialVersionUID = 2809394224013498599L;
     private KeyPanel keys;
+    private Object keyLock;
+    private int currentKey = -1;
+    private Timer keyTimer;
 
 
     /**
@@ -37,6 +41,9 @@ public class PlayerWindow extends Window implements KeyListener
     {
         super.init();
 
+        keyLock = new Object();
+        keyTimer = new Timer();
+
         setSize(400, 600);
         setMinimumSize(getSize());
 
@@ -51,6 +58,34 @@ public class PlayerWindow extends Window implements KeyListener
         }
 
         ui.add(keys, BorderLayout.SOUTH);
+
+        keyTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run()
+            { synchronized(keyLock) {
+                IMessage m;
+
+                switch(currentKey)
+                {
+                case KeyEvent.VK_UP:
+                    m = new MoveMessage(Direction.UP);
+                    break;
+                case KeyEvent.VK_DOWN:
+                    m = new MoveMessage(Direction.DOWN);
+                    break;
+                case KeyEvent.VK_LEFT:
+                    m = new MoveMessage(Direction.LEFT);
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    m = new MoveMessage(Direction.RIGHT);
+                    break;
+                default:
+                    return;
+                }
+
+                c.queueMessage(m);
+            }}
+        }, 0, 100);
     }
 
 
@@ -71,6 +106,7 @@ public class PlayerWindow extends Window implements KeyListener
         c.queueMessage(MetaMessage.connectPlayer(PlayerTypes.PLAYER));
     }
 
+
     /**
      * Key pressed event handler.
      *
@@ -79,32 +115,23 @@ public class PlayerWindow extends Window implements KeyListener
     @Override
     public void keyPressed(KeyEvent e)
     {
+        logger.fine("User pressed: " + KeyEvent.getKeyText(e.getKeyCode()));
         IMessage m;
 
-        logger.fine("User pressed: " + KeyEvent.getKeyText(e.getKeyCode()));
-
-        switch(e.getKeyCode())
+        synchronized(keyLock)
         {
-        case KeyEvent.VK_UP:
-            m = new MoveMessage(Direction.UP);
-            break;
-        case KeyEvent.VK_DOWN:
-            m = new MoveMessage(Direction.DOWN);
-            break;
-        case KeyEvent.VK_LEFT:
-            m = new MoveMessage(Direction.LEFT);
-            break;
-        case KeyEvent.VK_RIGHT:
-            m = new MoveMessage(Direction.RIGHT);
-            break;
-        case KeyEvent.VK_SPACE:
-            m = new BombPlacedMessage();
-            break;
-        case KeyEvent.VK_ENTER:
-            m = new StateMessage(StateMessage.State.STARTED);
-            break;
-        default:
-            return;
+            switch(e.getKeyCode())
+            {
+            case KeyEvent.VK_SPACE:
+                m = new BombPlacedMessage();
+                break;
+            case KeyEvent.VK_ENTER:
+                m = new StateMessage(StateMessage.State.STARTED);
+                break;
+            default:
+                currentKey = e.getKeyCode();
+                return;
+            }
         }
 
         c.queueMessage(m);
@@ -112,7 +139,13 @@ public class PlayerWindow extends Window implements KeyListener
 
 
     @Override
-    public void keyReleased(KeyEvent e){}
+    public void keyReleased(KeyEvent e)
+    { synchronized(keyLock) {
+        if(e.getKeyCode() == currentKey)
+        {
+            currentKey = -1;
+        }
+    }}
 
 
     @Override

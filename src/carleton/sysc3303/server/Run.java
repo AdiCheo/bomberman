@@ -13,6 +13,11 @@ public class Run
      */
     public static void main(String[] args) throws IOException
     {
+        for(Handler h: Logger.getLogger("").getHandlers())
+        {
+            h.setLevel(Level.WARNING);
+        }
+
         IServer s = new UDPServer(9999, 50);
         ServerBoard b;
 
@@ -34,6 +39,6 @@ public class Run
 
         new Thread(s).start(); // background the server
 
-        Logger.getLogger("carleton.sysc3303.server.Run").log(Level.INFO, "Started");
+        System.out.println("Started");
     }
 }
