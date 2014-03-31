@@ -94,14 +94,19 @@ public class PacketlossTest implements MessageListener
         logic.setGameState(State.STARTED);
 
         long avgPing = 0;
+        long minPing = Integer.MAX_VALUE;
+        long maxPing = 0;
         List<IClient> clients = server.getClients();
         for(int i=0; i<clients.size(); i++)
         {
-            avgPing = avgPing + (pingClient(clients.get(i)) - avgPing)/(i+1);
+            long ping = pingClient(clients.get(i));
+            minPing = Math.min(minPing, ping);
+            maxPing = Math.max(maxPing, ping);
+            avgPing = avgPing + (ping - avgPing)/(i+1);
         }
 
         assertTrue("Ping time is less than server resolution.", avgPing < serverResolution);
-        System.out.println("Average ping: " + avgPing);
+        System.out.printf("PING (ms): avg %d, min %d, max %d\n", avgPing, minPing, maxPing);
 
         for(BotClient b: bots)
         {
