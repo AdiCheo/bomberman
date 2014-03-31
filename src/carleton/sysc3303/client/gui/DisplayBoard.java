@@ -27,6 +27,7 @@ public class DisplayBoard extends JPanel
     private Map<Position, Integer> bombs;
     private Set<Position> powerups;
     private int offsetX, offsetY, blockSize, drawSize;
+    private int myId = -1;
 
     private BufferedImage imgmap, transparentPixel;
     private Image tile, destructable, wall, exit, bomb, player, monster, candy,
@@ -88,6 +89,17 @@ public class DisplayBoard extends JPanel
     public void setWalls(Board walls)
     {
         this.walls = walls;
+    }
+
+
+    /**
+     * Sets the current player's id.
+     *
+     * @param id
+     */
+    public void setId(int id)
+    {
+        this.myId = id;
     }
 
 
@@ -263,16 +275,23 @@ public class DisplayBoard extends JPanel
     {
         Position pos = convertCoordinates(p);
 
+        String name = p.getName();
+
+        if(p.getId() == myId)
+        {
+            name += " (you)";
+        }
+
         FontMetrics fm = getFontMetrics(g.getFont());
-        int nameWidth = fm.stringWidth(p.getName());
+        int nameWidth = fm.stringWidth(name);
         int padding = 5;
 
         int x = pos.getX() - ((nameWidth + padding*2) - blockSize)/2;
         int y = (int)(pos.getY() - blockSize * 1.1);
 
         g.drawImage(transparentPixel, x, y, nameWidth + padding*2, blockSize, null);
-        g.setColor(Color.WHITE);
-        g.drawString(p.getName(), x + padding, y + blockSize/4*3);
+        g.setColor(p.getId() == myId ? Color.PINK : Color.WHITE);
+        g.drawString(name, x + padding, y + blockSize/4*3);
     }
 
 

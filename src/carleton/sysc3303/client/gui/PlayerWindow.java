@@ -14,7 +14,8 @@ import carleton.sysc3303.common.connection.MoveMessage.Direction;
 /**
  * Windows through which players can play.
  */
-public class PlayerWindow extends Window implements KeyListener
+public class PlayerWindow extends Window implements KeyListener,
+                                                    IdListener
 {
     private static final long serialVersionUID = 2809394224013498599L;
     private KeyPanel keys;
@@ -97,6 +98,7 @@ public class PlayerWindow extends Window implements KeyListener
         super.hookEvents();
         addKeyListener(keys);
         addKeyListener(this);
+        c.addIdListener(this);
     }
 
 
@@ -150,4 +152,11 @@ public class PlayerWindow extends Window implements KeyListener
 
     @Override
     public void keyTyped(KeyEvent e){}
+
+
+    @Override
+    public void setId(int id)
+    {
+        board.setId(id);
+    }
 }
