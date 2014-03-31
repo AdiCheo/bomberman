@@ -299,7 +299,12 @@ public class GameBoard
         {
             playerPositions.remove(c.getId());
             Player p = players.remove(c.getId());
-            playerNames.add(p.getName());
+
+            if(p.getType() != PlayerTypes.MONSTER)
+            {
+                playerNames.add(p.getName());
+            }
+
             server.queueMessage(new PlayerMessage(c.getId(), -1, -1, p.getType(), p.getName()));
             currentPlayers--;
         }
@@ -423,6 +428,16 @@ public class GameBoard
                             p.getName() + " won the game."));
                 }
             }
+            else if(b.isOccupied(x, y))
+            {
+                int pid = b.playerAt(x, y);
+                Player target = players.get(pid);
+
+                if(target instanceof Monster)
+                {
+                    killPlayer(p.getId());
+                }
+            }
             else
             {
                 logger.log(Level.INFO, String.format(
@@ -454,6 +469,13 @@ public class GameBoard
                     }
                 }
                 catch(RuntimeException e){}
+
+                if(withinExplosionRange(newPosition))
+                {
+                    logger.info("Bot walked into an explosion.");
+                    killPlayer(c.getId());
+                    return;
+                }
 
                 setPlayerPosition(c.getId(), new Position(x,y));
                 server.queueMessage(new PlayerMessage(c.getId(), x, y, p.getType(), p.getName()));

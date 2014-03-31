@@ -1,8 +1,12 @@
 package carleton.sysc3303.server;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.logging.*;
 
+import carleton.sysc3303.client.SmartBot;
+import carleton.sysc3303.client.connection.IConnection;
+import carleton.sysc3303.client.connection.UDPConnection;
 import carleton.sysc3303.server.connection.*;
 
 public class Run
@@ -40,5 +44,14 @@ public class Run
         new Thread(s).start(); // background the server
 
         System.out.println("Started");
+
+        InetAddress local = InetAddress.getByName("localhost");
+
+        for(int i=0; i<5; i++)
+        {
+            IConnection c = new UDPConnection(local, 9999);
+            new SmartBot(c, 1000);
+            new Thread(c).start();
+        }
     }
 }

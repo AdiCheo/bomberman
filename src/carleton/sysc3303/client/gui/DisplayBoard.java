@@ -29,7 +29,7 @@ public class DisplayBoard extends JPanel
     private int offsetX, offsetY, blockSize, drawSize;
 
     private BufferedImage imgmap, transparentPixel;
-    private Image tile, destructable, wall, exit, bomb, player, candy,
+    private Image tile, destructable, wall, exit, bomb, player, monster, candy,
                 exp_b, exp_v, exp_h, exp_vt, exp_vb, exp_hl, exp_hr;
     private int imgUnit;
 
@@ -65,6 +65,7 @@ public class DisplayBoard extends JPanel
         wall = cropImgMap(11, 4);
         bomb = cropImgMap(12, 2);
         player = cropImgMap(1, 4);
+        monster = cropImgMap(1, 1);
 
         exp_b = cropImgMap(2, 5);
         exp_v = cropImgMap(15, 1);
@@ -187,9 +188,9 @@ public class DisplayBoard extends JPanel
         }
 
         //draw players
-        for(Position p: players)
+        for(Player p: players)
         {
-            drawImage(g, player, p);
+            drawImage(g, p.isMonster() ? monster : player, p);
         }
 
         //draw bombs

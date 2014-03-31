@@ -22,11 +22,11 @@ public abstract class AbstractConnection implements IConnection
     protected List<GameStateListener> stateListeners;
     protected List<MessageListener> messageListeners;
     protected List<UserMessageListener> userMessageListeners;
+    protected List<IdListener> idListeners;
 
     protected BlockingQueue<IMessage> messageQueue;
     protected Object messageQueueNotifier;
     protected boolean run;
-    protected int id;
 
 
     /**
@@ -51,6 +51,7 @@ public abstract class AbstractConnection implements IConnection
         stateListeners = new LinkedList<GameStateListener>();
         messageListeners = new LinkedList<MessageListener>();
         userMessageListeners = new LinkedList<UserMessageListener>();
+        idListeners = new LinkedList<IdListener>();
     }
 
 
@@ -79,6 +80,13 @@ public abstract class AbstractConnection implements IConnection
     public void addUserMessageListener(UserMessageListener e)
     {
         userMessageListeners.add(e);
+    }
+
+
+    @Override
+    public void addIdListener(IdListener e)
+    {
+        idListeners.add(e);
     }
 
 
@@ -188,7 +196,7 @@ public abstract class AbstractConnection implements IConnection
             {
             case ACCEPT:
                 invokeConnectionStatusListeners(State.CONNECTED);
-                id = Integer.parseInt(mm.getMessage());
+                invokeIdListeners(Integer.parseInt(mm.getMessage()));
                 break;
             case DISCONNECT:
             case REJECT:
@@ -274,6 +282,20 @@ public abstract class AbstractConnection implements IConnection
         for(UserMessageListener e: userMessageListeners)
         {
             e.newMessage(s);
+        }
+    }
+
+
+    /**
+     * Invoke all listeners bound to this event.
+     *
+     * @param s
+     */
+    protected void invokeIdListeners(int id)
+    {
+        for(IdListener e: idListeners)
+        {
+            e.setId(id);
         }
     }
 }

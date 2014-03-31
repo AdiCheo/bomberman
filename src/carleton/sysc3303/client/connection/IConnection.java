@@ -42,6 +42,14 @@ public interface IConnection extends Runnable
 
 
     /**
+     * Adds a listener that listens for player's assigned id.
+     *
+     * @param e
+     */
+    public void addIdListener(IdListener e);
+
+
+    /**
      * Sends a message to the server.
      *
      * @param m
