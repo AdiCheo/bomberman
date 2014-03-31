@@ -3,7 +3,6 @@ package carleton.sysc3303.client.gui;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.BorderLayout;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.Callable;
@@ -17,8 +16,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 import javax.swing.JFrame;
 
-import carleton.sysc3303.common.connection.IMessage;
-import carleton.sysc3303.common.connection.MetaMessage;
 import carleton.sysc3303.client.connection.IConnection;
 import carleton.sysc3303.client.connection.UDPConnection;
 
@@ -26,29 +23,33 @@ public class ConnectPanel extends JFrame implements ActionListener, Callable<ICo
 {
     private static final long serialVersionUID = 1L;
     private JPanel panel;
-    private IConnection c = null;
-    private int field1, field2,field3,field4;
+    private IConnection c;
     private JTextField IP1, IP2, IP3, IP4;
     private JLabel IPLabel , dotLabel;
     private JButton connectButton;
+    private Object returnWait;
 
     public ConnectPanel()
     {
         super();
 
+        returnWait = new Object();
+
         initComponents();
     }
 
     public void initComponents()
-    {    	
-    	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(400,420);
-		setMinimumSize(getSize());
-		setLayout(new BorderLayout());
-				    
-    	panel = new JPanel();
-    	add(panel, BorderLayout.CENTER);    
-    	
+    {
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(400, 100);
+        setMinimumSize(getSize());
+        setLayout(new BorderLayout());
+
+        this.setTitle("Bomberman - Connect");
+
+        panel = new JPanel();
+        add(panel, BorderLayout.CENTER);
+
         //Initialize new JTextFields
         IP1 = new JTextField(3);
         IP1.setText("192");
@@ -106,47 +107,39 @@ public class ConnectPanel extends JFrame implements ActionListener, Callable<ICo
     //Action when start button is pressed
     public void actionPerformed(ActionEvent a)
     {
-        IMessage m;
-        String IPAddress;
-        String dot = ".";
-        
-        if(a.getActionCommand() == "CONNECT")
+        String ip = IP1.getText() + '.' + IP2.getText() + '.' + IP3.getText() + '.' + IP4.getText();
+
+        try
         {
-            field1 = Integer.parseInt(IP1.getText());
-            field2 = Integer.parseInt(IP2.getText());
-            field3 = Integer.parseInt(IP3.getText());
-            field4 = Integer.parseInt(IP4.getText());
+            c = new UDPConnection(InetAddress.getByName(ip), 9999);
         }
-
-
-        IPAddress = new String(Integer.toString(field1)) + dot + new String(Integer.toString(field2))
-                  + dot +  new String(Integer.toString(field3)) + dot + new String(Integer.toString(field4));
-
-        if(field1 == 127 && field2 == 0 && field3 == 0 && field4 == 1)
-        	IPAddress = "localhost";
-        
-        try 
-        {
-            c = new UDPConnection(InetAddress.getByName("localhost"), 9999);
-        } 
-        catch (UnknownHostException e) 
+        catch (UnknownHostException e)
         {
             e.printStackTrace();
-        }       
+            return;
+        }
+
+        synchronized(returnWait)
+        {
+            returnWait.notify();
+        }
     }
 
-	@Override
-	public IConnection call() throws Exception 
-	{
-		setVisible(true);
-		
-		while(c == null)
-		{
-			Thread.sleep(1000);
-		}	
-		
-		return c;
-	}
+
+    @Override
+    public IConnection call() throws Exception
+    {
+        setVisible(true);
+
+        synchronized(returnWait)
+        {
+            returnWait.wait();
+        }
+
+        setVisible(false);
+
+        return c;
+    }
 }
 
 //Class to force maximum # of characters in JTextField objects

@@ -24,7 +24,6 @@ public class DisplayBoard extends JPanel
     private static final long serialVersionUID = 8372907299046333935L;
     private Board walls;
     private Set<Player> players;
-    //private Map<Integer, Color> colors;
     private Map<Position, Integer> bombs;
     private Set<Position> powerups;
     private int offsetX, offsetY, blockSize, drawSize;
@@ -43,14 +42,14 @@ public class DisplayBoard extends JPanel
     public DisplayBoard() throws IOException
     {
         // https://stackoverflow.com/a/14097632
-        Image rawImgmap = ImageIO.read(new File("resources/img/img_map.png"));
+        Image rawImgmap = ImageIO.read(getClass().getResource("/resources/img/img_map.png"));
         ImageFilter filter = new TransparencyFilter(new Color(255, 0, 255));
         ImageProducer filtered = new FilteredImageSource(rawImgmap.getSource(), filter);
         imgmap = toBufferedImage(Toolkit.getDefaultToolkit().createImage(filtered));
         imgUnit = 16;
 
-        candy = ImageIO.read(new File("resources/img/candy.png"));
-        exit = ImageIO.read(new File("resources/img/hole.png"));
+        candy = ImageIO.read(getClass().getResource("/resources/img/candy.png"));
+        exit = ImageIO.read(getClass().getResource("/resources/img/hole.png"));
 
         init();
     }

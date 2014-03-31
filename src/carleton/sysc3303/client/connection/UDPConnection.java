@@ -69,7 +69,7 @@ public class UDPConnection extends AbstractConnection
     protected void sendMessage(IMessage m)
     {
         byte[] buffer = IMessageFactory.serialize(m);
-        logger.log(Level.FINEST, "Sending data (raw): " + buffer);
+        logger.finest(String.format("Sending data %s to %s:%d", new String(buffer), address, ip));
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, ip);
 
         try

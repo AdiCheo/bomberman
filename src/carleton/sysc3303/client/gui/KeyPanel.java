@@ -23,12 +23,12 @@ public class KeyPanel extends JPanel implements KeyListener
      */
     public KeyPanel() throws IOException
     {
-        Image spacebarImg = ImageIO.read(new File("resources/img/spacebar.png"));
-        Image enterImg = ImageIO.read(new File("resources/img/enter.png"));
-        Image upImg = ImageIO.read(new File("resources/img/up.png"));
-        Image rightImg = ImageIO.read(new File("resources/img/right.png"));
-        Image downImg = ImageIO.read(new File("resources/img/down.png"));
-        Image leftImg = ImageIO.read(new File("resources/img/left.png"));
+        Image spacebarImg = ImageIO.read(getClass().getResource("/resources/img/spacebar.png"));
+        Image enterImg = ImageIO.read(getClass().getResource("/resources/img/enter.png"));
+        Image upImg = ImageIO.read(getClass().getResource("/resources/img/up.png"));
+        Image rightImg = ImageIO.read(getClass().getResource("/resources/img/right.png"));
+        Image downImg = ImageIO.read(getClass().getResource("/resources/img/down.png"));
+        Image leftImg = ImageIO.read(getClass().getResource("/resources/img/left.png"));
 
         spacebar = new Button(spacebarImg);
         enter = new Button(enterImg);
